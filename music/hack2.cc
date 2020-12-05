@@ -529,6 +529,18 @@ int main(int argc, char** argv) {
   // Fix a bug in the vanilla game
   rom.write(0x5d6b, { 0xea, 0xea, 0xea });
 
+  // Change credits
+  z2music::Credits* c = rom.credits();
+  c->set(0, {"ZELDA II ROG",   "BY GTM604",     ""});
+  c->set(1, {"HACKING     ",   "CF207    ",     ""});
+  c->set(2, {"MUSIC  ",        "BGT  ",         ""});
+  c->set(3, {"DESIGN",         "GTM604",        ""});
+  c->set(4, {"SPECIAL THANKS", "SAUL R",        "LINK7777"});
+  c->set(5, {"",               "EON   ",        "SHEEPDOG"});
+  c->set(6, {"",               "MAX",           "TRAX    "});
+  c->set(7, {"",               "FISHWERKS",     "NINTENDO"});
+  c->set(8, {"YOU DID IT/   ", "GO PLAY RANDO", "BY DIGSHAKE"});
+
   rom.save("/tmp/output.nes");
 
   return 0;
