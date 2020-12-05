@@ -178,6 +178,20 @@ void set_house_theme(z2music::Song* theme) {
   theme->set_sequence({0, 1});
 }
 
+void set_zelda_theme(z2music::Song* theme) {
+  theme->clear();
+
+  theme->add_pattern({
+      0x20,
+      { 0x82, 0xe2, 0x1e, 0x02, 0x9e, 0x98, 0x9e, 0xa2, 0x82, 0xde, 0x18, 0x02, 0x98, 0x94, 0xd8 },
+      { 0x43, 0x43, 0x43, 0x43 },
+      { 0x0e, 0x14, 0x18, 0x1e, 0x0e, 0x14, 0x18, 0x1e, 0x0e, 0x14, 0x18, 0x1e, 0x0e, 0x14, 0x18, 0x1e, 0x0a, 0x10, 0x18, 0x1e, 0x0a, 0x10, 0x18, 0x1e, 0x0a, 0x10, 0x18, 0x1e, 0x0a, 0x10, 0x18, 0x1e },
+      {},
+      });
+
+  theme->set_sequence({0});
+}
+
 void set_credits_theme(z2music::Song* theme) {
   theme->clear();
 
@@ -491,7 +505,7 @@ int main(int argc, char** argv) {
   set_final_boss_theme(rom.song(z2music::Rom::SongTitle::FinalBossTheme));
 
   // Change credits music
-  // set_zelda_theme(rom.song(z2music::Rom::SongTitle::ZeldaTheme));
+  set_zelda_theme(rom.song(z2music::Rom::SongTitle::ZeldaTheme));
   set_credits_theme(rom.song(z2music::Rom::SongTitle::CreditsTheme));
 
   // Fix a bug in the vanilla game
