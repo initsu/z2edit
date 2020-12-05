@@ -476,6 +476,20 @@ void set_new_gp_theme(z2music::Song* theme) {
   theme->set_sequence({0, 0, 1, 1, 0, 0, 2, 3});
 }
 
+void set_fanfare(z2music::Song *fanfare) {
+  fanfare->clear();
+
+  fanfare->add_pattern({
+      0x10,
+      { 0xa0, 0xa2, 0xa4, 0x27 },
+      { 0x9a, 0x9c, 0x9e, 0x21 },
+      { 0x9a, 0x9c, 0x9e, 0x21 },
+      {},
+      });
+
+  fanfare->set_sequence({0});
+}
+
 int main(int argc, char** argv) {
   if (argc != 2) {
     std::cout << "Usage: " << argv[0] << " z2_rom" << std::endl;
@@ -507,6 +521,10 @@ int main(int argc, char** argv) {
   // Change credits music
   set_zelda_theme(rom.song(z2music::Rom::SongTitle::ZeldaTheme));
   set_credits_theme(rom.song(z2music::Rom::SongTitle::CreditsTheme));
+
+  set_fanfare(rom.song(z2music::Rom::SongTitle::CaveItemFanfare));
+  set_fanfare(rom.song(z2music::Rom::SongTitle::TownItemFanfare));
+  set_fanfare(rom.song(z2music::Rom::SongTitle::PalaceItemFanfare));
 
   // Fix a bug in the vanilla game
   rom.write(0x5d6b, { 0xea, 0xea, 0xea });
