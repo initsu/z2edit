@@ -124,6 +124,19 @@ tempo_(tempo) {
   add_notes(Channel::Noise, noise);
 }
 
+Pattern::Pattern(uint8_t v1, uint8_t v2,
+    std::initializer_list<Note> pw1,
+    std::initializer_list<Note> pw2,
+    std::initializer_list<Note> triangle,
+    std::initializer_list<Note> noise):
+tempo_(0x00), voice1_(v1), voice2_(v2) {
+  clear();
+  add_notes(Channel::Pulse1, pw1);
+  add_notes(Channel::Pulse2, pw2);
+  add_notes(Channel::Triangle, triangle);
+  add_notes(Channel::Noise, noise);
+}
+
 size_t Pattern::length() const {
   return length(Channel::Pulse1);
 }
@@ -163,6 +176,28 @@ bool Pattern::validate() const {
   return true;
 }
 
+bool Pattern::voiced() const {
+  return tempo_ == 0x00;
+}
+
+uint8_t Pattern::voice1() const {
+  return voice1_;
+}
+
+uint8_t Pattern::voice2() const {
+  return voice2_;
+}
+
+void Pattern::set_voicing(uint8_t v1, uint8_t v2) {
+  tempo_ = 0x00;
+  voice1_ = v1;
+  voice2_ = v2;
+}
+
+size_t Pattern::metadata_length() const {
+  return voiced() ? 8 : 6;
+}
+
 std::vector<uint8_t> Pattern::note_data() const {
   std::vector<uint8_t> b;
 
@@ -189,7 +224,7 @@ std::vector<uint8_t> Pattern::meta_data(size_t notes) const {
   const size_t noi = note_data_length(Channel::Noise);
 
   std::vector<uint8_t> b;
-  b.reserve(6);
+  b.reserve(metadata_length());
 
   b.push_back(tempo_);
   b.push_back(notes % 256);
@@ -197,6 +232,11 @@ std::vector<uint8_t> Pattern::meta_data(size_t notes) const {
   b.push_back(tri == 0 ? 0 : pw1 + pw2);
   b.push_back(pw2 == 0 ? 0 : pw1);
   b.push_back(noi == 0 ? 0 : pw1 + pw2 + tri);
+
+  if (voiced()) {
+    b.push_back(voice1_);
+    b.push_back(voice2_);
+  }
 
   return b;
 }
@@ -327,7 +367,11 @@ size_t Song::pattern_count() const {
 }
 
 size_t Song::metadata_length() const {
-  return sequence_length() + 1 + 6 * pattern_count();
+  size_t length = sequence_length() + 1;
+  for (const auto& p : patterns_) {
+    length += p.metadata_length();
+  }
+  return length;
 }
 
 void Song::clear() {
@@ -476,6 +520,12 @@ Rom::Rom(const std::string& filename) {
     file.read(reinterpret_cast<char *>(&header_[0]), kHeaderSize);
     file.read(reinterpret_cast<char *>(&data_[0]), kRomSize);
 
+    songs_[SongTitle::TitleIntro] = Song(*this, kTitleScreenTable, 0);
+    songs_[SongTitle::TitleThemeStart] = Song(*this, kTitleScreenTable, 1);
+    songs_[SongTitle::TitleThemeBuildup] = Song(*this, kTitleScreenTable, 2);
+    songs_[SongTitle::TitleThemeMain] = Song(*this, kTitleScreenTable, 3);
+    songs_[SongTitle::TitleThemeBreakdown] = Song(*this, kTitleScreenTable, 4);
+
     songs_[SongTitle::OverworldIntro] = Song(*this, kOverworldSongTable, 0);
     songs_[SongTitle::OverworldTheme] = Song(*this, kOverworldSongTable, 1);
     songs_[SongTitle::BattleTheme] = Song(*this, kOverworldSongTable, 2);
@@ -539,7 +589,12 @@ void Rom::write(size_t address, std::vector<uint8_t> data) {
 }
 
 bool Rom::commit() {
-  // TODO check if committing worked
+  commit(kTitleScreenTable, {
+      SongTitle::TitleIntro,
+      SongTitle::TitleThemeStart,
+      SongTitle::TitleThemeBuildup,
+      SongTitle::TitleThemeMain,
+      SongTitle::TitleThemeBreakdown});
 
   commit(kOverworldSongTable, {
       SongTitle::OverworldIntro,
@@ -598,9 +653,13 @@ void Rom::commit(size_t address, std::initializer_list<Rom::SongTitle> songs) {
 
   // TODO make these changeable.
   // This will require rearchitecting things so that there is a Score object
-  // which is a list of 8 (possibly duplicate) songs.  For now, it's just 
+  // which is a list of 8 (possibly duplicate) songs.  For now, it's just
   // hardcode which songs are where in each table.
   switch (address) {
+    case kTitleScreenTable:
+      table = {0, 1, 2, 3, 4, 5, 5, 5 };
+      break;
+
     case kOverworldSongTable:
     case kTownSongTable:
       table = {0, 1, 2, 2, 3, 4, 4, 4 };
@@ -654,14 +713,19 @@ void Rom::commit(size_t address, std::initializer_list<Rom::SongTitle> songs) {
   uint8_t pat_offset = first_pattern;
 
   for (auto s : songs) {
+    const auto& song = songs_.at(s);
+
     fprintf(stderr, "Writing seq at %02x with pat at %02x: ", seq_offset, pat_offset);
-    const std::vector<uint8_t> seq = songs_.at(s).sequence_data(pat_offset);
+    const std::vector<uint8_t> seq = song.sequence_data(pat_offset);
     write(address + seq_offset, seq);
 
     for (auto b : seq) fprintf(stderr, "%02x ", b);
     fprintf(stderr, "\n");
 
-    pat_offset += 6 * songs_.at(s).pattern_count();
+    for (size_t i = 0; i < song.pattern_count(); ++i) {
+      pat_offset += song.at(i)->metadata_length();
+    }
+
     seq_offset += seq.size();
   }
 
@@ -680,13 +744,19 @@ void Rom::commit(size_t address, std::initializer_list<Rom::SongTitle> songs) {
   for (auto s : songs) {
     for (auto p : songs_.at(s).patterns()) {
       const std::vector<uint8_t> note_data = p.note_data();
+      const std::vector<uint8_t> meta_data = p.meta_data(note_address);
 
       fprintf(stderr, "Pattern at %06lx, notes at %06lx\n", address + pat_offset, note_address);
+      fprintf(stderr, "Pattern metadata: ");
+      for (size_t i = 0; i < meta_data.size(); i += 2) {
+        fprintf(stderr, "%02x%02x ", meta_data[i], meta_data[i + 1]);
+      }
+      fprintf(stderr, "\n");
 
-      write(address + pat_offset, p.meta_data(note_address));
+      write(address + pat_offset, meta_data);
       write(note_address, note_data);
 
-      pat_offset += 6;
+      pat_offset += meta_data.size();
       note_address += note_data.size();
     }
   }

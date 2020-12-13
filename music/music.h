@@ -73,6 +73,11 @@ class Pattern {
         std::initializer_list<Note> pw2,
         std::initializer_list<Note> triangle,
         std::initializer_list<Note> noise);
+    Pattern(uint8_t v1, uint8_t v2,
+        std::initializer_list<Note> pw1,
+        std::initializer_list<Note> pw2,
+        std::initializer_list<Note> triangle,
+        std::initializer_list<Note> noise);
 
     size_t length() const;
 
@@ -86,12 +91,21 @@ class Pattern {
 
     bool validate() const;
 
+    bool voiced() const;
+    uint8_t voice1() const;
+    uint8_t voice2() const;
+
+    void set_voicing(uint8_t v1, uint8_t v2);
+
+    size_t metadata_length() const;
+
     std::vector<uint8_t> note_data() const;
     std::vector<uint8_t> meta_data(size_t pw1_address) const;
 
   private:
     uint8_t tempo_;
     std::unordered_map<Channel, std::vector<Note>> notes_;
+    uint8_t voice1_, voice2_;
 
     size_t length(Channel ch) const;
     bool pad_note_data(Channel ch) const;
@@ -154,6 +168,12 @@ class Credits {
 class Rom {
   public:
     enum class SongTitle {
+      TitleIntro,
+      TitleThemeStart,
+      TitleThemeBuildup,
+      TitleThemeMain,
+      TitleThemeBreakdown,
+
       OverworldIntro, OverworldTheme,
       BattleTheme,
       CaveItemFanfare,
@@ -196,7 +216,7 @@ class Rom {
     static constexpr size_t kHeaderSize =     0x10;
     static constexpr size_t kRomSize    = 0x040000;
 
-    static constexpr size_t kTitleScreenTable     = 0x019000;
+    static constexpr size_t kTitleScreenTable     = 0x0184da;
     static constexpr size_t kOverworldSongTable   = 0x01a000;
     static constexpr size_t kTownSongTable        = 0x01a3ca;
     static constexpr size_t kPalaceSongTable      = 0x01a62f;
