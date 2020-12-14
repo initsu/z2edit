@@ -17,8 +17,8 @@ cc_binary(
 )
 
 cc_binary(
-    name = "hack2",
-    srcs = ["hack2.cc"],
+    name = "rog",
+    srcs = ["rog.cc"],
     deps = [":music"],
 )
 
