@@ -347,10 +347,17 @@ void Song::append_sequence(size_t n) {
 
 std::vector<uint8_t> Song::sequence_data(uint8_t first) const {
   std::vector<uint8_t> b;
-  b.reserve(sequence_.size());
+  b.reserve(sequence_.size() + 1);
+
+  std::vector<uint8_t> offsets;
+  offsets.reserve(sequence_.size());
+  for (const auto& p : patterns_) {
+    offsets.push_back(first);
+    first += p.metadata_length();
+  }
 
   for (size_t n : sequence_) {
-    b.push_back(first + n * 6);
+    b.push_back(offsets[n]);
   }
 
   b.push_back(0);
