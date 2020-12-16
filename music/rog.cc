@@ -531,7 +531,7 @@ void set_title_theme_buildup(z2music::Song *title) {
       { 0x85, 0x0a, 0x0a, 0x0a, 0x83, 0x0a, 0x82, 0x0a, 0x02 },
       });
 
-  title->set_sequence({0, 1});
+  title->set_sequence({0, 0, 1, 1});
 }
 
 void set_title_theme_main(z2music::Song *title) {
