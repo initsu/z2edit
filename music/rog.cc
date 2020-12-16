@@ -276,7 +276,7 @@ void set_encounter_theme(z2music::Song* theme) {
   theme->set_sequence({0, 1, 0, 2, 3, 4});
 }
 
-void set_boss_theme(z2music::Song* theme) {
+void set_final_boss_theme(z2music::Song* theme) {
   theme->clear();
 
   theme->add_pattern({
@@ -298,7 +298,7 @@ void set_boss_theme(z2music::Song* theme) {
   theme->set_sequence({0, 1});
 }
 
-void set_final_boss_theme(z2music::Song* theme) {
+void set_boss_theme(z2music::Song* theme) {
   theme->clear();
 
   theme->add_pattern({
