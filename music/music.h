@@ -222,6 +222,14 @@ class Rom {
     static constexpr size_t kPalaceSongTable      = 0x01a62f;
     static constexpr size_t kGreatPalaceSongTable = 0x01a936;
 
+    // Interesting pointers for above tables
+    //
+    // 0x0182fd, 0x018303 - lda $84da,y
+    // 0x019b90, 0x019b96 - lda $a000,y
+    // 0x019bcf, 0x019bd5 - lda $a3ca,y
+    // 0x019c0e, 0x019c14 - lda $a62f,y
+    // 0x019c4b, 0x019c51 - lda $a936,y
+
     uint8_t header_[kHeaderSize];
     uint8_t data_[kRomSize];
 
