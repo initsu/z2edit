@@ -29,6 +29,12 @@ cc_binary(
 )
 
 cc_binary(
+    name = "amida",
+    srcs = ["amida.cc"],
+    deps = [":music"],
+)
+
+cc_binary(
     name = "credits",
     srcs = ["credits.cc"],
     deps = [":music"],
