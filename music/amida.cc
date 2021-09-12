@@ -149,6 +149,9 @@ void set_dungeon_theme(z2music::Song* theme) {
 void set_boss_theme(z2music::Song* theme) {
 }
 
+void set_gem_fanfare(z2music::Song* fanfare) {
+}
+
 void set_great_palace_intro(z2music::Song* intro) {
 }
 
@@ -191,6 +194,9 @@ void set_final_boss_theme(z2music::Song* theme) {
       });
 
   theme->set_sequence({0, 1, 0, 1, 2, 3});
+}
+
+void set_triforce_fanfare(z2music::Song* fanfare) {
 }
 
 void set_zelda_theme(z2music::Song* theme) {
@@ -312,6 +318,7 @@ int main(int argc, char** argv) {
   set_dungeon_intro(rom.song(z2music::Rom::SongTitle::PalaceIntro));
   set_dungeon_theme(rom.song(z2music::Rom::SongTitle::PalaceTheme));
   set_boss_theme(rom.song(z2music::Rom::SongTitle::BossTheme));
+  set_gem_fanfare(rom.song(z2music::Rom::SongTitle::CrystalFanfare));
 
   // Change great palace music
   set_great_palace_intro(rom.song(z2music::Rom::SongTitle::GreatPalaceIntro));
@@ -319,6 +326,7 @@ int main(int argc, char** argv) {
   set_final_boss_theme(rom.song(z2music::Rom::SongTitle::FinalBossTheme));
 
   // Change credits music
+  set_triforce_fanfare(rom.song(z2music::Rom::SongTitle::TriforceFanfare));
   set_zelda_theme(rom.song(z2music::Rom::SongTitle::ZeldaTheme));
   set_credits_theme(rom.song(z2music::Rom::SongTitle::CreditsTheme));
 
