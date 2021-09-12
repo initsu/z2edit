@@ -3,6 +3,7 @@
 #include <array>
 #include <cassert>
 #include <fstream>
+#include <iostream>
 #include <map>
 
 namespace z2music {
@@ -402,35 +403,34 @@ const Pattern* Song::at(size_t i) const {
 
 char z2_decode_(uint8_t data) {
   switch (data) {
-    case 0x32: return 0x2a;
-    case 0x34: return 0x3f;
-    case 0x36: return 0x21;
-    case 0x9c: return 0x2c;
-    case 0xf4: return 0x20;
-    case 0xfd: return 0x5c;
-    case 0xfe: return 0x5f;
+    case 0x07: return '!';
+    case 0xce: return '/';
+    case 0xcf: return '.';
+    case 0xf4: return ' ';
+    case 0xf5: return ' ';
   }
 
-  if (data >= 0xce && data <= 0xd9) return data - 0xa0;
+  if (data >= 0xd0 && data <= 0xd9) return data - 0xa0;
   if (data >= 0xda && data <= 0xf3) return data - 0x99;
+
+  std::cerr << "Cannot decode byte '" << data << "'" << std::endl;
 
   return 0x00;
 }
 
 uint8_t z2_encode_(char data) {
   switch (data) {
-    case 0x20: return 0xf4;
-    case 0x21: return 0x36;
-    case 0x2a: return 0x32;
-    case 0x2c: return 0x9c;
-    case 0x3f: return 0x34;
-    case 0x5c: return 0xfd;
-    case 0x5f: return 0xfe;
+    case ' ': return 0xf4;
+    case '.': return 0xcf;
+    case '/': return 0xce;
+    case '!': return 0x07;
   }
 
-  if (data >= 0x2e && data <= 0x39) return data + 0xa0;
+  if (data >= 0x30 && data <= 0x39) return data + 0xa0;
   if (data >= 0x41 && data <= 0x5a) return data + 0x99;
   if (data >= 0x61 && data <= 0x7a) return data + 0x79;
+
+  std::cerr << "Cannot encode character '" << data << "'" << std::endl;
 
   return 0x00;
 }
