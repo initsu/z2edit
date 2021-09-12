@@ -333,10 +333,10 @@ int main(int argc, char** argv) {
   // Change credits
   z2music::Credits* c = rom.credits();
   c->set(0, {"CREATED BY",      "OK IMPALA!",     ""});
-  c->set(1, {"Z2 REDUX  ",      "SHAODWONE333",   ""});
+  c->set(1, {"Z2 REDUX  ",      "SHADOWONE333",   ""});
   c->set(2, {"GRAPHICS",        "REVILITY    ",   "GTM"});
   c->set(3, {"",                "FALCHION22",     "OK IMPALA!"});
-  c->set(4, {"MUSIC",           "BENTGLASSTUBE",  "          "});
+  c->set(4, {"MUSIC   ",        "BENTGLASSTUBE",  "          "});
   c->set(5, {"SPECIAL THANKS",  "NJOSRO       ",  "TRAX"});
   c->set(6, {"",                "CFRANTZ",        "MELCHIOR"});
   c->set(7, {"",                "DAAN   ",        "GTM     "});
