@@ -409,6 +409,17 @@ int main(int argc, char** argv) {
   // Fix a bug in the vanilla game
   rom.write(0x5d6b, { 0xea, 0xea, 0xea });
 
+  // Allow using songs more flexibly
+  // load music world number from $0702 (instead of $0707)
+  // rom.write(0x19b80, { 0xad, 0x02, 0x07 });  // LDA $0702
+
+  // replace world number storage with subroutine
+  rom.write(0x1cbaa, { 0x20, 0xca, 0xfe });  // JSR $FECA
+
+  // subroutine to just store world number as before
+  rom.write(0x1feca, { 0x8d, 0x07, 0x07 });  // STA $0707
+  rom.write(0x1fecd, { 0x60 });              // RTS
+
   // Change credits
   z2music::Credits* c = rom.credits();
   c->set(0, {"CREATED BY",      "OK IMPALA!",     ""});
