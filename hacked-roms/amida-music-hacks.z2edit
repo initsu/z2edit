@@ -1,0 +1,31 @@
+# Changes the music for towns to not include anything special inside of houses.
+# The song used for inside houses previously is now used for the towns of
+# Zakros and Pylos
+
+asm b=7 0xc000
+
+.org $cf0e              ; Choose song when entering a town (19 bytes)
+    jsr CheckRuinsMusic
+    sta $075f
+    rts                 ; 12 bytes left
+
+.org $cfdc              ; Handles leaving a building, changed to not reset the music (16 bytes)
+    jmp $cfec
+CheckRuinsMusic:        ; The towns with special music are entrance 48 in the
+    tya                 ; west and 47 in the east.  This means the sum of the
+    clc                 ; entrance id and the world id will be 49 (0x31)
+    adc $0748           ; when the alternate music is needed.
+    cmp #$31            ; I know this is wonky but I have very little space to
+    beq RuinsMusic      ; work with here.
+    lda #$01
+    rts                 ; 1 byte left
+
+.org $d02f              ; Handles entering a building, changed to not reset the music (14 bytes)
+    rts
+RuinsMusic:
+    lda #$04
+    rts                 ; 10 bytes left
+.end
+
+save /tmp/output.nes
+quit
