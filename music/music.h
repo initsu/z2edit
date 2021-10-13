@@ -237,7 +237,6 @@ class Rom {
     Credits credits_;
 
     void commit(size_t address, std::initializer_list<SongTitle> songs);
-    size_t metadata_length(std::vector<SongTitle> songs);
 };
 
 // Convenience method for writing notes

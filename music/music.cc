@@ -277,15 +277,10 @@ void Pattern::read_notes(Pattern::Channel ch, const Rom& rom, size_t address) {
   const size_t max_length = ch == Channel::Pulse1 ? 64 * 96 : length();
   size_t length = 0;
 
-  fprintf(stderr, "Reading note data at %06lx\n", address);
-
   while (length < max_length) {
     Note n = Note(rom.getc(address++));
     // Note data can terminate early on 00 byte
-    if (n == 0x00) {
-      fprintf(stderr, "Terminating early on 00 note\n");
-      break;
-    }
+    if (n == 0x00) break;
 
     length += n.length();
     add_notes(ch, {n});
@@ -466,8 +461,6 @@ Credits::Credits(const Rom& rom) {
   for (size_t i = 0; i < kCreditsPages; ++i) {
     const size_t addr = kCreditsTableAddress + 4 * i;
 
-    fprintf(stderr, "Reading credits entries from table at %06lx\n", addr);
-
     const size_t title = rom.getw(addr) + kCreditsBankOffset;
     const size_t names = rom.getw(addr + 2) + kCreditsBankOffset;
 
@@ -571,7 +564,6 @@ uint16_t Rom::getw(size_t address) const {
 }
 
 void Rom::read(uint8_t* buffer, size_t address, size_t length) const {
-  fprintf(stderr, "Reading %02lx bytes at %06lx\n", length, address);
   // Could use std::copy or std::memcpy but this handles out of range addresses
   for (size_t i = 0; i < length; ++i) {
     buffer[i] = getc(address + i);
@@ -589,7 +581,6 @@ void Rom::putw(size_t address, uint16_t data) {
 }
 
 void Rom::write(size_t address, std::vector<uint8_t> data) {
-  /* fprintf(stderr, "Write %lu bytes at %06lx\n", data.size(), address); */
   for (size_t i = 0; i < data.size(); ++i) {
     putc(address + i, data[i]);
   }
@@ -655,7 +646,6 @@ Credits* Rom::credits() {
 }
 
 void Rom::commit(size_t address, std::initializer_list<Rom::SongTitle> songs) {
-  // TODO commit song data to PRG ROM
   std::array<uint8_t, 8> table;
 
   // TODO make these changeable.
