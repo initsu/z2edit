@@ -477,6 +477,10 @@ int main(int argc, char** argv) {
 
   z2music::Rom rom(file);
 
+  rom.move_song_table(z2music::Rom::kTownLoader, 0xa800);
+  rom.move_song_table(z2music::Rom::kPalaceLoader, 0xb000);
+  rom.move_song_table(z2music::Rom::kGreatPalaceLoader, 0xb800);
+
   // Change title music
   set_title_intro(rom.song(z2music::Rom::SongTitle::TitleIntro));
   set_title_theme_buildup(rom.song(z2music::Rom::SongTitle::TitleThemeStart));

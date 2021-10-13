@@ -520,35 +520,41 @@ Rom::Rom(const std::string& filename) {
     file.read(reinterpret_cast<char *>(&header_[0]), kHeaderSize);
     file.read(reinterpret_cast<char *>(&data_[0]), kRomSize);
 
-    songs_[SongTitle::TitleIntro] = Song(*this, kTitleScreenTable, 0);
-    songs_[SongTitle::TitleThemeStart] = Song(*this, kTitleScreenTable, 1);
-    songs_[SongTitle::TitleThemeBuildup] = Song(*this, kTitleScreenTable, 2);
-    songs_[SongTitle::TitleThemeMain] = Song(*this, kTitleScreenTable, 3);
-    songs_[SongTitle::TitleThemeBreakdown] = Song(*this, kTitleScreenTable, 4);
+    title_screen_table      = get_song_table_address(kTitleScreenLoader);
+    overworld_song_table    = get_song_table_address(kOverworldLoader);
+    town_song_table         = get_song_table_address(kTownLoader);
+    palace_song_table       = get_song_table_address(kPalaceLoader);
+    great_palace_song_table = get_song_table_address(kGreatPalaceLoader);
 
-    songs_[SongTitle::OverworldIntro] = Song(*this, kOverworldSongTable, 0);
-    songs_[SongTitle::OverworldTheme] = Song(*this, kOverworldSongTable, 1);
-    songs_[SongTitle::BattleTheme] = Song(*this, kOverworldSongTable, 2);
-    songs_[SongTitle::CaveItemFanfare] = Song(*this, kOverworldSongTable, 4);
+    songs_[SongTitle::TitleIntro] = Song(*this, title_screen_table, 0);
+    songs_[SongTitle::TitleThemeStart] = Song(*this, title_screen_table, 1);
+    songs_[SongTitle::TitleThemeBuildup] = Song(*this, title_screen_table, 2);
+    songs_[SongTitle::TitleThemeMain] = Song(*this, title_screen_table, 3);
+    songs_[SongTitle::TitleThemeBreakdown] = Song(*this, title_screen_table, 4);
 
-    songs_[SongTitle::TownIntro] = Song(*this, kTownSongTable, 0);
-    songs_[SongTitle::TownTheme] = Song(*this, kTownSongTable, 1);
-    songs_[SongTitle::HouseTheme] = Song(*this, kTownSongTable, 2);
-    songs_[SongTitle::TownItemFanfare] = Song(*this, kTownSongTable, 4);
+    songs_[SongTitle::OverworldIntro] = Song(*this, overworld_song_table, 0);
+    songs_[SongTitle::OverworldTheme] = Song(*this, overworld_song_table, 1);
+    songs_[SongTitle::BattleTheme] = Song(*this, overworld_song_table, 2);
+    songs_[SongTitle::CaveItemFanfare] = Song(*this, overworld_song_table, 4);
 
-    songs_[SongTitle::PalaceIntro] = Song(*this, kPalaceSongTable, 0);
-    songs_[SongTitle::PalaceTheme] = Song(*this, kPalaceSongTable, 1);
-    songs_[SongTitle::BossTheme] = Song(*this, kPalaceSongTable, 3);
-    songs_[SongTitle::PalaceItemFanfare] = Song(*this, kPalaceSongTable, 4);
-    songs_[SongTitle::CrystalFanfare] = Song(*this, kPalaceSongTable, 6);
+    songs_[SongTitle::TownIntro] = Song(*this, town_song_table, 0);
+    songs_[SongTitle::TownTheme] = Song(*this, town_song_table, 1);
+    songs_[SongTitle::HouseTheme] = Song(*this, town_song_table, 2);
+    songs_[SongTitle::TownItemFanfare] = Song(*this, town_song_table, 4);
 
-    songs_[SongTitle::GreatPalaceIntro] = Song(*this, kGreatPalaceSongTable, 0);
-    songs_[SongTitle::GreatPalaceTheme] = Song(*this, kGreatPalaceSongTable, 1);
-    songs_[SongTitle::ZeldaTheme] = Song(*this, kGreatPalaceSongTable, 2);
-    songs_[SongTitle::CreditsTheme] = Song(*this, kGreatPalaceSongTable, 3);
-    songs_[SongTitle::GreatPalaceItemFanfare] = Song(*this, kGreatPalaceSongTable, 4);
-    songs_[SongTitle::TriforceFanfare] = Song(*this, kGreatPalaceSongTable, 5);
-    songs_[SongTitle::FinalBossTheme] = Song(*this, kGreatPalaceSongTable, 6);
+    songs_[SongTitle::PalaceIntro] = Song(*this, palace_song_table, 0);
+    songs_[SongTitle::PalaceTheme] = Song(*this, palace_song_table, 1);
+    songs_[SongTitle::BossTheme] = Song(*this, palace_song_table, 3);
+    songs_[SongTitle::PalaceItemFanfare] = Song(*this, palace_song_table, 4);
+    songs_[SongTitle::CrystalFanfare] = Song(*this, palace_song_table, 6);
+
+    songs_[SongTitle::GreatPalaceIntro] = Song(*this, great_palace_song_table, 0);
+    songs_[SongTitle::GreatPalaceTheme] = Song(*this, great_palace_song_table, 1);
+    songs_[SongTitle::ZeldaTheme] = Song(*this, great_palace_song_table, 2);
+    songs_[SongTitle::CreditsTheme] = Song(*this, great_palace_song_table, 3);
+    songs_[SongTitle::GreatPalaceItemFanfare] = Song(*this, great_palace_song_table, 4);
+    songs_[SongTitle::TriforceFanfare] = Song(*this, great_palace_song_table, 5);
+    songs_[SongTitle::FinalBossTheme] = Song(*this, great_palace_song_table, 6);
 
     credits_ = Credits(*this);
   }
@@ -587,33 +593,33 @@ void Rom::write(size_t address, std::vector<uint8_t> data) {
 }
 
 bool Rom::commit() {
-  commit(kTitleScreenTable, {
+  commit(title_screen_table, {
       SongTitle::TitleIntro,
       SongTitle::TitleThemeStart,
       SongTitle::TitleThemeBuildup,
       SongTitle::TitleThemeMain,
       SongTitle::TitleThemeBreakdown});
 
-  commit(kOverworldSongTable, {
+  commit(overworld_song_table, {
       SongTitle::OverworldIntro,
       SongTitle::OverworldTheme,
       SongTitle::BattleTheme,
       SongTitle::CaveItemFanfare});
 
-  commit(kTownSongTable, {
+  commit(town_song_table, {
       SongTitle::TownIntro,
       SongTitle::TownTheme,
       SongTitle::HouseTheme,
       SongTitle::TownItemFanfare});
 
-  commit(kPalaceSongTable, {
+  commit(palace_song_table, {
       SongTitle::PalaceIntro,
       SongTitle::PalaceTheme,
       SongTitle::BossTheme,
       SongTitle::PalaceItemFanfare,
       SongTitle::CrystalFanfare});
 
-  commit(kGreatPalaceSongTable, {
+  commit(great_palace_song_table, {
       SongTitle::GreatPalaceIntro,
       SongTitle::GreatPalaceTheme,
       SongTitle::ZeldaTheme,
@@ -637,6 +643,46 @@ void Rom::save(const std::string& filename) {
   }
 }
 
+void Rom::move_song_table(size_t loader_address, uint16_t base_address) {
+  if (loader_address == kTitleScreenLoader) {
+    title_screen_table = base_address + 0x010000;
+  } else if (loader_address == kOverworldLoader) {
+    overworld_song_table = base_address + 0x010000;
+  } else if (loader_address == kTownLoader) {
+    town_song_table = base_address + 0x010000;
+  } else if (loader_address == kPalaceLoader) {
+    palace_song_table = base_address + 0x010000;
+  } else if (loader_address == kGreatPalaceLoader) {
+    great_palace_song_table = base_address + 0x010000;
+  } else {
+    fprintf(stderr, "Unsure what loader is at %06lx, need manual update\n", loader_address);
+  }
+
+  const uint16_t old_base = getw(loader_address + 1);
+
+  // Rewind a bit because there is a load before the main section
+  loader_address -= 11;
+
+  while (true) {
+    const uint8_t byte = getc(loader_address);
+    if (byte == 0xb9) {
+      const uint16_t addr = getw(loader_address + 1);
+      const uint16_t new_addr = base_address + addr - old_base;
+      fprintf(stderr, "Found LDA, replacing %04X with %04X\n", addr, new_addr);
+      putw(loader_address + 1, new_addr);
+      loader_address += 3;
+    } else if (byte == 0x4c) {
+      fprintf(stderr, "Found JMP, done moving table\n");
+      break;
+    } else if (loader_address >= 0x19c74) {
+      fprintf(stderr, "Got to music reset code, done moving table\n");
+      break;
+    } else {
+      ++loader_address;
+    }
+  }
+}
+
 Song* Rom::song(Rom::SongTitle title) {
   return &songs_[title];
 }
@@ -652,27 +698,16 @@ void Rom::commit(size_t address, std::initializer_list<Rom::SongTitle> songs) {
   // This will require rearchitecting things so that there is a Score object
   // which is a list of 8 (possibly duplicate) songs.  For now, it's just
   // hardcode which songs are where in each table.
-  switch (address) {
-    case kTitleScreenTable:
-      table = {0, 1, 2, 3, 4, 5, 5, 5 };
-      break;
-
-    case kOverworldSongTable:
-    case kTownSongTable:
-      table = {0, 1, 2, 2, 3, 4, 4, 4 };
-      break;
-
-    case kPalaceSongTable:
-      table = { 0, 1, 1, 2, 3, 5, 4, 5 };
-      break;
-
-    case kGreatPalaceSongTable:
-      table = { 0, 1, 2, 3, 4, 5, 6, 7 };
-      break;
-
-    default:
-      // Other values are nonsense
-      return;
+  if (address == title_screen_table) {
+    table = {0, 1, 2, 3, 4, 5, 5, 5 };
+  } else if (address == overworld_song_table || address == town_song_table) {
+    table = {0, 1, 2, 2, 3, 4, 4, 4 };
+  } else if (address == palace_song_table) {
+    table = { 0, 1, 1, 2, 3, 5, 4, 5 };
+  } else if (address == great_palace_song_table) {
+    table = { 0, 1, 2, 3, 4, 5, 6, 7 };
+  } else {
+    return;
   }
 
   /**************
@@ -757,6 +792,17 @@ void Rom::commit(size_t address, std::initializer_list<Rom::SongTitle> songs) {
       note_address += note_data.size();
     }
   }
+}
+
+size_t Rom::get_song_table_address(size_t loader_address) const {
+  // Ensure that we are seing an LDA $addr,y instruction
+  assert(getc(loader_address) == 0xb9);
+
+  // Add the bank offset to the address read
+  const size_t addr = getw(loader_address + 1) + 0x10000;
+
+  fprintf(stderr, "Got address %06lx, from LDA $%04lX,y at %06lx\n", addr, (addr & 0xffff), loader_address);
+  return addr;
 }
 
 } // namespace z2music

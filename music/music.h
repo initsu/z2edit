@@ -195,6 +195,12 @@ class Rom {
       FinalBossTheme,
     };
 
+    static constexpr size_t kTitleScreenLoader = 0x0182fd;
+    static constexpr size_t kOverworldLoader   = 0x019b90;
+    static constexpr size_t kTownLoader        = 0x019bcf;
+    static constexpr size_t kPalaceLoader      = 0x019c0e;
+    static constexpr size_t kGreatPalaceLoader = 0x019c4b;
+
     Rom(const std::string& filename);
 
     uint8_t getc(size_t address) const;
@@ -208,6 +214,7 @@ class Rom {
 
     bool commit();
     void save(const std::string& filename);
+    void move_song_table(size_t loader_address, uint16_t base_address);
 
     Song* song(SongTitle title);
     Credits* credits();
@@ -216,27 +223,20 @@ class Rom {
     static constexpr size_t kHeaderSize =     0x10;
     static constexpr size_t kRomSize    = 0x040000;
 
-    static constexpr size_t kTitleScreenTable     = 0x0184da;
-    static constexpr size_t kOverworldSongTable   = 0x01a000;
-    static constexpr size_t kTownSongTable        = 0x01a3ca;
-    static constexpr size_t kPalaceSongTable      = 0x01a62f;
-    static constexpr size_t kGreatPalaceSongTable = 0x01a936;
-
-    // Interesting pointers for above tables
-    //
-    // 0x0182fd, 0x018303 - lda $84da,y
-    // 0x019b90, 0x019b96 - lda $a000,y
-    // 0x019bcf, 0x019bd5 - lda $a3ca,y
-    // 0x019c0e, 0x019c14 - lda $a62f,y
-    // 0x019c4b, 0x019c51 - lda $a936,y
-
     uint8_t header_[kHeaderSize];
     uint8_t data_[kRomSize];
+
+    size_t title_screen_table      = 0x0184da;
+    size_t overworld_song_table    = 0x01a000;
+    size_t town_song_table         = 0x01a3ca;
+    size_t palace_song_table       = 0x01a62f;
+    size_t great_palace_song_table = 0x01a936;
 
     std::unordered_map<SongTitle, Song> songs_;
     Credits credits_;
 
     void commit(size_t address, std::initializer_list<SongTitle> songs);
+    size_t get_song_table_address(size_t loader_address) const;
 };
 
 // Convenience method for writing notes
