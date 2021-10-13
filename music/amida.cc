@@ -32,9 +32,11 @@ void set_title_theme_buildup(z2music::Song *title) {
 
 void set_title_theme_main(z2music::Song *title) {
   // TODO finish title song
+  title->clear();
 }
 
 void set_title_theme_breakdown(z2music::Song *title) {
+  title->clear();
 }
 
 void set_overworld_intro(z2music::Song* intro) {
