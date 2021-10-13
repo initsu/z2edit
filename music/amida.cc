@@ -276,6 +276,49 @@ void set_boss_theme(z2music::Song* theme) {
 
 void set_gem_fanfare(z2music::Song* fanfare) {
   // TODO - compose gem fanfare
+  fanfare->clear();
+
+  fanfare->add_pattern({
+      0x20,
+      z2music::Pattern::parse_notes("g4.1 a4 b4 c#5 g4 a4 b4 c#5 g#4 a#4 c5 d5 g#4 a#4 c5 d5", -8),
+      {},
+      z2music::Pattern::parse_notes("a4.4           a5           a#4           a#5", -8),
+      {},
+      });
+
+  fanfare->add_pattern({
+      0x18,
+      z2music::Pattern::parse_notes("g4.1 a4 b4 c#5 g4 a4 b4 c#5 g#4 a#4 c5 d5 g#4 a#4 c5 d5", -6),
+      {},
+      z2music::Pattern::parse_notes("a4.4           a5           a#4           a#5",           -7),
+      {},
+      });
+
+  fanfare->add_pattern({
+      0x10,
+      z2music::Pattern::parse_notes("g4.1 a4 b4 c#5 g#4 a#4 c5 d5", -4),
+      {},
+      z2music::Pattern::parse_notes("a4.4           a#4",           -4),
+      {},
+      });
+
+  fanfare->add_pattern({
+      0x08,
+      z2music::Pattern::parse_notes("g4.1 a4 b4 c#5 g#4 a#4 c5 d5", -2),
+      {},
+      z2music::Pattern::parse_notes("a4.4           a#4",           -2),
+      {},
+      });
+
+  fanfare->add_pattern({
+      0x08,
+      z2music::Pattern::parse_notes("f5.4 f#5 g5 g#5.8 r", -8),
+      z2music::Pattern::parse_notes("a5.4 a#5 b5 c6.8  r", -8),
+      z2music::Pattern::parse_notes("c6.4 c#6 d6 d#6.8 r", -8),
+      z2music::Pattern::parse_notes("r.4 r r x.2 x x x x.1 x x x x x x x"),
+      });
+
+  fanfare->set_sequence({0, 1, 2, 3, 4});
 }
 
 void set_great_palace_intro(z2music::Song* intro) {
@@ -457,10 +500,10 @@ void set_fanfare(z2music::Song *fanfare) {
   fanfare->clear();
 
   fanfare->add_pattern({
-      0x10,
-      { 0xa0, 0xa2, 0xa4, 0x27 },
-      { 0x9a, 0x9c, 0x9e, 0x21 },
-      { 0x9a, 0x9c, 0x9e, 0x21 },
+      0x20,
+      z2music::Pattern::parse_notes("f5.2 f#5 g5 g#5.8 r", -8),
+      z2music::Pattern::parse_notes("a5.2 a#5 b5 c6.8  r", -8),
+      z2music::Pattern::parse_notes("c6.2 c#6 d6 d#6.8 r", -8),
       {},
       });
 
