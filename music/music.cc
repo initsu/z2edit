@@ -17,6 +17,20 @@ Note::Note(uint8_t value) : value_(value) {}
 
 Note::Note(Duration d, Pitch p) : value_(to_byte(d) | to_byte(p)) {}
 
+Note Note::from_midi(int note, int ticks) {
+  if (kMidiPitchMap.count(note) == 0) {
+    fprintf(stderr, "Note %d is not usable\n", note);
+    exit(1);
+  }
+
+  if (kMidiDurationMap.count(ticks) == 0) {
+    fprintf(stderr, "Duration %d is not usable\n", ticks);
+    exit(1);
+  }
+
+  return kMidiPitchMap.at(note) | kMidiDurationMap.at(ticks);
+}
+
 Note::Duration Note::duration() const {
   return static_cast<Duration>(value_ & 0xc1);
 }
@@ -91,6 +105,20 @@ Note::operator uint8_t() const {
   return value_;
 }
 
+const std::unordered_map<int, uint8_t> Note::kMidiPitchMap = {
+  {  0, 0x02 }, // special pitch value for rest
+  { 49, 0x3e }, { 52, 0x04 }, { 55, 0x06 }, { 56, 0x08 }, { 57, 0x0a }, { 58, 0x0c },
+  { 59, 0x0e }, { 60, 0x10 }, { 61, 0x12 }, { 62, 0x14 }, { 63, 0x16 }, { 64, 0x18 },
+  { 65, 0x1a }, { 66, 0x1c }, { 67, 0x1e }, { 68, 0x20 }, { 69, 0x22 }, { 70, 0x24 },
+  { 71, 0x26 }, { 72, 0x28 }, { 73, 0x2a }, { 74, 0x2c }, { 75, 0x2e }, { 76, 0x30 },
+  { 77, 0x32 }, { 78, 0x34 }, { 79, 0x36 }, { 81, 0x38 }, { 82, 0x3a }, { 83, 0x3c },
+};
+
+const std::unordered_map<int, uint8_t> Note::kMidiDurationMap = {
+  {  6, 0x00 }, { 36, 0x01 }, { 18, 0x40 }, { 48, 0x41 },
+  { 12, 0x80 }, {  8, 0x81 }, { 24, 0xc0 }, { 16, 0xc1 },
+};
+
 Pattern::Pattern() : tempo_(0x18) {
   clear();
 }
@@ -113,10 +141,10 @@ Pattern::Pattern(const Rom& rom, size_t address) {
 }
 
 Pattern::Pattern(uint8_t tempo,
-    std::initializer_list<Note> pw1,
-    std::initializer_list<Note> pw2,
-    std::initializer_list<Note> triangle,
-    std::initializer_list<Note> noise):
+    std::vector<Note> pw1,
+    std::vector<Note> pw2,
+    std::vector<Note> triangle,
+    std::vector<Note> noise):
 tempo_(tempo) {
   clear();
   add_notes(Channel::Pulse1, pw1);
@@ -126,10 +154,10 @@ tempo_(tempo) {
 }
 
 Pattern::Pattern(uint8_t v1, uint8_t v2,
-    std::initializer_list<Note> pw1,
-    std::initializer_list<Note> pw2,
-    std::initializer_list<Note> triangle,
-    std::initializer_list<Note> noise):
+    std::vector<Note> pw1,
+    std::vector<Note> pw2,
+    std::vector<Note> triangle,
+    std::vector<Note> noise):
 tempo_(0x00), voice1_(v1), voice2_(v2) {
   clear();
   add_notes(Channel::Pulse1, pw1);
@@ -142,7 +170,7 @@ size_t Pattern::length() const {
   return length(Channel::Pulse1);
 }
 
-void Pattern::add_notes(Pattern::Channel ch, std::initializer_list<Note> notes) {
+void Pattern::add_notes(Pattern::Channel ch, std::vector<Note> notes) {
   for (auto n : notes) {
     notes_[ch].push_back(n);
   }
@@ -303,6 +331,124 @@ void Pattern::read_notes(Pattern::Channel ch, const Rom& rom, size_t address) {
       }
     }
   }
+}
+
+std::vector<Note> Pattern::parse_notes(const std::string& data, int transpose) {
+  std::vector<Note> notes;
+
+  int duration = 0;
+  int pitch = 0;
+  int octave = 0;
+
+  size_t i = 0;
+
+  while (i < data.length()) {
+    const char c = data[i++];
+
+    switch (c) {
+      case 'C':
+      case 'c':
+        pitch = 1;
+        break;
+
+      case 'D':
+      case 'd':
+        pitch = 3;
+        break;
+
+      case 'E':
+      case 'e':
+        pitch = 5;
+        break;
+
+      case 'F':
+      case 'f':
+        pitch = 6;
+        break;
+
+      case 'G':
+      case 'g':
+        pitch = 8;
+        break;
+
+      case 'A':
+      case 'a':
+        pitch = 10;
+        break;
+
+      case 'B':
+        pitch = 12;
+        break;
+
+      case 'b':
+        if (pitch == 0) { // B note
+          pitch = 12;
+        } else { // flat
+          --pitch;
+        }
+        break;
+
+      case '#':
+      case 's':
+        ++pitch;
+        break;
+
+      case '1':
+      case '2':
+      case '3':
+      case '4':
+      case '5':
+      case '6':
+      case '7':
+      case '8':
+        if (octave == 0) {
+          octave = c - '0';
+        } else {
+          duration = c - '0';
+        }
+        break;
+
+      case '.':
+        // ignored
+        break;
+
+      case 'x':
+        // snare drum (G#3)
+        pitch = 9;
+        octave = 3;
+        break;
+
+      case 'r':
+      case '-':
+        // rest
+        pitch = -1;
+        octave = -1;
+        break;
+
+      case ' ':
+        if (pitch && octave && duration) {
+          const int note = pitch > 0 ? pitch + 12 * octave + 11 + transpose : 0;
+          notes.push_back(z2music::Note::from_midi(note, 6 * duration));
+
+          // Keep duration for later notes, but reset pitch and octave
+          pitch = 0;
+          octave = 0;
+        }
+        break;
+
+      default:
+        fprintf(stderr, "Unknown char '%c' when parsing notes\n", c);
+        break;
+    }
+  }
+
+  // Add final note
+  if (pitch && octave && duration) {
+    const int note = pitch > 0 ? pitch + 12 * octave + 11 + transpose : 0;
+    notes.push_back(z2music::Note::from_midi(note, 6 * duration));
+  }
+
+  return notes;
 }
 
 Song::Song() {}
@@ -691,7 +837,7 @@ Credits* Rom::credits() {
   return &credits_;
 }
 
-void Rom::commit(size_t address, std::initializer_list<Rom::SongTitle> songs) {
+void Rom::commit(size_t address, std::vector<Rom::SongTitle> songs) {
   std::array<uint8_t, 8> table;
 
   // TODO make these changeable.

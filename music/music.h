@@ -47,6 +47,8 @@ class Note {
     Note(uint8_t value);
     Note(Duration d, Pitch p);
 
+    static Note from_midi(int note, int ticks);
+
     Duration duration() const;
     Pitch pitch() const;
 
@@ -60,6 +62,9 @@ class Note {
 
   private:
     uint8_t value_;
+
+    static const std::unordered_map<int, uint8_t> kMidiPitchMap;
+    static const std::unordered_map<int, uint8_t> kMidiDurationMap;
 };
 
 class Pattern {
@@ -69,19 +74,19 @@ class Pattern {
     Pattern();
     Pattern(const Rom& rom, size_t address);
     Pattern(uint8_t tempo,
-        std::initializer_list<Note> pw1,
-        std::initializer_list<Note> pw2,
-        std::initializer_list<Note> triangle,
-        std::initializer_list<Note> noise);
+        std::vector<Note> pw1,
+        std::vector<Note> pw2,
+        std::vector<Note> triangle,
+        std::vector<Note> noise);
     Pattern(uint8_t v1, uint8_t v2,
-        std::initializer_list<Note> pw1,
-        std::initializer_list<Note> pw2,
-        std::initializer_list<Note> triangle,
-        std::initializer_list<Note> noise);
+        std::vector<Note> pw1,
+        std::vector<Note> pw2,
+        std::vector<Note> triangle,
+        std::vector<Note> noise);
 
     size_t length() const;
 
-    void add_notes(Channel ch, std::initializer_list<Note> notes);
+    void add_notes(Channel ch, std::vector<Note> notes);
     void clear();
     std::vector<Note> notes(Channel ch) const;
 
@@ -101,6 +106,8 @@ class Pattern {
 
     std::vector<uint8_t> note_data() const;
     std::vector<uint8_t> meta_data(size_t pw1_address) const;
+
+    static std::vector<Note> parse_notes(const std::string& data, int transpose=0);
 
   private:
     uint8_t tempo_;
@@ -235,7 +242,7 @@ class Rom {
     std::unordered_map<SongTitle, Song> songs_;
     Credits credits_;
 
-    void commit(size_t address, std::initializer_list<SongTitle> songs);
+    void commit(size_t address, std::vector<SongTitle> songs);
     size_t get_song_table_address(size_t loader_address) const;
 };
 
