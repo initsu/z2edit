@@ -27,5 +27,22 @@ RuinsMusic:
     rts                 ; 10 bytes left
 .end
 
+# Play boss music when fighting Thunderbird
+asm b=5 0xa000
+
+.org $a34b
+    sta $057E,x         ; revert change to load boss music on entering thunderbird room
+
+.org $a363
+    jsr BossTime        ; replaces inc $0728
+
+.org $bda1              ; 15 bytes free
+BossTime:
+    lda #$08
+    sta $EB             ; Play music $08 (boss battle)
+    inc $0728           ; Lock screen scrolling
+    rts                 ; 7 bytes left
+.end
+
 save /tmp/output.nes
 quit
