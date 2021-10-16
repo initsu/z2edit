@@ -1,8 +1,17 @@
 # Changes the music for towns to not include anything special inside of houses.
 # The song used for inside houses previously is now used for the towns of
 # Zakros and Pylos
+# Also saves a copy of the world id in the unused $0702 to change the music for
+# Stone Temple to be the normal palace music rather than Great Palace.
 
 asm b=7 0xc000
+
+.org $cbaa
+    jsr $feaa           ; replaces sta $0707
+
+.org $cbc8              ; revert z2 redux random battle music code
+    lda #$04
+    sta $075f
 
 .org $cf0e              ; Choose song when entering a town (19 bytes)
     jsr CheckRuinsMusic
@@ -25,6 +34,26 @@ CheckRuinsMusic:        ; The towns with special music are entrance 48 in the
 RuinsMusic:
     lda #$04
     rts                 ; 10 bytes left
+
+.org $feaa              ; Save world id and music world
+    sta $0707
+    sta $0702
+    cmp #$05            ; Check if we are entering Stone Temple
+    bne NotStoneTemple
+    lda $0561           ; Stone Temple entrance is room $0E, but The Abyss is $00
+    beq NotStoneTemple
+    lda #$04            ; Set music world to eastern palaces
+    sta $0702
+NotStoneTemple:
+    rts
+.end
+
+# Use $0702 for "music world"
+asm b=6 0x8000
+.org $9b24
+    lda $0702
+.org $9b80
+    lda $0702
 .end
 
 # Play boss music when fighting Thunderbird
@@ -42,6 +71,13 @@ BossTime:
     sta $EB             ; Play music $08 (boss battle)
     inc $0728           ; Lock screen scrolling
     rts                 ; 7 bytes left
+.end
+
+# Change the music world when starting the game.  Otherwise you'll have the
+# wrong music after a game over.
+asm b=0
+.org $aa0e
+    jsr $feaa           ; replaces sta $0707 when starting the game
 .end
 
 save /tmp/output.nes
