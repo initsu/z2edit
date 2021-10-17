@@ -42,8 +42,7 @@ RuinsMusic:
     bne NotStoneTemple
     lda $0561           ; Stone Temple entrance is room $0E, but The Abyss is $00
     beq NotStoneTemple
-    lda #$04            ; Set music world to eastern palaces
-    sta $0702
+    dec $0702           ; Set music world to eastern palaces
 NotStoneTemple:
     lda $0707
     rts
