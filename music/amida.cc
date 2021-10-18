@@ -228,7 +228,6 @@ void set_town_theme(z2music::Song* theme) {
 }
 
 void set_ruins_theme(z2music::Song* theme) {
-  // TODO - fix this song
   theme->clear();
 
   theme->add_pattern({
@@ -261,7 +260,6 @@ void set_ruins_theme(z2music::Song* theme) {
 void set_unused_dungeon_intro(z2music::Song* intro) {
   intro->clear();
 
-  // TODO this is kinda cheesy, redo it
   intro->add_pattern({
       0x08,
       { 0xd0, 0x8c, 0xd0, 0xc6, 0x8c, 0x88, 0x8c, 0x90, 0xd4, 0x90, 0xcc },
@@ -462,7 +460,6 @@ void set_gem_fanfare(z2music::Song* fanfare) {
 
 void set_great_palace_intro(z2music::Song* intro) {
   // TODO - hack game to make this loop indefinitely
-  // TODO - hack game to only use this music for the abyss
   intro->clear();
 
   intro->add_pattern({
@@ -499,7 +496,6 @@ void set_great_palace_theme(z2music::Song* theme) {
 }
 
 void set_final_boss_theme(z2music::Song* theme) {
-  // TODO - hack game to play this for thunderbird
   theme->clear();
 
   theme->add_pattern({

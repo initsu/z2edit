@@ -4,7 +4,7 @@
 # Also saves a copy of the world id in the unused $0702 to change the music for
 # Stone Temple to be the normal palace music rather than Great Palace.
 
-asm b=7 0xc000
+asm b=7
 
 .org $cbaa
     jsr $feaa           ; replaces sta $0707
@@ -49,7 +49,7 @@ NotStoneTemple:
 .end
 
 # Use $0702 for "music world"
-asm b=6 0x8000
+asm b=6
 .org $9b24
     lda $0702
 .org $9b80
@@ -57,7 +57,7 @@ asm b=6 0x8000
 .end
 
 # Play boss music when fighting Thunderbird
-asm b=5 0xa000
+asm b=5
 
 .org $a34b
     sta $057E,x         ; revert change to load boss music on entering thunderbird room
