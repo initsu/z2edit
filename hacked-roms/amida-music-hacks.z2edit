@@ -73,11 +73,49 @@ BossTime:
     rts                 ; 7 bytes left
 .end
 
+# Title scroll fix
+asm b=5
+
+.org $a787
+    lda $E8             ; current song id
+    cmp #$03            ; start logo scroll when song $02 plays
+    bcs Done
+    lda $12             ; frame counter
+    and #$03            ; every 4 frames
+    bne Done
+    inc $FC
+Done:
+    lda $F7
+.end
+
 # Change the music world when starting the game.  Otherwise you'll have the
 # wrong music after a game over.
 asm b=0
 .org $aa0e
     jsr $feaa           ; replaces sta $0707 when starting the game
+.end
+
+# Make pulse1 quieter during the title screen
+asm b=6
+
+.org $8452
+    jsr $8d80
+
+.org $8d80
+    lda $e8             ; current song
+    lsr
+    lda $8017,y
+    bcc LoadAltEnvelope ; don't change the volume for song $01
+    rts
+LoadAltEnvelope:
+    tax                 ; half the lower nybble of a to reduce the volume
+    and #$f0
+    sta $13
+    txa
+    and #$0f
+    lsr
+    ora $13
+    rts
 .end
 
 save /tmp/output.nes
