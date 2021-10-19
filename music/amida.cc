@@ -478,50 +478,33 @@ void set_boss_theme(z2music::Song* theme) {
 }
 
 void set_gem_fanfare(z2music::Song* fanfare) {
-  // TODO - compose gem fanfare
   fanfare->clear();
 
   fanfare->add_pattern({
-      0x20,
-      z2music::Pattern::parse_notes("g4.1 a4 b4 c#5 g4 a4 b4 c#5 g#4 a#4 c5 d5 g#4 a#4 c5 d5", -8),
-      {},
-      z2music::Pattern::parse_notes("a4.4           a5           a#4           a#5", -8),
+      0x10,
+      z2music::Pattern::parse_notes("a4.2 b4 c5 b4 d5 c5 b4 c5"),
+      z2music::Pattern::parse_notes("e4.8 d4"),
+      z2music::Pattern::parse_notes("d4.2 d4 d4 d4 e4 e4 e4 e4"),
       {},
       });
 
   fanfare->add_pattern({
       0x18,
-      z2music::Pattern::parse_notes("g4.1 a4 b4 c#5 g4 a4 b4 c#5 g#4 a#4 c5 d5 g#4 a#4 c5 d5", -6),
-      {},
-      z2music::Pattern::parse_notes("a4.4           a5           a#4           a#5",           -7),
-      {},
-      });
-
-  fanfare->add_pattern({
-      0x10,
-      z2music::Pattern::parse_notes("g4.1 a4 b4 c#5 g#4 a#4 c5 d5", -4),
-      {},
-      z2music::Pattern::parse_notes("a4.4           a#4",           -4),
+      z2music::Pattern::parse_notes("e5.2 d5 c5 b4"),
+      z2music::Pattern::parse_notes("g4.8"),
+      z2music::Pattern::parse_notes("f4.2 f4 f4 f4"),
       {},
       });
 
   fanfare->add_pattern({
-      0x08,
-      z2music::Pattern::parse_notes("g4.1 a4 b4 c#5 g#4 a#4 c5 d5", -2),
-      {},
-      z2music::Pattern::parse_notes("a4.4           a#4",           -2),
+      0x20,
+      z2music::Pattern::parse_notes("c5.2 b4 a4 b4 c5.4 e4.1 e4 e4 g4 c5.8"),
+      z2music::Pattern::parse_notes("f4.8          e4.4 c4.1 c4 c4 e4 g4.8"),
+      z2music::Pattern::parse_notes("g4.2 g4 g4 g4 a4.4 a4.1 a4 a4 c5 e5.8"),
       {},
       });
 
-  fanfare->add_pattern({
-      0x08,
-      z2music::Pattern::parse_notes("f5.4 f#5 g5 g#5.8 r", -8),
-      z2music::Pattern::parse_notes("a5.4 a#5 b5 c6.8  r", -8),
-      z2music::Pattern::parse_notes("c6.4 c#6 d6 d#6.8 r", -8),
-      z2music::Pattern::parse_notes("r.4 r r x.2 x x x x.1 x x x x x x x"),
-      });
-
-  fanfare->set_sequence({0, 1, 2, 3, 4});
+  fanfare->set_sequence({0, 1, 2});
 }
 
 void set_great_palace_intro(z2music::Song* intro) {
