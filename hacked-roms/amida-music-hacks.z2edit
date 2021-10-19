@@ -118,5 +118,38 @@ LoadAltEnvelope:
     rts
 .end
 
+# Change flute sound to classic zelda "secret found"
+asm b=6
+
+.org $b780
+RaftDurations:
+.db $30,$38,$40,$60,$70,$7f
+RaftNotes:
+.db $4c,$4e,$50,$52,$48,$30
+FluteDurations:
+.db $28,$30,$38,$40,$48,$50,$58,$5f
+FluteNotes:
+.db $4a,$48,$30,$20,$22,$2e,$34,$36
+
+.org $97e0              ; Raft duration and note count
+    lda #$7f
+    ldx #$05
+
+.org $97f2
+    cmp RaftDurations,y
+    bne $9805
+    lda RaftNotes,y
+
+.org $9a20              ; Flute duration and note count
+    lda #$5f
+    ldx #$07
+
+.org $9a32
+    cmp FluteDurations,y
+    bne $9a45
+    lda FluteNotes,y
+
+.end
+
 save /tmp/output.nes
 quit
