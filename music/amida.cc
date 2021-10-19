@@ -342,65 +342,65 @@ void set_dungeon_theme(z2music::Song* theme) {
 
   theme->add_pattern({
       0x18,
-      z2music::Pattern::parse_notes("a4.4    b4    c5    b4.2 a4 c5.8        b4.4  a4    b4.8        a4.4  g#4   a4.8        g#4"),
-      z2music::Pattern::parse_notes("r.4     a3    g#3.2 a3.6    r.4   a3    g#3.2 a3.6  r.4   a3    g#3.2 a3.6  c4.4  b3    a3    g#3.2 a3"),
-      z2music::Pattern::parse_notes("a4.2 a4 a4 a4 a4 a4 a4   a4 f4 f4 f4 f4 f4 f4 f4 f4 g4 g4 g4 g4 g4 g4 g4 g4 e4 e4 e4 e4 e4 e4 e4 e4"),
+      z2music::Pattern::parse_notes("a4.4    b4    c5    b4.2 a4 c5.8        b4.4  a4    b4.8        a4.4  g#4   a4.8        g#4", 2),
+      z2music::Pattern::parse_notes("r.4     a3    g#3.2 a3.6    r.4   a3    g#3.2 a3.6  r.4   a3    g#3.2 a3.6  c4.4  b3    a3    g#3.2 a3", 2),
+      z2music::Pattern::parse_notes("a4.2 a4 a4 a4 a4 a4 a4   a4 f4 f4 f4 f4 f4 f4 f4 f4 g4 g4 g4 g4 g4 g4 g4 g4 e4 e4 e4 e4 e4 e4 e4 e4", 2),
       z2music::Pattern::parse_notes("x.4 x.2 x.6 x.4 x x.2 x.6 x.4 x x.2 x.6 x.4 x x.2 x.4 x.2 x.4"),
       });
 
   theme->add_pattern({
       0x18,
-      z2music::Pattern::parse_notes("a4.4    b4    c5    b4.2 a4 d5.8        c5.4  d5    e5.8        d5.4  c5    d5    c5    b4    c5"),
-      z2music::Pattern::parse_notes("r.4     a3    g#3.2 a3.6    r.4   a3    g#3.2 a3.6  r.4   a3    g#3.2 a3.6  c4.4  b3    a3    b3.2 c4"),
-      z2music::Pattern::parse_notes("a4.2 a4 a4 a4 a4 a4 a4   a4 f4 f4 f4 f4 f4 f4 f4 f4 g4 g4 g4 g4 g4 g4 g4 g4 c5 c5 c5 c5 b4 b4 b4 b4"),
+      z2music::Pattern::parse_notes("a4.4    b4    c5    b4.2 a4 d5.8        c5.4  d5    e5.8        d5.4  c5    d5    c5    b4    c5", 2),
+      z2music::Pattern::parse_notes("r.4     a3    g#3.2 a3.6    r.4   a3    g#3.2 a3.6  r.4   a3    g#3.2 a3.6  c4.4  b3    a3    b3.2 c4", 2),
+      z2music::Pattern::parse_notes("a4.2 a4 a4 a4 a4 a4 a4   a4 f4 f4 f4 f4 f4 f4 f4 f4 g4 g4 g4 g4 g4 g4 g4 g4 c5 c5 c5 c5 b4 b4 b4 b4", 2),
       z2music::Pattern::parse_notes("x.4 x.2 x.6 x.4 x x.2 x.6 x.4 x x.2 x.6 x.4 x x.2 x.4 x.2 x.4"),
       });
 
   theme->add_pattern({
       0x18,
-      z2music::Pattern::parse_notes("a4.4    b4    c5    b4.2 a4 d5.8        c5.4  d5    e5.8        d5          e5.4  d5    e5    g5"),
-      z2music::Pattern::parse_notes("r.4     a3    g#3.2 a3.6    r.4   a3    g#3.2 a3.6  r.4   a3    g#3.2 a3.6  c4.4  b3    a3    b3.2 c4"),
-      z2music::Pattern::parse_notes("a4.2 a4 a4 a4 a4 a4 a4   a4 f4 f4 f4 f4 f4 f4 f4 f4 g4 g4 g4 g4 g4 g4 g4 g4 c5 c5 c5 c5 b4 b4 b4 b4"),
+      z2music::Pattern::parse_notes("a4.4    b4    c5    b4.2 a4 d5.8        c5.4  d5    e5.8        d5          e5.4  d5    e5    g5", 2),
+      z2music::Pattern::parse_notes("r.4     a3    g#3.2 a3.6    r.4   a3    g#3.2 a3.6  r.4   a3    g#3.2 a3.6  c4.4  b3    a3    b3.2 c4", 2),
+      z2music::Pattern::parse_notes("a4.2 a4 a4 a4 a4 a4 a4   a4 f4 f4 f4 f4 f4 f4 f4 f4 g4 g4 g4 g4 g4 g4 g4 g4 c5 c5 c5 c5 b4 b4 b4 b4", 2),
       z2music::Pattern::parse_notes("x.4 x.2 x.6 x.4 x x.2 x.6 x.4 x x.2 x.6 x.4 x x.2 x.4 x.2 x.4"),
       });
 
   theme->add_pattern({
       0x18,
-      z2music::Pattern::parse_notes("a5.2 g5 f5 e5 d5.6     c5.2 d5 e5 d5.6     r.4   b4.2 c5 d5 c5.6     r.4   c5.2 b4 c5 d5 e5 f5 e5 f5 g5"),
-      z2music::Pattern::parse_notes("a3.4    b3    c4    d4      e4.8        c4.4  d4      e4.8        c4            d4.4  c4    b3    c4"),
-      z2music::Pattern::parse_notes("a4.2 a4 a4 a4 a4 a4 a4 a4   f4 f4 f4 f4 f4 f4 f4 f4   g4 g4 g4 g4 g4 g4 g4 g4   e4 e4 e4 e4 e4 e4 e4 e4"),
+      z2music::Pattern::parse_notes("a5.2 g5 f5 e5 d5.6     c5.2 d5 e5 d5.6     r.4   b4.2 c5 d5 c5.6     r.4   c5.2 b4 c5 d5 e5 f5 e5 f5 g5", 2),
+      z2music::Pattern::parse_notes("a3.4    b3    c4    d4      e4.8        c4.4  d4      e4.8        c4            d4.4  c4    b3    c4", 2),
+      z2music::Pattern::parse_notes("a4.2 a4 a4 a4 a4 a4 a4 a4   f4 f4 f4 f4 f4 f4 f4 f4   g4 g4 g4 g4 g4 g4 g4 g4   e4 e4 e4 e4 e4 e4 e4 e4", 2),
       z2music::Pattern::parse_notes("x.4 x.2 x.6 x.4 x x.2 x.6 x.4 x x.2 x.6 x.4 x x.2 x.4 x.2 x.4"),
       });
 
   theme->add_pattern({
       0x18,
-      z2music::Pattern::parse_notes("a5.2 g5 f5 e5 d5.6     c5.2 d5 e5 d5.6     r.4   c5.2 b4 c5 b4.8        r.4   b4.8        a4.4  g#4.4"),
-      z2music::Pattern::parse_notes("a3.4    b3    c4    d4      e4.8        c4.4  d4      e4.8        c4          d4.4  c4    b3    g#3"),
-      z2music::Pattern::parse_notes("a4.2 a4 a4 a4 a4 a4 a4 a4   f4 f4 f4 f4 f4 f4 f4 f4   g4 g4 g4 g4 g4 g4 g4 g4 c5 c5 c5 c5 b4 b4 b4 b4"),
+      z2music::Pattern::parse_notes("a5.2 g5 f5 e5 d5.6     c5.2 d5 e5 d5.6     r.4   c5.2 b4 c5 b4.8        r.4   b4.8        a4.4  g#4.4", 2),
+      z2music::Pattern::parse_notes("a3.4    b3    c4    d4      e4.8        c4.4  d4      e4.8        c4          d4.4  c4    b3    g#3", 2),
+      z2music::Pattern::parse_notes("a4.2 a4 a4 a4 a4 a4 a4 a4   f4 f4 f4 f4 f4 f4 f4 f4   g4 g4 g4 g4 g4 g4 g4 g4 c5 c5 c5 c5 b4 b4 b4 b4", 2),
       z2music::Pattern::parse_notes("x.4 x.2 x.6 x.4 x x.2 x.6 x.4 x x.2 x.6 x.4 x x.2 x.4 x.2 x.4"),
       });
 
   theme->add_pattern({
       0x18,
-      z2music::Pattern::parse_notes("r.4     a4    b4.2 c5.4   d5.6     a4.4  b4.2 c5.4  e5.6      a4.4  b4.2 c5.6      f5.4  e5    d5     e5.2 c5"),
-      z2music::Pattern::parse_notes("a3.4    g#3   a3      b3     c4    r     b3      c4    d4     r     c4      b3     c4    b3    a3     g#3"),
-      z2music::Pattern::parse_notes("a4.2 a4 a4 a4 a4   a4 a4  a4 f4 f4 f4 f4 f4   f4 f4 f4 g4  g4 g4 g4 g4   g4 g4  g4 e4 e4 e4 e4 e4  e4 e4   e4"),
+      z2music::Pattern::parse_notes("r.4     a4    b4.2 c5.4   d5.6     a4.4  b4.2 c5.4  e5.6      a4.4  b4.2 c5.6      f5.4  e5    d5     e5.2 c5", 2),
+      z2music::Pattern::parse_notes("a3.4    g#3   a3      b3     c4    r     b3      c4    d4     r     c4      b3     c4    b3    a3     g#3", 2),
+      z2music::Pattern::parse_notes("a4.2 a4 a4 a4 a4   a4 a4  a4 f4 f4 f4 f4 f4   f4 f4 f4 g4  g4 g4 g4 g4   g4 g4  g4 e4 e4 e4 e4 e4  e4 e4   e4", 2),
       z2music::Pattern::parse_notes("x.2  x  x  x  x.4     x.2 x  x.4   x     x.2  x  x.4   x.2 x  x  x  x.4     x.2 x  x.4   x     x.2 x  x    x"),
       });
 
   theme->add_pattern({
       0x18,
-      z2music::Pattern::parse_notes("r.4     a4    b4.2 c5.4   d5.6     a4.4  b4.2 c5.4  e5.6      a4.4   b4.2 c5.6       f5.2 e5  d5 c5 d5  c5 b4 g#4"),
-      z2music::Pattern::parse_notes("a3.4    g#3   a3      b3     c4    r     b3      c4    d4     r      e4      r       d4       c4    b3     c4"),
-      z2music::Pattern::parse_notes("a4.2 a4 a4 a4 a4   a4 a4  a4 f4 f4 f4 f4 f4   f4 f4 f4 g4  g4 g4 g4  g4   g4 g4  g4  c5   c5  c5 c5 b4  b4 b4 b4"),
+      z2music::Pattern::parse_notes("r.4     a4    b4.2 c5.4   d5.6     a4.4  b4.2 c5.4  e5.6      a4.4   b4.2 c5.6       f5.2 e5  d5 c5 d5  c5 b4 g#4", 2),
+      z2music::Pattern::parse_notes("a3.4    g#3   a3      b3     c4    r     b3      c4    d4     r      e4      r       d4       c4    b3     c4", 2),
+      z2music::Pattern::parse_notes("a4.2 a4 a4 a4 a4   a4 a4  a4 f4 f4 f4 f4 f4   f4 f4 f4 g4  g4 g4 g4  g4   g4 g4  g4  c5   c5  c5 c5 b4  b4 b4 b4", 2),
       z2music::Pattern::parse_notes("x.2  x  x  x  x.4     x.2 x  x.4   x     x.2  x  x.4   x.2 x.4   x.2 x.4     x.2 x.4      x.2 x.4   x      x"),
       });
 
   theme->add_pattern({
       0x18,
-      z2music::Pattern::parse_notes("r.4     a4    b4.2 c5.4   d5.6     c5.4  b4     c5    a4.8          r             b4            a4.4   g#4"),
-      z2music::Pattern::parse_notes("a3.4    g#3   a3      b3     c4    r     b3     a3    g#3.8         r             a3            r"),
-      z2music::Pattern::parse_notes("a4.2 a4 a4 a4 a4   a4 a4  a4 f4 f4 f4 f4 f4  f4 f4 f4 g4  g4 g4 g4  g4  g4 g4  g4 c5  c5  c5 c5 b4  b4 b4 b4"),
+      z2music::Pattern::parse_notes("r.4     a4    b4.2 c5.4   d5.6     c5.4  b4     c5    a4.8          r             b4            a4.4   g#4", 2),
+      z2music::Pattern::parse_notes("a3.4    g#3   a3      b3     c4    r     b3     a3    g#3.8         r             a3            r", 2),
+      z2music::Pattern::parse_notes("a4.2 a4 a4 a4 a4   a4 a4  a4 f4 f4 f4 f4 f4  f4 f4 f4 g4  g4 g4 g4  g4  g4 g4  g4 c5  c5  c5 c5 b4  b4 b4 b4", 2),
       z2music::Pattern::parse_notes("x.2  x  x  x  x.4     x.2 x  x.4   x     x.2 x  x.4   x.2 x.4   x.2 x.4    x.2 x.4    x.2 x.4   x      x"),
       });
 
