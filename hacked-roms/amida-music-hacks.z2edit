@@ -151,5 +151,16 @@ FluteNotes:
 
 .end
 
+# Remove annoying noise when zelda talks
+asm b=5
+
+.org $8e6a              ; sets $EF to #$02 to trigger the sound effect
+    nop
+    nop
+    nop
+    nop
+
+.end
+
 save /tmp/output.nes
 quit
