@@ -408,7 +408,73 @@ void set_dungeon_theme(z2music::Song* theme) {
 }
 
 void set_boss_theme(z2music::Song* theme) {
-  // TODO - compose boss music
+  theme->clear();
+
+  theme->add_pattern({
+      0x10,
+      z2music::Pattern::parse_notes("d4.6       c4.2 d4 e4 f4 d4 e4.6        d4.2 e4  f4  g4  e4",  0),
+      {},
+      z2music::Pattern::parse_notes("d3.2 d4 d3 d4   d3 d4 d3 d4 c#3 c#4 c#3 c#4  c#3 c#4 c#3 c#4", 12),
+      z2music::Pattern::parse_notes("x.4     x       x     x.2 x x.4     x        x       x.2 x"),
+      });
+
+  theme->add_pattern({
+      0x10,
+      z2music::Pattern::parse_notes("f4.6       e4.2 d4 e4 f4 d4 e4.4  d4.2 r  c#4 r  d4 r",  0),
+      {},
+      z2music::Pattern::parse_notes("c3.2 c4 c3 c4   c3 c4 c3 c4 b2 b3 b2   b3 b2  b3 b2 b3", 12),
+      z2music::Pattern::parse_notes("x.4     x       x.2 x x  x  x.4   x       x      x.2 x"),
+      });
+
+  theme->add_pattern({
+      0x10,
+      z2music::Pattern::parse_notes("d4.2  c#4 d4  e4  f4.4    d4      e4    d4    c#4   e4",    0),
+      {},
+      z2music::Pattern::parse_notes("a#2.2 a#3 a#2 a#3 a#2 a#3 a#2 a#3 a2 a3 a2 a3 a2 a3 a2 a3", 12),
+      z2music::Pattern::parse_notes("x.4       x       x       x.2 x   x.4   x     x.2 x x  x"),
+      });
+
+  theme->add_pattern({
+      0x10,
+      z2music::Pattern::parse_notes("d4.8          r           r           r",           0),
+      {},
+      z2music::Pattern::parse_notes("d3.2 d4 d3 d4 d3 d4 d3 d4 d3 d4 d3 d4 c3 c4 c3 c4", 12),
+      z2music::Pattern::parse_notes("x.8           x           x.4   x     x.1 x x x x x x x"),
+      });
+
+  theme->add_pattern({
+      0x10,
+      z2music::Pattern::parse_notes("d4.2 c#4 d4 e4 f4 e4 f4 g4 a4.4    g4      f4      g4",      0),
+      {},
+      z2music::Pattern::parse_notes("d3.2 d4  d3 d4 d3 d4 d3 d4 c#3 c#4 c#3 c#4 c#3 c#4 c#3 c#4", 12),
+      z2music::Pattern::parse_notes("x.4     x       x     x.2 x x.4     x        x       x.2 x"),
+      });
+
+  theme->add_pattern({
+      0x10,
+      z2music::Pattern::parse_notes("f4.8          r.2 e4.2 d4 e4 d4.8        c#4",         0),
+      {},
+      z2music::Pattern::parse_notes("c3.2 c4 c3 c4 c3  c4   c3 c4 b2 b3 b2 b3 b2 b3 b2 b3", 12),
+      z2music::Pattern::parse_notes("x.4     x       x.2 x x  x  x.4   x       x      x.2 x"),
+      });
+
+  theme->add_pattern({
+      0x10,
+      z2music::Pattern::parse_notes("d4.2  e4  f4  g4  a4  g4  f4  g4  a4.4  g4    a4    c5",    0),
+      {},
+      z2music::Pattern::parse_notes("a#2.2 a#3 a#2 a#3 a#2 a#3 a#2 a#3 a2 a3 a2 a3 a2 a3 a2 a3", 12),
+      z2music::Pattern::parse_notes("x.4       x       x       x.2 x   x.4   x     x.2 x x  x"),
+      });
+
+  theme->add_pattern({
+      0x10,
+      z2music::Pattern::parse_notes("d5.8          r           d4          r",           0),
+      {},
+      z2music::Pattern::parse_notes("d3.2 d4 d3 d4 d3 d4 d3 d4 d3 d4 d3 d4 c3 c4 c3 c4", 12),
+      z2music::Pattern::parse_notes("x.8           x           x.4   x     x.1 x x x x x x x"),
+      });
+
+  theme->set_sequence({0, 1, 2, 3, 0, 1, 2, 3, 4, 5, 6, 7});
 }
 
 void set_gem_fanfare(z2music::Song* fanfare) {
