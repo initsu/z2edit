@@ -1,13 +1,8 @@
 # Changes the music for towns to not include anything special inside of houses.
 # The song used for inside houses previously is now used for the towns of
-# Zakros and Pylos
-# Also saves a copy of the world id in the unused $0702 to change the music for
-# Stone Temple to be the normal palace music rather than Great Palace.
+# Zakros and Pylos.
 
 asm b=7
-
-.org $cbaa
-    jsr $feaa           ; replaces sta $0707
 
 .org $cbc8              ; revert z2 redux random battle music code
     lda #$04
@@ -16,7 +11,8 @@ asm b=7
 .org $cf0e              ; Choose song when entering a town (19 bytes)
     jsr CheckRuinsMusic
     sta $075f
-    rts                 ; 12 bytes left
+    rts
+.db $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
 
 .org $cfdc              ; Handles leaving a building, changed to not reset the music (16 bytes)
     jmp $cfec
@@ -27,15 +23,22 @@ CheckRuinsMusic:        ; The towns with special music are entrance 48 in the
     cmp #$31            ; I know this is wonky but I have very little space to
     beq RuinsMusic      ; work with here.
     lda #$01
-    rts                 ; 1 byte left
+    rts
+.db $ff
 
 .org $d02f              ; Handles entering a building, changed to not reset the music (14 bytes)
     rts
 RuinsMusic:
     lda #$04
-    rts                 ; 10 bytes left
+    rts
+.db $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
 
+# Saves a copy of the world id in the unused $0702 to change the music for
+# Stone Temple to be the normal palace music rather than Great Palace.
+
+asm b=7
 .org $feaa              ; Save world id and music world
+SaveMusicWorld:
     sta $0707
     sta $0702
     cmp #$05            ; Check if we are entering Stone Temple
@@ -46,6 +49,10 @@ RuinsMusic:
 NotStoneTemple:
     lda $0707
     rts
+
+.org $cbaa              ; Original code to save the world id
+    jsr SaveMusicWorld  ; replaces sta $0707
+
 .end
 
 # Use $0702 for "music world"
@@ -119,6 +126,7 @@ LoadAltEnvelope:
 .end
 
 # Change flute sound to classic zelda "secret found"
+# Change raft sound to tloz recorder sound
 asm b=6
 
 .org $b780
@@ -159,7 +167,27 @@ asm b=5
     nop
     nop
     nop
+.end
 
+# Improve code that resets songs between areas to remove carryover notes
+asm b=7
+
+.org $cf15
+ResetMusic:
+  lda #$00
+  sta $07e2
+  sta $07e3
+  jmp $d033
+
+.org $d033
+  lda #$80
+  sta $eb
+  rts
+
+.org $d03d
+  jsr ResetMusic
+  nop
+  rts
 .end
 
 save /tmp/output.nes
