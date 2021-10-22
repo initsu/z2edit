@@ -191,10 +191,18 @@ ResetMusic:
   sta $eb
   rts
 
-.org $d03d
+.org $d03d            ; reset music between areas
   jsr ResetMusic
   nop
   rts
+
+.org $c436            ; reset music when you die
+  jsr $d39a
+
+.org $d39a
+  sta $075f
+  jmp ResetMusic
+
 .end
 
 # Make GP Intro loop forever
