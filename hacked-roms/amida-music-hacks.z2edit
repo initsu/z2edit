@@ -8,6 +8,13 @@ asm b=7
     lda #$04
     sta $075f
 
+.org $c42e              ; Change town for indoor music to 2 (Zakros)
+    ldy $0748
+    cpy #$30
+
+.org $c436              ; revert z2 redux random battle music code
+    sta $075f
+
 .org $cf0e              ; Choose song when entering a town (19 bytes)
     jsr CheckRuinsMusic
     sta $075f
