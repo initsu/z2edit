@@ -197,5 +197,31 @@ ResetMusic:
   rts
 .end
 
+# Make GP Intro loop forever
+asm b=6
+.org $9e00
+CheckIntroLoop:
+  ldy $0702           ; music world
+  cpy #$05            ; world 5: The Abyss
+  beq LoopIntro
+  lda #$02            ; play song 2 (main theme)
+LoopIntro:
+  jmp LoadSong
+
+.org $9b4f            ; loads the next song to play (for looping music)
+  and #$01
+  beq NotIntro
+  jmp CheckIntroLoop
+  nop
+NotIntro:
+  lda $07fb           ; current song
+  and #$4e
+  bne LoadSong
+  lda $07db           ; song after fanfare
+LoadSong:
+  tax
+
+.end
+
 save /tmp/output.nes
 quit

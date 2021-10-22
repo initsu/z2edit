@@ -519,7 +519,7 @@ void set_great_palace_intro(z2music::Song* intro) {
       { 0xc0, 0xc8 },
       });
 
-  intro->set_sequence({0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0});
+  intro->set_sequence({0});
 }
 
 void set_great_palace_theme(z2music::Song* theme) {
