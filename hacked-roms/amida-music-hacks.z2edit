@@ -228,49 +228,7 @@ NotIntro:
   lda $07db           ; song after fanfare
 LoadSong:
   tax
-.end
 
-# Alternate sound design for overworld theme
-asm b=6
-.org $9e20
-LoadPulse1Envelope:
-  ldx #$00
-  jmp LoadPulseEnvelope
-
-LoadPulse2Envelope:
-  ldx #$04
-  jmp LoadPulseEnvelope
-
-LoadPulseEnvelope:    ; y = offset, return a = pulse apu register
-  lda $0702           ; music world
-  bne LoadNormalEnv
-  lda $07fb           ; current song
-  cmp #$02
-  bne LoadNormalEnv
-  cpx #$00
-  beq LoadOW1Env
-  lda OWPulse2Env,y
-  rts
-LoadOW1Env:
-  lda OWPulse1Env,y
-  rts
-LoadNormalEnv:
-  lda $9135,y
-  rts
-OWPulse1Env:
-.db $50,$10,$50,$10,$51,$11,$51,$11
-.db $52,$12,$52,$12,$53,$13,$53,$13
-.db $54,$14,$54,$14,$54,$13,$52,$11
-OWPulse2Env:
-.db $50,$51,$51,$51,$52,$52,$52,$53
-.db $53,$53,$54,$54,$54,$55,$55,$55
-.db $56,$56,$56,$57,$57,$57,$53,$51
-
-.org $9cd5            ; replace parts of the music engine that load envelopes
-  jsr LoadPulse2Envelope
-
-.org $9d33
-  jsr LoadPulse1Envelope
 .end
 
 save /tmp/output.nes
