@@ -231,5 +231,15 @@ LoadSong:
 
 .end
 
+# Remove sound effect when leaving encounters
+asm b=7
+.org $cf9d
+  nop                 ; ldy #$04
+  nop
+  nop                 ; sty $05e9
+  nop
+  nop
+.end
+
 save /tmp/output.nes
 quit
