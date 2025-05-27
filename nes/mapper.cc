@@ -39,9 +39,10 @@ z2util::Address Mapper::FindFreeSpace(z2util::Address addr, int length) {
     // Search backwards from the end for free space
     offset = 0x3fe0;
     while(offset > 0) {
-        if (Read(addr, offset) == 0xFF) {
+        uint8_t b = Read(addr, offset);
+        if (b == 00 || b == 0xFF) {
             end = offset;
-            while(offset > 0 && Read(addr, offset) == 0xFF) {
+            while (offset > 0 && ((b = Read(addr, offset)) == 0x00 || b == 0xFF)) {
                 if (end - offset + 1 == length) {
                     z2util::Address startaddr = addr;
                     z2util::Address endaddr = addr;

@@ -138,11 +138,13 @@ void RomFile::FindFreeSpaceInBank(int bank) {
     printf("| Address | Size (bytes) |\n");
     printf("|---|---|\n");
     for(int i=0x8000; i<0xc000; i++) {
-        if (Read8(bank, i) == 0xFF) {
+        uint8_t b = Read8(bank, i);
+        if (b == 00 || b == 0xFF) {
             start = i;
             for(;i<0xc000; i++) {
-                if (Read8(bank, i) != 0xFF)
+                if ((b = Read8(bank, i)) == 0x00 || b == 0xFF) {
                     break;
+                }
             }
             end = i;
 
