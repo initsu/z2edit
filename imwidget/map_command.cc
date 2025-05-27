@@ -351,19 +351,57 @@ void MapHolder::Pack() {
     back_ = (data_.spal << 6) | (data_.bpal << 3) | data_.bmap;
 }
 
+void BytesToHexString(const uint8_t(&bytes)[255], char(&hexStr)[511]) {
+    uint8_t length = bytes[0];
+    for (uint8_t i = 0; i < length; ++i) {
+        std::sprintf(&hexStr[i * 2], "%02X", bytes[i]);
+    }
+    hexStr[length * 2] = '\0'; // null-terminate
+}
+
+void HexStringToBytes(const char(&hexStr)[511], uint8_t(&bytes)[255]) {
+    size_t j = 1;
+    for (size_t i = 0; i < 510; i += 2) {
+        j = i / 2;
+        unsigned int byte;
+        if (std::sscanf(&hexStr[i], "%2X", &byte) != 1) {
+            break;
+        }
+        bytes[j] = static_cast<uint8_t>(byte);
+    }
+    bytes[0] = static_cast<uint8_t>(j); // put length in first byte
+}
+
+void MapHolder::ReadSideview() {
+    uint8_t length = mapper_->ReadPrgBank(map_bank_, map_addr_);
+    for (uint8_t i = 0; i < length; ++i) {
+        uint8_t b = mapper_->ReadPrgBank(map_bank_, map_addr_ + i);
+        sideviewBytes_[i] = b;
+    }
+}
+
+void MapHolder::WriteSideview() { // probably we wont use this directly
+    uint8_t length = sideviewBytes_[0];
+    for (uint8_t i = 0; i < length; ++i) {
+        uint8_t b = sideviewBytes_[i];
+        mapper_->WritePrgBank(map_bank_, map_addr_ + i, b);
+    }
+}
+
 MapHolder::DrawResult MapHolder::Draw() {
     DrawResult result = DR_NONE;
     char abuf[8];
-    bool changed = false, achanged=false;
+    bool changed = false;
+    bool achanged = false;
+    char sideviewHex[511] = { '0', '0', '\0' };
+    bool hchanged = false;
     Unpack();
 
-    Address addr = mapper_->ReadAddr(map_.pointer(), 0);
     ImGui::Text("Map pointer at bank=0x%x address=0x%04x",
                 map_.pointer().bank(), map_.pointer().address());
 
     ImGui::AlignTextToFramePadding();
-    ImGui::Text("Map address at bank=0x%x address=",
-                addr.bank());
+    ImGui::Text("Map address at bank=0x%x address=", map_bank_);
 
     ImGui::PushItemWidth(100);
     sprintf(abuf, "%04x", map_addr_);
@@ -373,11 +411,24 @@ MapHolder::DrawResult MapHolder::Draw() {
                                 ImGuiInputTextFlags_EnterReturnsTrue);
     if (achanged) {
         map_addr_ = strtoul(abuf, 0, 16);
-        Parse(map_, map_addr_);
+        Parse();
         addr_changed_ |= achanged;
         return DR_PALETTE_CHANGED;
     }
 
+    ImGui::Text("SideView data [Press Enter after you paste here] [Updated on Commit to ROM]");
+    BytesToHexString(sideviewBytes_, sideviewHex);
+    ImGui::PushItemWidth(800);
+    hchanged = ImGui::InputText("bytes", sideviewHex, 510,
+        ImGuiInputTextFlags_CharsHexadecimal |
+        ImGuiInputTextFlags_EnterReturnsTrue);
+    if (hchanged) {
+        HexStringToBytes(sideviewHex, sideviewBytes_);
+        Parse();
+        return DR_PALETTE_CHANGED;
+    }
+
+    ImGui::PushItemWidth(100);
     ImGui::Text("Length = %d bytes.", length_);
 
     ImGui::Text("Flags:");
@@ -518,26 +569,37 @@ void MapHolder::Parse(const z2util::Map& map, uint16_t altaddr) {
     if (altaddr) {
         address.set_address(altaddr);
     }
+    if (map.type() == MapType::PALACE || map.type() == MapType::GREAT_PALACE) {
+        map_bank_ = 0x1c;
+    }
+    else {
+        map_bank_ = address.bank();
+    }
     *map_.mutable_address() = address;
     map_addr_ = address.address();
+    LOG(INFO, "Parsing from bank=", HEX(map_bank_), " addr=", HEX(map_addr_));
+    ReadSideview();
+    Parse();
+}
 
-    length_ = mapper_->Read(address, 0);
-    flags_ = mapper_->Read(address, 1);
-    ground_ = mapper_->Read(address, 2);
-    back_ = mapper_->Read(address, 3);
+void MapHolder::Parse() {
+    length_ = sideviewBytes_[0];
+    flags_ = sideviewBytes_[1];
+    ground_ = sideviewBytes_[2];
+    back_ = sideviewBytes_[3];
     Unpack();
 
     command_.clear();
     int absx = 0;
     for(int i=4; i<length_; i+=2) {
-        uint8_t pos = mapper_->Read(address, i);
-        uint8_t obj = mapper_->Read(address, i+1);
+        uint8_t pos = sideviewBytes_[i];
+        uint8_t obj = sideviewBytes_[i + 1];
         uint8_t extra = 0;
 
         int y = pos >> 4;
         if (y < 13 && obj == 15) {
             i++;
-            extra = mapper_->Read(address, i+1);
+            extra = sideviewBytes_[i + 1];
         }
         command_.emplace_back(this, absx, pos, obj, extra);
         absx = command_.back().absx();
@@ -652,6 +714,7 @@ void MapHolder::Save(std::function<void()> finish, bool force) {
     }
 
     Address addr = map_.address();
+    addr.set_bank(map_bank_);
     addr.set_address(0x8000 | addr.address());
     bool needfree = false;
 
@@ -697,6 +760,7 @@ void MapHolder::Save(std::function<void()> finish, bool force) {
             mapper_->Write(addr, i, data[i]);
         }
         mapper_->WriteWord(map_.pointer(), 0, addr.address());
+        Parse(map_, 0);
         data_changed_ = false;
         addr_changed_ = false;
         finish();
