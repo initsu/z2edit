@@ -36,25 +36,29 @@ z2util::Address Mapper::FindFreeSpace(z2util::Address addr, int length) {
     if (length < 8)
         length = 8;
 
-    // Search backwards from the end for free space
+    // Search backwards from the end for free space. Only blocks that are
+    // continuous runs of all 0x00 or all 0xFF are used.
     offset = 0x3fe0;
     while(offset > 0) {
-        if (Read(addr, offset) == 0xFF) {
-            end = offset;
-            while(offset > 0 && Read(addr, offset) == 0xFF) {
-                if (end - offset + 1 == length) {
-                    z2util::Address startaddr = addr;
-                    z2util::Address endaddr = addr;
-                    startaddr.set_address(0x8000 | offset);
-                    endaddr.set_address(0x8000 | end);
-                    if (z2util::Memory::InKeepoutRegion(startaddr)
-                        || z2util::Memory::InKeepoutRegion(endaddr)) {
-                        break;
-                    }
-                    return startaddr;
+        uint8_t v = Read(addr, offset);
+        if (v != 0x00 && v != 0xFF) {
+            offset--;
+            continue;
+        }
+        end = offset;
+        while (offset > 0 && Read(addr, offset) == v) {
+            if (end - offset + 1 == length) {
+                z2util::Address startaddr = addr;
+                z2util::Address endaddr = addr;
+                startaddr.set_address(0x8000 | offset);
+                endaddr.set_address(0x8000 | end);
+                if (z2util::Memory::InKeepoutRegion(startaddr)
+                    || z2util::Memory::InKeepoutRegion(endaddr)) {
+                    break;
                 }
-                offset--;
+                return startaddr;
             }
+            offset--;
         }
         offset--;
     }
