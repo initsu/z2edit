@@ -732,7 +732,7 @@ void MapHolder::Save(std::function<void()> finish, bool force) {
     auto dosave = [this, addr, data, sameptr, needfree, finish](bool clone) {
         if (clone) {
             for(const auto* m : sameptr) {
-                mapper_->WriteWord(m->pointer(), 0, addr.address());
+                mapper_->WriteWordLegit(m->pointer(), 0, addr.address());
             }
             // Free the existing memory if it was owned by the allocator.
             if (needfree) {
@@ -749,9 +749,9 @@ void MapHolder::Save(std::function<void()> finish, bool force) {
                    addr.bank(), addr.address());
 
         for(unsigned i=0; i<data.size(); i++) {
-            mapper_->Write(addr, i, data[i]);
+            mapper_->WriteLegit(addr, i, data[i]);
         }
-        mapper_->WriteWord(map_.pointer(), 0, addr.address());
+        mapper_->WriteWordLegit(map_.pointer(), 0, addr.address());
         Parse(map_, 0);
         data_changed_ = false;
         addr_changed_ = false;
@@ -1196,7 +1196,7 @@ void MapEnemyList::Save() {
                     if (data.text[j] < 0) {
                         LOGF(ERROR, "No text for EnemyID $%02x. Skipping.", data.enemy);
                     } else {
-                        mapper_->Write(tt.index(idxtbl), index, data.text[j]);
+                        mapper_->WriteLegit(tt.index(idxtbl), index, data.text[j]);
                     }
                 }
             }
@@ -1205,10 +1205,10 @@ void MapEnemyList::Save() {
                 // Encoded under townsperson 15 dialog 2.
                 index = 15 * 4 + (town & 3);
                 idxtbl = (town >> 2) * 2 + 1;
-                mapper_->Write(tt.index(idxtbl), index, data.text[2]);
+                mapper_->WriteLegit(tt.index(idxtbl), index, data.text[2]);
             }
             if (townsperson >= 9 && townsperson < 9+4) {
-                mapper_->Write(ie.conditions_table(), (townsperson-9)*8 + town,
+                mapper_->WriteLegit(ie.conditions_table(), (townsperson-9)*8 + town,
                         data.condition);
             }
         }

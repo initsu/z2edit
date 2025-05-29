@@ -165,7 +165,7 @@ bool EnemyListPack::Pack() {
                 continue;
 
             List& entry = entry_[addr];
-            mapper_->WriteWord(pointer, n*2, entry.newaddr);
+            mapper_->WriteWordLegit(pointer, n*2, entry.newaddr);
         }
     }
 
@@ -176,7 +176,7 @@ bool EnemyListPack::Pack() {
     addr.set_bank(bank_);
     addr.set_address(misc.enemy_data_rom());
     for(size_t i=0; i<packed.size(); i++) {
-        mapper_->Write(addr, i, packed[i]);
+        mapper_->WriteLegit(addr, i, packed[i]);
     }
     return true;
 }
