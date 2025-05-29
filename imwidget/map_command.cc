@@ -393,7 +393,7 @@ MapHolder::DrawResult MapHolder::Draw() {
     char abuf[8];
     bool changed = false;
     bool achanged = false;
-    char sideviewHex[511] = { '0', '0', '\0' };
+    char sideviewHex[511] = { '0', '1', '\0' };
     bool hchanged = false;
     Unpack();
 
@@ -740,7 +740,7 @@ void MapHolder::Save(std::function<void()> finish, bool force) {
     auto dosave = [this, addr, data, sameptr, needfree, finish](bool clone) {
         if (clone) {
             for(const auto* m : sameptr) {
-                mapper_->WriteWord(m->pointer(), 0, addr.address());
+                mapper_->WriteWordLegit(m->pointer(), 0, addr.address());
             }
             // Free the existing memory if it was owned by the allocator.
             if (needfree) {
@@ -757,9 +757,9 @@ void MapHolder::Save(std::function<void()> finish, bool force) {
                    addr.bank(), addr.address());
 
         for(unsigned i=0; i<data.size(); i++) {
-            mapper_->Write(addr, i, data[i]);
+            mapper_->WriteLegit(addr, i, data[i]);
         }
-        mapper_->WriteWord(map_.pointer(), 0, addr.address());
+        mapper_->WriteWordLegit(map_.pointer(), 0, addr.address());
         Parse(map_, 0);
         data_changed_ = false;
         addr_changed_ = false;

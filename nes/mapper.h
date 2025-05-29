@@ -32,10 +32,17 @@ class Mapper {
     }
 
     virtual void WritePrgBank(int bank, uint32_t addr, uint8_t val) {
+        // something was overwriting our sideview pointers,
+        // so we stop all writes made by other stuff
+        // ... yes, this is terrible, but it works for now.
+        return;
+    }
+    virtual void WritePrgBankLegit(int bank, uint32_t addr, uint8_t val) {
         if (bank < 0) bank += cartridge_->prgsz();
         if (bank < 0x10) {
             return cartridge_->WritePrg(bank * 0x4000 + (addr & 0x3FFF), val);
-        } else {
+        }
+        else {
             uint32_t a = bank * 0x2000 - 0x8000 + addr;
             return cartridge_->WritePrg(a, val);
         }
@@ -72,9 +79,16 @@ class Mapper {
     void Write(const z2util::Address& addr, int offset, uint8_t data) {
         WritePrgBank(addr.bank(), addr.address() + offset, data);
     }
+    void WriteLegit(const z2util::Address& addr, int offset, uint8_t data) {
+        WritePrgBankLegit(addr.bank(), addr.address() + offset, data);
+    }
     void WriteWord(const z2util::Address& addr, int offset, uint16_t data) {
         Write(addr, offset, uint8_t(data));
         Write(addr, offset+1, uint8_t(data >> 8));
+    }
+    void WriteWordLegit(const z2util::Address& addr, int offset, uint16_t data) {
+        WriteLegit(addr, offset, uint8_t(data));
+        WriteLegit(addr, offset + 1, uint8_t(data >> 8));
     }
 
     void Write(const z2util::MemoryRegion& addr, int offset, uint8_t data) {
