@@ -1,0 +1,39 @@
+Relevant commands from bash history to make this build:
+
+Install correct Bezel version:
+apt install apt-transport-https curl gnupg -y
+curl -fsSL https://bazel.build/bazel-release.pub.gpg | gpg --dearmor >bazel-archive-keyring.gpg
+mv bazel-archive-keyring.gpg /usr/share/keyrings
+echo "deb [arch=amd64 signed-by=/usr/share/keyrings/bazel-archive-keyring.gpg] https://storage.googleapis.com/bazel-apt stable jdk1.8" | sudo tee /etc/apt/sources.list.d/bazel.list
+sudo apt update
+apt install bazel-3.7.2
+
+Install python2 and symlink on newer Ubuntu versions:
+pushd ~
+wget http://security.ubuntu.com/ubuntu/pool/universe/p/python2.7/python2.7_2.7.18-13ubuntu1.5_amd64.deb http://security.ubuntu.com/ubuntu/pool/universe/p/python2.7/libpython2.7-stdlib_2.7.18-13ubuntu1.5_amd64.deb http://security.ubuntu.com/ubuntu/pool/universe/p/python2.7/python2.7-minimal_2.7.18-13ubuntu1.5_amd64.deb http://security.ubuntu.com/ubuntu/pool/universe/p/python2.7/libpython2.7-minimal_2.7.18-13ubuntu1.5_amd64.deb  
+sudo apt install ./libpython2.7-minimal_2.7.18-13ubuntu1.5_amd64.deb ./libpython2.7-stdlib_2.7.18-13ubuntu1.5_amd64.deb ./python2.7-minimal_2.7.18-13ubuntu1.5_amd64.deb ./python2.7_2.7.18-13ubuntu1.5_amd64.deb
+popd
+
+pushd /usr/bin
+ln -s python2.7 python
+popd
+
+Creating the build: (run from project directory, NOT from the tools directory.)
+tools/release_windows.sh 
+
+
+I'm not sure which of these dependencies were actually needed:
+  339  apt install make
+  344  apt install build-essential
+  345  apt install libsdl2-dev
+  346  apt install SDL2_gfx
+  347  apt install gcc
+  348  apt install cc1
+  349  apt install cc1plus
+  402  apt install zlib
+  406  apt install sdl2
+  407  apt install sdl
+  408  apt install libsdl2-dev
+  409  apt install SDL2_gfx
+  411  apt install libsdl2
+  412  apt install libsdl2-gfx-dev
