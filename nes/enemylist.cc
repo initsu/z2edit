@@ -75,7 +75,7 @@ void EnemyListPack::Unpack(int bank) {
     // In the other banks, I've taken pains to move things around, but
     // bank5 is pretty full and has only 63 rooms instead of 126, so
     // ~half the space should be enough.
-    size_ = (bank == 5) ? FLAGS_bank5_enemy_list_size : 1024;
+    size_ = 10000; // tmp: doesn't matter as we are not actually saving a ROM
     area_.resize(126, 0);
 
     LoadEncounters();
