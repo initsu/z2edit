@@ -163,13 +163,13 @@ void OverworldConnector::StartEmulator() {
     uint8_t towns = misc.town_connection_id();
     uint8_t palaces = misc.palace_connection_id();
     uint8_t town_code=0, palace_code=0;
-    uint8_t connector = offset_;
-    if (offset_ >= towns && offset_ < towns+8) {
-        town_code = (offset_ - towns) / 2;
+    uint8_t location_id = offset_;
+    if (location_id >= towns && location_id < towns+8) {
+        town_code = (location_id - towns) / 2;
         palace_code = 0xf8;
-        connector &= 0xFE;
-    } else if (offset_ >= palaces && offset_ < palaces + 4) {
-        palace_code = offset_ - palaces;
+        location_id &= 0xFE;
+    } else if (location_id >= palaces && location_id < palaces + 4) {
+        palace_code = location_id - palaces;
     }
     uint8_t bank = mapper_->Read(misc.world_to_bank(), dest_world_);
     uint8_t overworld = dest_overworld_ ? dest_overworld_ : overworld_;
@@ -191,7 +191,7 @@ void OverworldConnector::StartEmulator() {
         uint8_t(dest_world_),
         town_code,
         palace_code,
-        connector,
+        location_id,
         uint8_t(map_),
         uint8_t(entry_),
         uint8_t(overworld_),
