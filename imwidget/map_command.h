@@ -101,7 +101,6 @@ class MapHolder {
     std::vector<uint8_t> MapData();
     std::vector<uint8_t> MapDataAbs();
     void ReadSideview();
-    void WriteSideview();
     void Clear(const Unpacked& data) {
         command_.clear();
         data_ = data;
@@ -237,7 +236,9 @@ class MapEnemyList {
     bool DrawOne(Unpacked* item, bool popup);
     DrawResult DrawOnePopup(Unpacked* item, float scale);
     bool DrawPopup(float scale);
+    void ReadEnemyList();
     void Parse(const Map& map);
+    void Parse();
     std::vector<uint8_t> Pack();
     void Save();
     std::vector<Unpacked>& data();
@@ -257,6 +258,7 @@ class MapEnemyList {
     int area_;
     int display_;
 
+    uint8_t enemyListBytes_[255] = { 1 };
     std::vector<Unpacked> data_;
     std::unique_ptr<MapEnemyList> large_;
     const char *names_[256];

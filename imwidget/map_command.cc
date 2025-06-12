@@ -380,14 +380,6 @@ void MapHolder::ReadSideview() {
     }
 }
 
-void MapHolder::WriteSideview() { // probably we wont use this directly
-    uint8_t length = sideviewBytes_[0];
-    for (uint8_t i = 0; i < length; ++i) {
-        uint8_t b = sideviewBytes_[i];
-        mapper_->WritePrgBank(map_bank_, map_addr_ + i, b);
-    }
-}
-
 MapHolder::DrawResult MapHolder::Draw() {
     DrawResult result = DR_NONE;
     char abuf[8];
@@ -998,6 +990,29 @@ void MapEnemyList::LoadText(Unpacked* item) {
     }
 }
 
+void MapEnemyList::ReadEnemyList() {
+    Address addr = mapper_->ReadAddr(pointer_, 0x7e);
+    uint16_t delta = 0x18a0;
+
+    // uint8_t length = mapper_->ReadPrgBank(map_bank_, map_addr_);
+    uint8_t length = mapper_->Read(addr, delta);
+    for (uint8_t i = 0; i < length; ++i) {
+        // uint8_t b = mapper_->ReadPrgBank(map_bank_, map_addr_ + i);
+        uint8_t b = mapper_->Read(addr, delta + i);
+        enemyListBytes_[i] = b;
+    }
+
+    if (is_encounter_) {
+        uint16_t delta2 = delta + length;
+        uint8_t length2 = mapper_->Read(addr, delta);
+        for (uint8_t i = 0; i < length2; ++i) {
+            // uint8_t b = mapper_->ReadPrgBank(map_bank_, map_addr_ + i);
+            uint8_t b = mapper_->Read(addr, delta2 + i);
+            enemyListBytes_[i] = b;
+        }
+    }
+}
+
 void MapEnemyList::Parse(const Map& map) {
     map_ = map;
     pointer_ = map.pointer();
@@ -1018,23 +1033,26 @@ void MapEnemyList::Parse(const Map& map) {
     enc.set_map(map);
     enc.Unpack();
     is_encounter_ = enc.IsEncounter(area_);
+    ReadEnemyList();
+    Parse();
+}
 
-    Address addr = mapper_->ReadAddr(pointer_, 0x7e);
-    uint16_t delta = 0x18a0;
-
+void MapEnemyList::Parse() {
     data_.clear();
-    uint8_t n = mapper_->Read(addr, delta);
+
+    int delta = 0;
+    uint8_t length = enemyListBytes_[0];
     if (is_large_) {
-        delta += n;
-        n = mapper_->Read(addr, delta);
+        delta = length;
+        length = enemyListBytes_[delta];
     }
-    for(int i=1; i<n; i+=2) {
-        uint8_t pos = mapper_->Read(addr, delta+i);
-        uint8_t enemy = mapper_->Read(addr, delta+i+1);
+    for (int i = 1; i < length; i += 2) {
+        uint8_t pos = enemyListBytes_[delta + i];
+        uint8_t enemy = enemyListBytes_[delta + i + 1];
         int y = pos >> 4;
-        y = (y == 0) ? 1 : y+2;
+        y = (y == 0) ? 1 : y + 2;
         data_.emplace_back(enemy & 0x3f,
-                           (pos & 0xf) | (enemy & 0xc0) >> 2, y);
+            (pos & 0xf) | (enemy & 0xc0) >> 2, y);
 
         LoadText(&data_.back());
     }
@@ -1044,7 +1062,7 @@ void MapEnemyList::Parse(const Map& map) {
     if (is_encounter_ && !is_large_) {
         large_.reset(new MapEnemyList(mapper_));
         large_->is_large_ = true;
-        large_->Parse(map);
+        large_->Parse();
     }
 }
 
@@ -1190,6 +1208,7 @@ void MapEnemyList::Save() {
             }
         }
     }
+    Parse(map_);
 }
 
 bool MapEnemyList::DrawOne(Unpacked* item, bool popup) {
@@ -1276,6 +1295,8 @@ bool MapEnemyList::DrawOne(Unpacked* item, bool popup) {
 
 bool MapEnemyList::Draw() {
     bool chg = false;
+    char enemiesHex[511] = { '0', '1', '\0' };
+    bool hchanged = false;
 
     Address addr = mapper_->ReadAddr(pointer_, 0x7e);
     ImGui::Text("Map enemy table pointer at bank=0x%x address=0x%04x",
@@ -1283,6 +1304,18 @@ bool MapEnemyList::Draw() {
     ImGui::Text("Map enemy table address at bank=0x%x address=0x%04x",
                 addr.bank(), addr.address() + 0x18a0);
     ImGui::Text("Map enemy table RAM addresss=0x%04x", addr.address());
+
+    ImGui::Text("Enemies data [Press Enter after you paste here] [Updated on Commit to ROM]");
+    BytesToHexString(enemyListBytes_, enemiesHex);
+    ImGui::PushItemWidth(400);
+    hchanged = ImGui::InputText("bytes", enemiesHex, 510,
+        ImGuiInputTextFlags_CharsHexadecimal |
+        ImGuiInputTextFlags_EnterReturnsTrue);
+    if (hchanged) {
+        HexStringToBytes(enemiesHex, enemyListBytes_);
+        Parse();
+        return DR_CHANGED;
+    }
 
     if (is_encounter_) {
         if (is_large_) {
