@@ -94,6 +94,9 @@ class Mapper {
     void Write(const z2util::MemoryRegion& addr, int offset, uint8_t data) {
         WritePrgBank(addr.bank(), addr.address() + offset, data);
     }
+    void WriteLegit(const z2util::MemoryRegion& addr, int offset, uint8_t data) {
+        WritePrgBankLegit(addr.bank(), addr.address() + offset, data);
+    }
     void WriteWord(const z2util::MemoryRegion& addr, int offset, uint16_t data) {
         Write(addr, offset, uint8_t(data));
         Write(addr, offset+1, uint8_t(data >> 8));
