@@ -2,7 +2,11 @@
 #define Z2HD_UTIL_LOGGING_H
 #include <cstdio>
 #include <string>
+#if defined(_MSC_VER)
+#include "util/posix_shim.h"
+#else
 #include <unistd.h>
+#endif
 #include "absl/strings/str_cat.h"
 
 

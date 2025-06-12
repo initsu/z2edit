@@ -8,6 +8,7 @@
 #include "util/config.h"
 #include "imgui.h"
 #include <gflags/gflags.h>
+#include <vector>
 
 DECLARE_bool(reminder_dialogs);
 
@@ -146,7 +147,7 @@ bool EnemyEditor::Draw() {
         n++;
     }
 
-    const char *names[ri.enemies_size() + 1];
+    std::vector<const char*> names(ri.enemies_size() + 1);
     for(int i=0; i<ri.enemies_size(); i++) {
         names[i] = ri.enemies(i).area().c_str();
     }
@@ -155,7 +156,7 @@ bool EnemyEditor::Draw() {
     ImGui::Begin("Enemy Attributes", &visible_);
     ImGui::PushItemWidth(400);
     int category = category_;
-    if (ImGui::Combo("Category", &category, names, ri.enemies_size()+1)) {
+    if (ImGui::Combo("Category", &category, names.data(), ri.enemies_size()+1)) {
         if (FLAGS_reminder_dialogs && changed_) {
             ErrorDialog::Spawn("Discard Chagnes", 
                 ErrorDialog::OK | ErrorDialog::CANCEL,

@@ -35,7 +35,7 @@ int main(int argc, char *argv[]) {
         File::GetContents(argv[2], &patch);
         auto mod = ips::ApplyPatch(original, patch);
         if (mod.ok()) {
-            File::SetContents(argv[3], mod.ValueOrDie());
+            File::SetContents(argv[3], mod.value());
             printf("Applied patch and wrote new file %s\n", argv[3]);
         } else {
             printf("Error: %s\n", mod.status().ToString().c_str());

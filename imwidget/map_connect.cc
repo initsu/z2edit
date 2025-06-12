@@ -371,7 +371,7 @@ bool OverworldConnectorList::DrawInEditor(int x, int y) {
     ImGui::InvisibleButton("##button", ImVec2(16, 16));
     bool focus = ImGui::IsItemHovered();
     if (ImGui::IsItemActive()) {
-        if (ImGui::IsMouseDragging()) {
+        if (ImGui::IsMouseDragging(0)) {
             conn->drag_start();
             ImVec2 delta = ImGui::GetIO().MouseDelta;
             conn->drag(delta.x, delta.y);

@@ -1,5 +1,6 @@
 #include "imwidget/simplemap.h"
 #include <gflags/gflags.h>
+#include <vector>
 
 #include "imwidget/imapp.h"
 #include "imwidget/imutil.h"
@@ -161,7 +162,7 @@ bool SimpleMap::Draw() {
     ImGui::SetNextWindowSize(ImVec2(1024, 700), ImGuiCond_FirstUseEver);
     ImGui::Begin(window_title_.c_str(), &visible_);
     const auto& ri = ConfigLoader<RomInfo>::GetConfig();
-    const char *names[ri.map().size()];
+    std::vector<const char*> names(ri.map().size());
     int len=0, start=0;
     int mapsel = mapsel_;
     bool want_redraw = false;
@@ -179,7 +180,7 @@ bool SimpleMap::Draw() {
     start -= len;
 
     ImGui::PushItemWidth(400);
-    if (ImGui::Combo("Map", &mapsel_, names, len)) {
+    if (ImGui::Combo("Map", &mapsel_, names.data(), len)) {
         if (FLAGS_reminder_dialogs && changed_) {
             ErrorDialog::Spawn("Discard Chagnes", 
                 ErrorDialog::OK | ErrorDialog::CANCEL,

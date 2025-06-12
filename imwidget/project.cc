@@ -1,5 +1,8 @@
 #include "imwidget/project.h"
 
+#include <array>
+#include <vector>
+
 #include "google/protobuf/text_format.h"
 #include "imwidget/imapp.h"
 #include "imwidget/error_dialog.h"
@@ -33,8 +36,8 @@ bool Project::Draw() {
         project_.set_name(name);
     }
 
-    char items_text[project_.history_size()][100];
-    const char *items[project_.history_size()];
+    std::vector<std::array<char, 100>> items_text(project_.history_size());
+    std::vector<const char*> items(project_.history_size());
     char descr[100];
     int n = 0;
     for(const auto& h : project_.history()) {
@@ -42,16 +45,17 @@ bool Project::Draw() {
             strncpy(descr, h.description().c_str(), 99);
             descr[99] = 0;
         }
-        items[n] = items_text[n];
-        snprintf(items_text[n++], 100, "%s: %s",
+        snprintf(items_text[n].data(), items_text[n].size(), "%s: %s",
                 os::CTime(h.create_time()).c_str(), h.description().c_str());
+        items[n] = items_text[n].data();
+        n++;
     }
-    ImGui::ListBox("Commit History", &selection_, items, n, 15);
+    ImGui::ListBox("Commit History", &selection_, items.data(), n, 15);
 
     if (ImGui::Button("Make Selection Current")) {
         auto rom = ZLib::Uncompress(project_.history(selection_).rom());
         if (rom.ok()) {
-            cartridge_->LoadRom(rom.ValueOrDie());
+            cartridge_->LoadRom(rom.value());
             ImApp::Get()->ProcessMessage("loadpostprocess",
                     reinterpret_cast<void*>(0));
         }
@@ -131,7 +135,7 @@ bool Project::LoadWorker(const std::string& filename) {
 #endif
         auto rom = ZLib::Uncompress(project_.rom());
         if (rom.ok()) {
-            cartridge_->LoadRom(rom.ValueOrDie());
+            cartridge_->LoadRom(rom.value());
         } else {
             LOG(ERROR, filename, ": error uncompressing ROM in project: ",
                     rom.status().ToString());
@@ -183,9 +187,9 @@ util::Status Project::ExportIps(const std::string& filename, int original, int m
         return mod.status();
     }
 
-    std::string patch = ips::CreatePatch(orig.ValueOrDie(), mod.ValueOrDie());
+    std::string patch = ips::CreatePatch(orig.value(), mod.value());
     if (!File::SetContents(filename, patch)) {
-        return util::Status(util::error::Code::UNKNOWN, "Could not save file");
+        return util::Status(absl::StatusCode::kUnknown, "Could not save file");
     }
     return util::Status();
 }
@@ -207,7 +211,7 @@ StatusOr<std::string> Project::rom(int n) {
         n -= 1;
     }
     if (n < 0 || n >= project_.history_size()) {
-        return util::Status(util::error::Code::INVALID_ARGUMENT,
+        return util::Status(absl::StatusCode::kInvalidArgument,
                             "Invalid history index");
     }
     return ZLib::Uncompress(project_.history(n).rom());

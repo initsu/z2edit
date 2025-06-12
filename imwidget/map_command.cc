@@ -1,5 +1,6 @@
 #include <cstdlib>
 #include <algorithm>
+#include <vector>
 #include "imwidget/map_command.h"
 
 #include "imwidget/error_dialog.h"
@@ -11,8 +12,6 @@
 #include "nes/enemylist.h"
 #include "util/config.h"
 #include "absl/strings/str_cat.h"
-
-#include "IconsFontAwesome.h"
 
 namespace z2util {
 
@@ -237,7 +236,7 @@ MapCommand::DrawResult MapCommand::DrawPopup(float scale) {
     if (show_origin_) {
         ImVec2 a = ImVec2(abs.x + data_.absx * size, abs.y + yp * size);
         ImVec2 b = ImVec2(a.x + size, a.y + size);
-        draw->AddRect(a, b, color, 0, ~0, 2.0f);
+        draw->AddRect(a, b, color, 0, 2.0f, 0);
         if (data_.y == 13) {
             // New floor
             for(int i=0; i<16; i+=4) {
@@ -273,7 +272,7 @@ MapCommand::DrawResult MapCommand::DrawPopup(float scale) {
         }
     }
     if (ImGui::IsItemActive()) {
-        if (ImGui::IsMouseDragging()) {
+        if (ImGui::IsMouseDragging(0)) {
             int x = int((ImGui::GetIO().MousePos.x - abs.x) / size);
             int y = int((ImGui::GetIO().MousePos.y - abs.y) / size);
             x = Clamp(x, 0, 64);
@@ -481,7 +480,7 @@ MapHolder::DrawResult MapHolder::Draw() {
 
         lastx = it->absx();
         ImGui::PushID(i);
-        if (ImGui::Button(ICON_FA_CARET_SQUARE_O_UP)) {
+        if (ImGui::Button("^")) {
             if (ImGui::GetIO().KeyCtrl)
                 copy = true;
             changed = true;
@@ -491,9 +490,10 @@ MapHolder::DrawResult MapHolder::Draw() {
             ImGui::SetTooltip("Insert a new command\nCtrl+Click to copy");
 
         ImGui::SameLine();
-        if (ImGui::Button(ICON_FA_CARET_DOWN)) {
+        if (ImGui::Button("v")) {
             changed = true;
-            std::swap(*it, *next);
+            if (next != command_.end())
+                std::swap(*it, *next);
         }
         if (ImGui::IsItemHovered())
           ImGui::SetTooltip("Move command down");
@@ -502,7 +502,7 @@ MapHolder::DrawResult MapHolder::Draw() {
         changed |= it->Draw(true);
 
         ImGui::SameLine();
-        if (ImGui::Button(ICON_FA_TIMES_CIRCLE)) {
+        if (ImGui::Button("X")) {
             changed = true;
             it = command_.erase(it);
         }
@@ -516,7 +516,7 @@ MapHolder::DrawResult MapHolder::Draw() {
                 it = command_.emplace(it, this, it->absx(), 0, 0, 0);
         }
     }
-    if (ImGui::Button(ICON_FA_CARET_SQUARE_O_UP)) {
+    if (ImGui::Button("+")) {
         changed = true;
         command_.emplace_back(this, lastx, 0, 0, 0);
     }
@@ -874,8 +874,8 @@ bool MapConnection::Draw() {
     };
     const char *selection = "0\0001\0002\0003\0\0";
     const auto& ri = ConfigLoader<RomInfo>::GetConfig();
-    const char *names[ri.map().size() + 1];
-    const Map *maps[ri.map().size() + 1];
+    std::vector<const char*> names(ri.map().size() + 1);
+    std::vector<const Map*> maps(ri.map().size() + 1);
     int len = 0;
     bool chg = false;
 
@@ -901,7 +901,7 @@ bool MapConnection::Draw() {
                     doors_.bank(), doors_.address());
         }
         ImGui::PushItemWidth(200);
-        chg |= ImGui::Combo(destlabel[i], &data_[i].destination, names, len);
+        chg |= ImGui::Combo(destlabel[i], &data_[i].destination, names.data(), len);
         ImGui::PopItemWidth();
         ImGui::SameLine();
         ImGui::PushItemWidth(50);
@@ -1078,7 +1078,7 @@ MapEnemyList::DrawResult MapEnemyList::DrawOnePopup(Unpacked* item,
     if (show_origin_) {
         ImVec2 a = ImVec2(abs.x + item->x * size, abs.y + item->y * size);
         ImVec2 b = ImVec2(a.x + size, a.y + size);
-        draw->AddRect(a, b, color, 0, ~0, 2.0f);
+        draw->AddRect(a, b, color, 0, 2.0f, 0);
     }
 
     ImGui::SetCursorPos(ImVec2(pos.x + item->x * size, pos.y + item->y * size));
@@ -1086,7 +1086,7 @@ MapEnemyList::DrawResult MapEnemyList::DrawOnePopup(Unpacked* item,
     if (ImGui::IsItemHovered())
         ImGui::SetTooltip("%s", names_[item->enemy]);
     if (ImGui::IsItemActive()) {
-        if (ImGui::IsMouseDragging()) {
+        if (ImGui::IsMouseDragging(0)) {
             int x = int((ImGui::GetIO().MousePos.x - abs.x) / size);
             int y = int((ImGui::GetIO().MousePos.y - abs.y) / size);
             x = Clamp(x, 0, 64);
@@ -1333,14 +1333,17 @@ bool MapEnemyList::Draw() {
 
     int i=0;
     ImGui::PushID(is_large_ ? 1 : 0);
-    for(auto it=data_.begin(); it<data_.end(); ++it, ++i) {
+    for(auto it=data_.begin(); it != data_.end(); ) {
         ImGui::PushID(i | (is_large_ << 8));
         chg |= DrawOne(&*it, false);
 
         ImGui::SameLine();
-        if (ImGui::Button(ICON_FA_TIMES_CIRCLE)) {
+        if (ImGui::Button("X")) {
             chg = true;
-            data_.erase(it);
+            it = data_.erase(it);
+        } else {
+            ++it;
+            ++i;
         }
         if (ImGui::IsItemHovered())
             ImGui::SetTooltip("Delete this enemy");
@@ -1349,7 +1352,7 @@ bool MapEnemyList::Draw() {
             ImGui::Separator();
         }
     }
-    if (ImGui::Button(ICON_FA_CARET_SQUARE_O_UP)) {
+    if (ImGui::Button("+")) {
         chg = true;
         data_.emplace_back(0, 0, 0);
     }
@@ -1417,7 +1420,7 @@ bool MapItemAvailable::Draw() {
 
 bool MapSwapper::Draw() {
     const auto& ri = ConfigLoader<RomInfo>::GetConfig();
-    const char *names[ri.map().size() + 1];
+    std::vector<const char*> names(ri.map().size() + 1);
     int len = 0;
     bool chg = false;
 
@@ -1433,8 +1436,8 @@ bool MapSwapper::Draw() {
 
     ImGui::PushID(id_);
     ImGui::PushItemWidth(400);
-    ImGui::Combo("Source Area", &srcarea_, names, len);
-    ImGui::Combo("Destination Area", &dstarea_, names, len);
+    ImGui::Combo("Source Area", &srcarea_, names.data(), len);
+    ImGui::Combo("Destination Area", &dstarea_, names.data(), len);
     ImGui::PopItemWidth();
     ImGui::Checkbox("Map", &swap_map_);
     ImGui::Checkbox("Connections", &swap_conn_);

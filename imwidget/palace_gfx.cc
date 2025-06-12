@@ -1,5 +1,8 @@
 #include "imwidget/palace_gfx.h"
 
+#include <array>
+#include <vector>
+
 #include "imwidget/imapp.h"
 #include "imwidget/imutil.h"
 #include "nes/mapper.h"
@@ -18,8 +21,8 @@ bool PalaceGraphics::Draw() {
     }
 
     const auto& misc = ConfigLoader<RomInfo>::GetConfig().misc();
-    char chr[misc.palace_table_len()][16];
-    char pal[misc.palace_table_len()][16];
+    std::vector<std::array<char, 16>> chr(misc.palace_table_len());
+    std::vector<std::array<char, 16>> pal(misc.palace_table_len());
 
     ImGui::Begin("Palace Graphics & Palettes", &visible_);
     int start = 52;
@@ -30,8 +33,8 @@ bool PalaceGraphics::Draw() {
     ImGui::Separator();
 
     for(int i=0; i<misc.palace_table_len(); i++) {
-        sprintf(chr[i], "CHR##%d", i);
-        sprintf(pal[i], "Palette##%d", i);
+        sprintf(chr[i].data(), "CHR##%d", i);
+        sprintf(pal[i].data(), "Palette##%d", i);
 
         for(int world=0; world<3; world++) {
             int n = start + i - world * 4;
@@ -49,12 +52,12 @@ bool PalaceGraphics::Draw() {
         const int step = 2;
         ImGui::PushItemWidth(100);
         ImGui::SameLine();
-        ImGui::InputScalar(chr[i], ImGuiDataType_S32, &graphics_[i], &step,
+        ImGui::InputScalar(chr[i].data(), ImGuiDataType_S32, &graphics_[i], &step,
                            nullptr, "%02x",
                            ImGuiInputTextFlags_CharsHexadecimal);
         Clamp(&graphics_[i], 0, 255);
         ImGui::SameLine();
-        ImGui::InputInt(pal[i], &palette_[i]);
+        ImGui::InputInt(pal[i].data(), &palette_[i]);
         ImGui::PopItemWidth();
     }
     if (ImGui::Button("Commit to ROM")) {

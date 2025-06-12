@@ -6,7 +6,7 @@
 #include "imwidget/editor.h"
 #include "nes/z2decompress.h"
 #include "util/config.h"
-#include "util/imgui_impl_sdl.h"
+#include "util/imgui_hidpi.h"
 #include "util/stb_tilemap_editor.h"
 #include "imwidget/imutil.h"
 
@@ -406,6 +406,9 @@ bool Editor::Draw() {
             }
         }
     }
+
+    ImGui::SetCursorPos(origin_ + size_ * scale_);
+    ImGui::Dummy(ImVec2(0, 0));
 
     for(auto& e : events_) {
         HandleEvent(&e);

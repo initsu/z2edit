@@ -62,7 +62,7 @@ void GLBitmap::Update() {
 void GLBitmap::Draw(int w, int h) {
     if (w == 0) w = width_;
     if (h == 0) h = height_;
-    ImGui::Image(ImTextureID(uintptr_t(texture_id_)), ImVec2(w, h));
+    ImGui::Image((ImTextureID)texture_id_, ImVec2(w, h));
 }
 
 void GLBitmap::DrawAt(int x, int y, int w, int h) {

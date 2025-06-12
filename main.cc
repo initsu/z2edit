@@ -150,7 +150,9 @@ int main(int argc, char *argv[]) {
         config->Parse(kZelda2Cfg, PostProcess);
     }
     if (FLAGS_dump_config) {
-        puts(config->config().DebugString().c_str());
+        std::string data;
+        google::protobuf::TextFormat::PrintToString(config->config(), &data);
+        puts(data.c_str());
         exit(0);
     }
 

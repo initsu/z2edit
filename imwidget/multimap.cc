@@ -249,13 +249,13 @@ void MultiMap::DrawOne(const DrawLocation& dl) {
     }
     pos += button_height;
     ImGui::SetCursorPos(pos);
-    ImGui::InvisibleButton(maps_[dl.node->id()].name().c_str(),
+    ImGui::InvisibleButton((maps_[dl.node->id()].name() + "##invisible").c_str(),
                            ImVec2(dl.buffer->width() * mcfg_->scale(),
                                   dl.buffer->height() * mcfg_->scale()));
     dl.node->set_pause(false);
     if (ImGui::IsItemActive()) {
         drag_ |= true;
-        if (ImGui::IsMouseDragging()) {
+        if (ImGui::IsMouseDragging(0)) {
             Vec2 delta = Vec2(ImGui::GetIO().MouseDelta.x /
                                   (1024.0 * mcfg_->zoom_x() * mcfg_->scale()),
                               ImGui::GetIO().MouseDelta.y /

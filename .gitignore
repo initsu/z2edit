@@ -4,9 +4,14 @@
 *.ips
 *.zip
 imgui.ini
-bazel-*
 tools/mxe
 gtm/*
 lemmy/*
 init.z2edit
 hidden/*
+
+# Visual Studio state
+/.vs/
+
+# CMake build trees
+/build/

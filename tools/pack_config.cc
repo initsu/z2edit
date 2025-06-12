@@ -20,7 +20,10 @@ int main(int argc, char *argv[]) {
 
     z2util::RomInfo* config = loader->MutableConfig();
     config->mutable_load()->Clear();
-    std::string data = config->DebugString();
+    std::string data;
+    if (!google::protobuf::TextFormat::PrintToString(*config, &data)) {
+        LOG(FATAL, "Failed to serialize config.");
+    }
     
     printf("const char %s[] = R\"%s(%s)%s\";\n",
            FLAGS_symbol.c_str(),

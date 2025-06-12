@@ -1,9 +1,13 @@
 #include <cstdio>
 #include <cstdlib>
 #include <time.h>
+#if defined(_MSC_VER)
+#include "util/posix_shim.h"
+#else
 #include <unistd.h>
-#include <limits.h>
 #include <sched.h>
+#endif
+#include <limits.h>
 #ifdef _WIN32
 #include <windows.h>
 #endif

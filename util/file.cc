@@ -3,8 +3,12 @@
 #include <string>
 #include <vector>
 
-#include <libgen.h>
 #include <limits.h>
+#if defined(_MSC_VER)
+#include "util/posix_shim.h"
+#else
+#include <libgen.h>
+#endif
 
 #include "util/file.h"
 #include "util/status.h"
@@ -126,7 +130,7 @@ File::~File() {
 }
 
 Stat File::FStat() {
-    return Stat::FileDescriptor(fileno(fp_)).ValueOrDie();
+    return Stat::FileDescriptor(fileno(fp_)).value();
 }
 
 int64_t File::Length() {

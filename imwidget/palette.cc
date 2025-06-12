@@ -9,6 +9,7 @@
 #include "util/config.h"
 #include "imgui.h"
 #include <gflags/gflags.h>
+#include <vector>
 
 DECLARE_bool(reminder_dialogs);
 
@@ -24,7 +25,7 @@ bool PaletteEditor::Draw() {
 
     const auto& ri = ConfigLoader<RomInfo>::GetConfig();
     const auto* hw = NesHardwarePalette::Get();
-    const char *groupnames[ri.palettes_size()];
+    std::vector<const char*> groupnames(ri.palettes_size());
     char names[256][16], popups[256][32];
     int grplen = 0;
     int grpsel = grpsel_;
@@ -35,7 +36,7 @@ bool PaletteEditor::Draw() {
     ImGui::Begin("Palette Editor", &visible_);
 
     ImGui::PushItemWidth(400);
-    if (ImGui::Combo("Palette Group", &grpsel, groupnames, grplen)) {
+    if (ImGui::Combo("Palette Group", &grpsel, groupnames.data(), grplen)) {
         if (FLAGS_reminder_dialogs && changed_) {
             ErrorDialog::Spawn("Discard Chagnes", 
                 ErrorDialog::OK | ErrorDialog::CANCEL,

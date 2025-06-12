@@ -1,5 +1,6 @@
 #include "imwidget/misc_hacks.h"
 #include <gflags/gflags.h>
+#include <vector>
 
 #include "imwidget/imapp.h"
 #include "nes/mapper.h"
@@ -421,7 +422,7 @@ int MiscellaneousHacks::EnabledIndex(GETALL getall) {
 template<class GETALL, class GET, class CHECK>
 int MiscellaneousHacks::Hack(const char* hackname, int n,
                               GETALL getall, GET get, CHECK check) {
-    const char *names[n];
+    std::vector<const char*> names(n);
     int len = 0;
     int method = 0;
     auto all = getall();
@@ -433,7 +434,7 @@ int MiscellaneousHacks::Hack(const char* hackname, int n,
         len++;
     }
     ImGui::PushItemWidth(400);
-    if (ImGui::Combo(hackname, &method, names, len)) {
+    if (ImGui::Combo(hackname, &method, names.data(), len)) {
         PutGameHack(get(method));
         check();
     }

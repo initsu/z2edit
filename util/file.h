@@ -6,7 +6,11 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
+#if defined(_MSC_VER)
+#include "util/posix_shim.h"
+#else
 #include <unistd.h>
+#endif
 
 #include "util/status.h"
 #include "util/statusor.h"

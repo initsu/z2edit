@@ -93,10 +93,10 @@ bool ObjectTable::Draw() {
         for(int x=0; x<8; x++, item++) {
             ImGui::SameLine();
             auto& bitmap = cache_.Get(item);
-            ImTextureID id = reinterpret_cast<ImTextureID>(bitmap.texture_id());
+            ImTextureID id = (ImTextureID)bitmap.texture_id();
             ImVec2 size(bitmap.width()*scale_, bitmap.height()*scale_);
             ImGui::PushID(item);
-            if (ImGui::ImageButton(id, size)) {
+            if (ImGui::ImageButton("obj", id, size)) {
                 item_ = item;
             }
             ImGui::PopID();

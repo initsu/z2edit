@@ -2,6 +2,7 @@
 #define Z2UTIL_MUSIC_MUSIC
 
 #include <array>
+#include <cstdint>
 #include <fstream>
 #include <string>
 #include <unordered_map>
