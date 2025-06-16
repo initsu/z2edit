@@ -19,7 +19,12 @@ class Mapper {
 
     virtual uint8_t ReadPrgBank(int bank, uint32_t addr) {
         if (bank < 0) bank += cartridge_->prgsz();
-        return cartridge_->ReadPrg(bank * 0x4000 + (addr & 0x3FFF));
+        if (bank < 0x10) {
+            return cartridge_->ReadPrg(bank * 0x4000 + (addr & 0x3FFF));
+        } else {
+            uint32_t a = bank * 0x2000 - 0x8000 + addr;
+            return cartridge_->ReadPrg(a);
+        }
     }
     virtual uint8_t ReadChrBank(int bank, uint32_t addr) {
         if (bank < 0) bank += cartridge_->chrsz();
@@ -28,7 +33,12 @@ class Mapper {
 
     virtual void WritePrgBank(int bank, uint32_t addr, uint8_t val) {
         if (bank < 0) bank += cartridge_->prgsz();
-        return cartridge_->WritePrg(bank * 0x4000 + (addr & 0x3FFF), val);
+        if (bank < 0x10) {
+            return cartridge_->WritePrg(bank * 0x4000 + (addr & 0x3FFF), val);
+        } else {
+            uint32_t a = bank * 0x2000 - 0x8000 + addr;
+            return cartridge_->WritePrg(a, val);
+        }
     }
     virtual void WriteChrBank(int bank, uint32_t addr, uint8_t val) {
         if (bank < 0) bank += cartridge_->chrsz();
