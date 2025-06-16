@@ -562,7 +562,12 @@ void MapHolder::Parse(const z2util::Map& map, uint16_t altaddr) {
     if (altaddr) {
         address.set_address(altaddr);
     }
-    map_bank_ = address.bank();
+    if (map.type() == MapType::PALACE || map.type() == MapType::GREAT_PALACE) {
+        map_bank_ = 0x1c;
+    }
+    else {
+        map_bank_ = address.bank();
+    }
     *map_.mutable_address() = address;
     map_addr_ = address.address();
     ReadSideview();

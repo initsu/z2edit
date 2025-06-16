@@ -48,6 +48,9 @@ void Z2Decompress::Decompress(const Map& map) {
     if (p.address()) {
         LOG(INFO, "Map pointer at bank=", p.bank(), " address=", HEX(p.address()));
         Address a = mapper_->ReadAddr(p, 0);
+        if (map.type() == MapType::PALACE || map.type() == MapType::GREAT_PALACE) {
+            a.set_bank(0x1c);
+        }
         *compressed_map_.mutable_address() = a;
     }
 
