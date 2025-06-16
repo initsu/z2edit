@@ -97,8 +97,11 @@ class MapHolder {
     void Save() { Save([](){}, true); }
     void Save(std::function<void()> finish, bool force=false);
     void Parse(const Map& map, uint16_t altaddr=0);
+    void Parse();
     std::vector<uint8_t> MapData();
     std::vector<uint8_t> MapDataAbs();
+    void ReadSideview();
+    void WriteSideview();
     void Clear(const Unpacked& data) {
         command_.clear();
         data_ = data;
@@ -141,6 +144,7 @@ class MapHolder {
     void Unpack();
     void Pack();
 
+    uint8_t sideviewBytes_[255] = { 1 };
     uint8_t length_;
     uint8_t flags_;
     uint8_t ground_;
@@ -152,6 +156,7 @@ class MapHolder {
     bool data_changed_;
     bool addr_changed_;
     uint16_t map_addr_;
+    uint16_t map_bank_;
 
     Unpacked data_;
 };

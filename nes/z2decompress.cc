@@ -43,12 +43,12 @@ void Z2Decompress::Clear() {
 
 void Z2Decompress::Decompress(const Map& map) {
     compressed_map_ = map;
+    Address p = map.pointer();
 
-    if (map.pointer().address()) {
-        LOG(INFO, "Map pointer at bank=", map.pointer().bank(),
-                  " address=", HEX(map.pointer().address()));
-        *compressed_map_.mutable_address() =
-            mapper_->ReadAddr(map.pointer(), 0);
+    if (p.address()) {
+        LOG(INFO, "Map pointer at bank=", p.bank(), " address=", HEX(p.address()));
+        Address a = mapper_->ReadAddr(p, 0);
+        *compressed_map_.mutable_address() = a;
     }
 
     Clear();
