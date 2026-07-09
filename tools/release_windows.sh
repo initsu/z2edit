@@ -1,7 +1,7 @@
 #!/bin/bash
 
 set -e
-bazel build \
+bazel-3.7.2 build \
       --config win64 \
       --sandbox_debug \
       --workspace_status_command tools/buildstamp/get_workspace_status \
