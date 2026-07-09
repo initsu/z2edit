@@ -946,7 +946,7 @@ void Z2Edit::SpawnEmulator(
         uint8_t world,
         uint8_t town_code,
         uint8_t palace_code,
-        uint8_t connector,
+        uint8_t location_id,
         uint8_t room,
         uint8_t page,
         uint8_t prev_region) {
@@ -958,31 +958,32 @@ void Z2Edit::SpawnEmulator(
     LOGF(INFO, "  world: %d", world);
     LOGF(INFO, "  town_code: %d", town_code);
     LOGF(INFO, "  palace_code: %d", palace_code);
-    LOGF(INFO, "  connector: %d", connector);
+    LOGF(INFO, "  location_id: %d", location_id);
     LOGF(INFO, "  room: %d", room);
     LOGF(INFO, "  page: %d", page);
 
     uint8_t inject[] = {
-        0xa9, bank,             // LDA #bank
-        0x8d, 0x69, 0x07,       // STA $0769
+        //0xa9, bank,             // LDA #bank
+        //0x8d, 0x69, 0x07,       // STA $0769  ; CurrentPrgBank - value doesn't need to be pre-set for Z2R
         0xa9, region,           // LDA #region
-        0x8d, 0x06, 0x07,       // STA $0706
+        0x8d, 0x06, 0x07,       // STA $0706  ; RegionNumber   - Z2edit doesn't adapt to palaces shuffled across continents so this breaks
         0xa9, world,            // LDA #world
-        0x8d, 0x07, 0x07,       // STA $0707
+        0x8d, 0x07, 0x07,       // STA $0707  ; WorldNumber
         0xa9, town_code,        // LDA #town_code
-        0x8d, 0x6b, 0x05,       // STA $056b
+        0x8d, 0x6b, 0x05,       // STA $056b  ; TownNumber
         0xa9, palace_code,      // LDA #palace_code
-        0x8d, 0x6c, 0x05,       // STA $056c
-        0xa9, connector,        // LDA #connector
-        0x8d, 0x48, 0x07,       // STA $0748
+        0x8d, 0x6c, 0x05,       // STA $056c  ; PalaceRegionIndex
+        0xa9, location_id,      // LDA #location_id
+        0x8d, 0x48, 0x07,       // STA $0748  ; LocationNumber  - Z2edit just puts 1 here - affects where you end up when you leave
         0xa9, room,             // LDA #room
-        0x8d, 0x61, 0x05,       // STA $0561
+        0x8d, 0x61, 0x05,       // STA $0561  ; MapNumber
+        0x8d, 0x20, 0x01,       // STA $0120  ; [Z2R] temp_room_code
         0xa9, page,             // LDA #page
-        0x8d, 0x5c, 0x07,       // STA $075c
+        0x8d, 0x5c, 0x07,       // STA $075c  ; EntryPage
         0xa9, facing,           // LDA #facing
-        0x8d, 0x01, 0x07,       // STA $0701
-        0xa9, prev_region,      // LDA #prev_region
-        0x8d, 0x0a, 0x07,       // STA $070a
+        0x8d, 0x01, 0x07,       // STA $0701  ; EntryFacing
+        //0xa9, prev_region,      // LDA #prev_region
+        //0x8d, 0x0a, 0x07,       // STA $070a  ; value unused in Z2R
         0x60,                   // RTS
     };
     uint16_t addr = 0xaa3f & 0x3FFF;

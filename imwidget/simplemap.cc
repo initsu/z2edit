@@ -140,13 +140,30 @@ std::unique_ptr<GLBitmap> SimpleMap::RenderToNewBuffer() {
 }
 
 void SimpleMap::StartEmulator(int screen) {
+    uint8_t town_code = map_.code();
+    uint8_t palace_code = map_.code();
+    uint8_t location_id = 1;
+    /*
+    // if we could have the actual location ID...
+    const auto& misc = ConfigLoader<RomInfo>::GetConfig().misc();
+    uint8_t towns = misc.town_connection_id();
+    uint8_t palaces = misc.palace_connection_id();
+
+    if (location_id >= towns && location_id < towns+8) {
+        town_code = (location_id - towns) / 2;
+        palace_code = 0xf8;
+        location_id &= 0xFE;
+    } else if (location_id >= palaces && location_id < palaces + 4) {
+        palace_code = location_id - palaces;
+    }
+    */
     uint8_t params[] = {
         uint8_t(map_.address().bank()), // prg bank
         uint8_t(map_.subworld() ? map_.subworld() : map_.overworld()), // overworld
         uint8_t(map_.world()),          // world
-        uint8_t(map_.code()),           // town code
-        uint8_t(map_.code()),           // palace code
-        uint8_t(1),                     // connector: we don't know
+        town_code,
+        palace_code,
+        location_id,
         uint8_t(map_.area()),           // map number
         uint8_t(screen),                // start screen
         uint8_t(map_.overworld()),      // prev_overworld
