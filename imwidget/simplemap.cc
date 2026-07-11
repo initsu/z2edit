@@ -140,27 +140,38 @@ std::unique_ptr<GLBitmap> SimpleMap::RenderToNewBuffer() {
 }
 
 void SimpleMap::StartEmulator(int screen) {
+    uint8_t region = uint8_t(map_.subworld() ? map_.subworld() : map_.overworld());
     uint8_t town_code = map_.code();
     uint8_t palace_code = map_.code();
     uint8_t location_id = 1;
-    /*
-    // if we could have the actual location ID...
-    const auto& misc = ConfigLoader<RomInfo>::GetConfig().misc();
-    uint8_t towns = misc.town_connection_id();
-    uint8_t palaces = misc.palace_connection_id();
+    uint8_t world = map_.world();
 
-    if (location_id >= towns && location_id < towns+8) {
-        town_code = (location_id - towns) / 2;
-        palace_code = 0xf8;
-        location_id &= 0xFE;
-    } else if (location_id >= palaces && location_id < palaces + 4) {
-        palace_code = location_id - palaces;
+    // Assume palace index are not shuffled and check the addresses
+    // We force the region and location_id to be what it should be if unshuffled
+    uint8_t bank = map_.pointer().bank();
+    int addr = map_.pointer().address();
+    
+    if (bank == 4) {
+        if (addr >= 0x8523 && addr < 0xa000) { // p125
+            town_code = 0;
+            location_id = palace_code > 0 ? 51 + palace_code : 52;
+            // we can't tell the difference between P1 and P5 but it doesn't matter that much
+        } else if (addr > 0xa000) { // p346
+            region = palace_code == 2 ? 0 :                   // West P3
+                                    palace_code == 0 ? 3 : 2; // Maze P4 : East P6
+            town_code = 0;
+            location_id = palace_code > 0 ? 51 + palace_code : 52;
+        }
+    } else if (bank == 5) { // gp
+        region = 2;
+        town_code = 0;
+        palace_code = 2;
+        location_id = 54;
     }
-    */
     uint8_t params[] = {
         uint8_t(map_.address().bank()), // prg bank
-        uint8_t(map_.subworld() ? map_.subworld() : map_.overworld()), // overworld
-        uint8_t(map_.world()),          // world
+        region,
+        world,
         town_code,
         palace_code,
         location_id,

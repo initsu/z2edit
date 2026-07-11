@@ -9,7 +9,7 @@ This is a modified z2edit to:
 
 Notes on using emulate:
 - All the proper values for locations etc. will absolutely not be set.
-- Shuffling palace index/region ("Allow Palaces to Swap Continents") will break things.
-- Emulating Palace 1 rooms (**with the above flag off**) seems to work. End of list.
+- Shuffling palace index/region ("Allow Palaces to Swap Continents") will break things. Don't do that if you want to edit the palaces.
+- Your best bet is to start with Vanilla palaces with Full length as a base Z2R ROM.
 
 Original Z2edit repository is at: https://github.com/cfrantz/z2edit
