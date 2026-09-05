@@ -16,6 +16,7 @@ cc_library(
     deps = [
         "//external:gflags",
         "//external:imgui",
+        "//external:sdl2",
         "//util:fpsmgr",
         "//util:gamecontrollerdb",
         "//util:imgui_sdl_opengl",
@@ -41,6 +42,7 @@ cc_library(
     hdrs = ["glbitmap.h"],
     deps = [
         "//external:imgui",
+        "//external:sdl2",
     ],
 )
 

@@ -1,7 +1,5 @@
 package(default_visibility = ["//visibility:public"])
 
-load("@mxebzl//tools:rules.bzl", "pkg_winzip")
-
 config_setting(
     name = "windows",
     constraint_values = [
@@ -12,7 +10,7 @@ config_setting(
 genrule(
     name = "make_version",
     outs = ["version.h"],
-    cmd = """sed -e 's/ / "/g' -e 's/$$/"\\n/g' -e "s/^/#define /g" bazel-out/volatile-status.txt > $@""",
+    cmd = """awk '{ printf "#define %s ", $$1; printf "\\""; s = ""; for (i = 2; i <= NF; i++) { printf "%s%s", s, $$i; s = " " } print "\\"" }' bazel-out/volatile-status.txt > $@""",
     stamp = 1,
 )
 
@@ -24,9 +22,6 @@ cc_library(
     hdrs = [
         "app.h",
         "version.h",
-    ],
-    linkopts = [
-        "-lSDL2_gfx",
     ],
     deps = [
         "//imwidget:base",
@@ -61,6 +56,7 @@ cc_library(
         "//util:logging",
         "//external:gflags",
         "//external:sdl2",
+        "//external:sdl2main",
 
         # TODO(cfrantz): on ubuntu 16 with MIR, there is a library conflict
         # between MIR (linked with protobuf 2.6.1) and this program,
@@ -113,8 +109,6 @@ cc_binary(
             "-lsetupapi",
             "-ladvapi32",
             "-lhid",
-            "-lmingw32",
-            "-lSDL2main",
         ],
         "//conditions:default": [
             "-lpthread",
@@ -129,9 +123,14 @@ cc_binary(
     ],
 )
 
-pkg_winzip(
+genrule(
     name = "z2edit-windows",
-    files = [
+    srcs = [
         ":z2edit",
+        "@llvm_mingw//:x86_64-w64-mingw32/bin/libc++.dll",
+        "@llvm_mingw//:x86_64-w64-mingw32/bin/libunwind.dll",
     ],
+    outs = ["z2edit-windows.zip"],
+    cmd = "cp $(location :z2edit) z2edit.exe && cp $(location @llvm_mingw//:x86_64-w64-mingw32/bin/libc++.dll) . && cp $(location @llvm_mingw//:x86_64-w64-mingw32/bin/libunwind.dll) . && zip $@ z2edit.exe libc++.dll libunwind.dll && rm -f z2edit.exe libc++.dll libunwind.dll",
+    tags = ["manual"],
 )

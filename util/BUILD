@@ -24,8 +24,8 @@ cc_library(
     hdrs = [
         "compress.h",
     ],
-    linkopts = ["-lz"],
     deps = [
+        "@zlib//:zlib",
         "//util:logging",
         "//util:status",
     ],
@@ -47,7 +47,9 @@ cc_library(
     name = "crc",
     srcs = ["crc.cc"],
     hdrs = ["crc.h"],
-    linkopts = ["-lz"],
+    deps = [
+        "@zlib//:zlib",
+    ],
 )
 
 cc_library(
@@ -149,5 +151,6 @@ cc_library(
     ],
     deps = [
         "//external:imgui",
+        "//external:sdl2",
     ],
 )

@@ -18,6 +18,6 @@ toolchain(
         "@platforms//cpu:x86_64",
         "@platforms//os:windows",
     ],
-    toolchain = "@mxebzl//compiler:win64_toolchain",
+    toolchain = "@llvm_mingw//:win64_llvm_toolchain",
     toolchain_type = "@bazel_tools//tools/cpp:toolchain_type",
 )

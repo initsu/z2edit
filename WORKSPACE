@@ -71,6 +71,11 @@ bind(
     actual = "@sdl2_ext//:sdl2",
 )
 
+bind(
+    name = "sdl2main",
+    actual = "@sdl2_ext//:sdl2main",
+)
+
 ######################################################################
 # Abseil
 ######################################################################
@@ -150,28 +155,12 @@ bind(
 # compilers for windows
 ######################################################################
 
-# Local copy for testing
-#local_repository(
-#    name = "mxebzl",
-#    path = "/home/cfrantz/src/mxebzl",
-#)
-
-git_repository(
-    name = "mxebzl",
-    remote = "https://github.com/cfrantz/mxebzl.git",
-    tag = "20191215_RC01",
-)
-
-load("@mxebzl//compiler:repository.bzl", "mxe_compiler")
-
-mxe_compiler(
-    deps = [
-        "SDL2",
-        "SDL2-extras",
-        "compiler",
-        "pthreads",
-        "python",
-    ],
+http_archive(
+    name = "llvm_mingw",
+    sha256 = "cee8d2ce3da5145ce4dc882e70d0b0719a783d53a99752c60948fc0659975a65",
+    strip_prefix = "llvm-mingw-20260826-ucrt-ubuntu-22.04-x86_64",
+    urls = ["https://github.com/mstorsjo/llvm-mingw/releases/download/20260826/llvm-mingw-20260826-ucrt-ubuntu-22.04-x86_64.tar.xz"],
+    build_file = "//rules:llvm_mingw.BUILD",
 )
 
 register_toolchains("//toolchains:win64_toolchain")
