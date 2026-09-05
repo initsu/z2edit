@@ -30,17 +30,12 @@ new_git_repository(
     name = "imgui_git",
     build_file = "//rules:imgui.BUILD",
     remote = "https://github.com/ocornut/imgui.git",
-    tag = "v1.74",
+    tag = "v1.92.9b",
 )
 
 bind(
     name = "imgui",
     actual = "@imgui_git//:imgui",
-)
-
-bind(
-    name = "imgui_sdl_opengl",
-    actual = "@imgui_git//:imgui_sdl_opengl",
 )
 
 ######################################################################
@@ -56,6 +51,24 @@ new_git_repository(
 bind(
     name = "fontawesome",
     actual = "@iconfonts//:fontawesome",
+)
+
+######################################################################
+# SDL2 (official mingw devel package)
+######################################################################
+http_archive(
+    name = "sdl2_ext",
+    build_file = "//rules:sdl.BUILD",
+    strip_prefix = "SDL2-2.32.10",
+    sha256 = "83a5d74012311edc3c0d40ea6faecbe57ad692aa033fa5dc273cc937e3938ff2",
+    urls = [
+        "https://github.com/libsdl-org/SDL/releases/download/release-2.32.10/SDL2-devel-2.32.10-mingw.tar.gz",
+    ],
+)
+
+bind(
+    name = "sdl2",
+    actual = "@sdl2_ext//:sdl2",
 )
 
 ######################################################################

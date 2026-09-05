@@ -6,7 +6,7 @@
 #include "imwidget/editor.h"
 #include "nes/z2decompress.h"
 #include "util/config.h"
-#include "util/imgui_impl_sdl.h"
+#include "util/imgui_hidpi.h"
 #include "util/stb_tilemap_editor.h"
 #include "imwidget/imutil.h"
 

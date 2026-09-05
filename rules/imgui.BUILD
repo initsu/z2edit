@@ -4,10 +4,6 @@ cc_library(
     name = "imgui",
 	linkopts = [
 		"-lm",
-        # FIXME(cfrantz): Detect whether we're building for linux or windows,
-        # and select the appropriate GL library
-		# "-lGL",
-		# "-lopengl32",
     ],
     hdrs = [
         "imgui.h",
@@ -17,24 +13,10 @@ cc_library(
     srcs = [
         "imgui.cpp",
         "imgui_draw.cpp",
+        "imgui_tables.cpp",
         "imgui_widgets.cpp",
         "imstb_rectpack.h",
         "imstb_textedit.h",
         "imstb_truetype.h",
-    ],
-)
-
-cc_library(
-    name = "imgui_sdl_opengl",
-    copts = ["-I/usr/include/SDL2"],
-    includes = ["."],
-    hdrs = [
-        "examples/sdl_opengl_example/imgui_impl_sdl.h",
-    ],
-    srcs = [
-        "examples/sdl_opengl_example/imgui_impl_sdl.cpp",
-    ],
-    deps = [
-        ":imgui",
     ],
 )

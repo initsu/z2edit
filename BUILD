@@ -26,10 +26,7 @@ cc_library(
         "version.h",
     ],
     linkopts = [
-        "-lSDL2_image",
-        "-lSDL2_mixer",
         "-lSDL2_gfx",
-        "-lSDL2",
     ],
     deps = [
         "//imwidget:base",
@@ -63,6 +60,7 @@ cc_library(
         "//util:os",
         "//util:logging",
         "//external:gflags",
+        "//external:sdl2",
 
         # TODO(cfrantz): on ubuntu 16 with MIR, there is a library conflict
         # between MIR (linked with protobuf 2.6.1) and this program,
@@ -112,6 +110,9 @@ cc_binary(
             "-lshell32",
             "-lversion",
             "-luuid",
+            "-lsetupapi",
+            "-ladvapi32",
+            "-lhid",
             "-lmingw32",
             "-lSDL2main",
         ],

@@ -273,7 +273,7 @@ MapCommand::DrawResult MapCommand::DrawPopup(float scale) {
         }
     }
     if (ImGui::IsItemActive()) {
-        if (ImGui::IsMouseDragging()) {
+        if (ImGui::IsMouseDragging(0)) {
             int x = int((ImGui::GetIO().MousePos.x - abs.x) / size);
             int y = int((ImGui::GetIO().MousePos.y - abs.y) / size);
             x = Clamp(x, 0, 64);
@@ -1009,7 +1009,7 @@ MapEnemyList::DrawResult MapEnemyList::DrawOnePopup(Unpacked* item,
     if (ImGui::IsItemHovered())
         ImGui::SetTooltip("%s", names_[item->enemy]);
     if (ImGui::IsItemActive()) {
-        if (ImGui::IsMouseDragging()) {
+        if (ImGui::IsMouseDragging(0)) {
             int x = int((ImGui::GetIO().MousePos.x - abs.x) / size);
             int y = int((ImGui::GetIO().MousePos.y - abs.y) / size);
             x = Clamp(x, 0, 64);

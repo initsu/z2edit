@@ -4,7 +4,9 @@
 #include "util/os.h"
 #include "util/gamecontrollerdb.h"
 #include "util/logging.h"
-#include "util/imgui_impl_sdl.h"
+#include "util/imgui_hidpi.h"
+#include "util/imgui_impl_sdl2.h"
+#include "util/imgui_impl_opengl3.h"
 #include "absl/strings/str_cat.h"
 
 DEFINE_double(hidpi, 1.0, "HiDPI scaling factor");
@@ -29,7 +31,7 @@ ImApp::ImApp(const std::string& name, int width, int height)
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
     SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
 
     window_ = SDL_CreateWindow(name.c_str(),
@@ -43,7 +45,8 @@ ImApp::ImApp(const std::string& name, int width, int height)
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
     ImGui_ImplSdl_SetHiDPIScale(FLAGS_hidpi);
-    ImGui_ImplSdlGL2_Init(window_);
+    ImGui_ImplSDL2_InitForOpenGL(window_, glcontext_);
+    ImGui_ImplOpenGL3_Init(nullptr);
     clear_color_ = ImColor(0, 16, 64);
     //fpsmgr_.SetRate(60);
 
@@ -51,7 +54,8 @@ ImApp::ImApp(const std::string& name, int width, int height)
 }
 
 ImApp::~ImApp() {
-    ImGui_ImplSdlGL2_Shutdown();
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplSDL2_Shutdown();
     ImGui::DestroyContext();
     SDL_GL_DeleteContext(glcontext_);
     SDL_DestroyWindow(window_);
@@ -118,7 +122,7 @@ bool ImApp::ProcessEvents() {
     SDL_Event event;
     bool done = false;
     while (SDL_PollEvent(&event)) {
-        ImGui_ImplSdlGL2_ProcessEvent(&event);
+        ImGui_ImplSDL2_ProcessEvent(&event);
         if (event.type == SDL_QUIT)
             done = true;
         ProcessEvent(&event);
@@ -135,7 +139,8 @@ void ImApp::BaseDraw() {
         glClear(GL_COLOR_BUFFER_BIT);
     }
 
-    ImGui_ImplSdlGL2_NewFrame(window_);
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplSDL2_NewFrame();
     console_.Draw();
     for(auto it=draw_callback_.begin(); it != draw_callback_.end();) {
         if ((*it)->visible()) {
@@ -149,7 +154,7 @@ void ImApp::BaseDraw() {
 
     Draw();
     ImGui::Render();
-    ImGui_ImplSdlGL2_RenderDrawData(ImGui::GetDrawData());
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     SDL_GL_SwapWindow(window_);
     for(auto& widget : draw_added_) {
         draw_callback_.emplace_back(std::move(widget));

@@ -134,24 +134,20 @@ cc_library(
     ],
 )
 
-genrule(
-    name = "gen_fontawesome_h",
-    srcs = ["data/fontawesome-webfont.ttf"],
-    outs = ["fontawesome.h"],
-    cmd = "xxd -i $< $@",
-)
-
 cc_library(
     name = "imgui_sdl_opengl",
     srcs = [
-        "fontawesome.h",
-        "imgui_impl_sdl.cpp",
+        "imgui_impl_opengl3.cpp",
+        "imgui_impl_sdl2.cpp",
+        "imgui_hidpi.cc",
     ],
     hdrs = [
-        "imgui_impl_sdl.h",
+        "imgui_impl_opengl3.h",
+        "imgui_impl_opengl3_loader.h",
+        "imgui_impl_sdl2.h",
+        "imgui_hidpi.h",
     ],
     deps = [
-        "//external:fontawesome",
         "//external:imgui",
     ],
 )

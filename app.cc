@@ -13,7 +13,6 @@
 #include "util/config.h"
 #include "util/os.h"
 #include "util/logging.h"
-#include "util/imgui_impl_sdl.h"
 #include "absl/strings/str_split.h"
 #include "absl/strings/match.h"
 
