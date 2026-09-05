@@ -2,15 +2,14 @@ diff --git a/BUILD b/BUILD
 index 0e7ccdd..e22dcb8 100644
 --- a/BUILD
 +++ b/BUILD
-@@ -8,7 +8,10 @@ exports_files(["src/gflags_completions.sh", "COPYING.txt"])
+@@ -8,7 +8,9 @@ exports_files(["src/gflags_completions.sh", "COPYING.txt"])
  
  config_setting(
      name = "x64_windows",
 -    values = {"cpu": "x64_windows"},
-+    values = {
-+        #"cpu": "x64_windows",
-+        "crosstool_top": "@mxebzl//compiler:win64",
-+    },
++    constraint_values = [
++        "@platforms//os:windows",
++    ],
  )
  
  load(":bazel/gflags.bzl", "gflags_sources", "gflags_library")

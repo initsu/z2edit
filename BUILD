@@ -4,9 +4,9 @@ load("@mxebzl//tools:rules.bzl", "pkg_winzip")
 
 config_setting(
     name = "windows",
-    values = {
-        "crosstool_top": "@mxebzl//compiler:win64",
-    },
+    constraint_values = [
+        "@platforms//os:windows",
+    ],
 )
 
 genrule(
