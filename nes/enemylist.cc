@@ -1,4 +1,6 @@
+#include <algorithm>
 #include <set>
+#include <vector>
 
 #include "nes/enemylist.h"
 
@@ -82,6 +84,33 @@ void EnemyListPack::Unpack(int bank) {
 
     std::set<int> single_list(misc.single_enemy_list_bank().cbegin(),
                               misc.single_enemy_list_bank().cend());
+    std::set<uint16_t> valid_;
+
+    // The pointer table is a fixed-size table (63 entries per palace
+    // group), but the Randomizer only uses a handful of entries.  The
+    // unused entries are left as-is from the original ROM and can point
+    // to arbitrary locations (often into the middle of an enemy list).
+    // Only unpack pointers that land on an actual list boundary, i.e.
+    // the start of a packed enemy list in the enemy data block.
+    //
+    // Enemy lists are packed back-to-back in the enemy data block.  Each
+    // list begins with a length byte (its own length, mid-list bytes
+    // always lie at a lower address than any length byte's value would
+    // allow), so a list boundary is any offset reached by walking the
+    // length chain from the start of the data.
+    {
+        Address base;
+        base.set_bank(bank_);
+        base.set_address(misc.enemy_data_rom());
+        for(uint16_t o = 0; o < size_; ) {
+            uint8_t len = mapper_->Read(base, o);
+            if (len == 0)
+                break;
+            valid_.insert(o);
+            o += len;
+        }
+    }
+
     int i = 0;
     for(Address addr : misc.enemy_pointer()) {
         addr.set_bank(bank_);
@@ -89,7 +118,8 @@ void EnemyListPack::Unpack(int bank) {
             Address pointer = mapper_->ReadAddr(addr, 2*n);
             uint16_t pa = pointer.address();
             if (pa >= misc.enemy_data_ram() &&
-                    pa < misc.enemy_data_ram() + size_) {
+                    pa < misc.enemy_data_ram() + size_ &&
+                    valid_.count(pa - misc.enemy_data_ram())) {
                 ReadOne(i, pointer);
             }
         } 

@@ -1173,7 +1173,13 @@ void MapEnemyList::Save() {
         data.insert(data.end(), more.begin(), more.end());
     }
     ep.Add(area_ + 63 * subworld_, data);
-    ep.Pack();
+    if (!ep.Pack()) {
+        ErrorDialog::Spawn("Error Saving Enemy List",
+            "Out of space for enemy list at area ", area_,
+            ".\n\nReduce the number of enemies in this room "
+            "or in other rooms in this bank.");
+        return;
+    }
 
     if (map_.type() == MapType::TOWN) {
         const auto& tt = ConfigLoader<RomInfo>::GetConfig().text_table();
