@@ -45,7 +45,7 @@ ImApp::ImApp(const std::string& name, int width, int height)
     ImGui_ImplSdl_SetHiDPIScale(FLAGS_hidpi);
     ImGui_ImplSdlGL2_Init(window_);
     clear_color_ = ImColor(0, 16, 64);
-    //fpsmgr_.SetRate(60);
+    fpsmgr_.SetRate(60);
 
     RegisterCommand("quit", "Quit the application.", this, &ImApp::Quit);
 }
@@ -110,7 +110,9 @@ void ImApp::Run() {
             break;
         }
         BaseDraw();
-        //fpsmgr_.Delay();
+        Uint32 flags = SDL_GetWindowFlags(window_);
+        fpsmgr_.SetRate((flags & SDL_WINDOW_INPUT_FOCUS) ? 60 : 30);
+        fpsmgr_.Delay();
     }
 }
 
