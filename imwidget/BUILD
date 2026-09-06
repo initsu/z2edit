@@ -14,9 +14,9 @@ cc_library(
         "imwidget.h",
     ],
     deps = [
-        "//external:gflags",
-        "//external:imgui",
-        "//external:sdl2",
+        "@gflags//:gflags",
+        "@imgui_git//:imgui",
+        "@sdl2_ext//:sdl2",
         "//util:fpsmgr",
         "//util:gamecontrollerdb",
         "//util:imgui_sdl_opengl",
@@ -31,7 +31,7 @@ cc_library(
     hdrs = ["error_dialog.h"],
     deps = [
         ":base",
-        "//external:imgui",
+        "@imgui_git//:imgui",
         "@com_google_absl//absl/strings",
     ],
 )
@@ -41,8 +41,8 @@ cc_library(
     srcs = ["glbitmap.cc"],
     hdrs = ["glbitmap.h"],
     deps = [
-        "//external:imgui",
-        "//external:sdl2",
+        "@imgui_git//:imgui",
+        "@sdl2_ext//:sdl2",
     ],
 )
 
@@ -52,7 +52,7 @@ cc_library(
     hdrs = ["hwpalette.h"],
     deps = [
         ":base",
-        "//external:imgui",
+        "@imgui_git//:imgui",
     ],
 )
 
@@ -64,8 +64,8 @@ cc_library(
         ":base",
         ":error_dialog",
         ":glbitmap",
-        "//external:imgui",
-        "//external:nfd",
+        "@imgui_git//:imgui",
+        "@nativefiledialog_git//:nfd",
         "//nes:mappers",
     ],
 )
@@ -91,8 +91,8 @@ cc_library(
         ":map_connect",
         ":overworld_encounters",
         ":randomize",
-        "//external:gflags",
-        "//external:imgui",
+        "@gflags//:gflags",
+        "@imgui_git//:imgui",
         "//nes:mappers",
         "//nes:z2decompress",
         "//nes:z2objcache",
@@ -111,8 +111,8 @@ cc_library(
         ":base",
         ":error_dialog",
         ":hwpalette",
-        "//external:gflags",
-        "//external:imgui",
+        "@gflags//:gflags",
+        "@imgui_git//:imgui",
         "//nes:mappers",
         "//proto:rominfo",
         "//util:config",
@@ -135,8 +135,8 @@ cc_library(
         ":glbitmap",
         ":hwpalette",
         ":overworld_encounters",
-        "//external:fontawesome",
-        "//external:imgui",
+        "@iconfonts//:fontawesome",
+        "@imgui_git//:imgui",
         "//nes:enemylist",
         "//nes:mappers",
         "//nes:text_list",
@@ -158,7 +158,7 @@ cc_library(
         ":simplemap",
         "//alg:fdg",
         "//alg:palace_gen",
-        "//external:imgui",
+        "@imgui_git//:imgui",
         "//nes:mappers",
         "//nes:z2decompress",
         "//nes:z2objcache",
@@ -177,7 +177,7 @@ cc_library(
     deps = [
         ":base",
         ":multimap",
-        "//external:imgui",
+        "@imgui_git//:imgui",
         "//nes:mappers",
         "//proto:rominfo",
     ],
@@ -189,7 +189,7 @@ cc_library(
     hdrs = ["misc_hacks.h"],
     deps = [
         ":base",
-        "//external:imgui",
+        "@imgui_git//:imgui",
         "//nes:mappers",
         "//proto:rominfo",
         "//util:config",
@@ -201,7 +201,7 @@ cc_library(
     srcs = ["overworld_encounters.cc"],
     hdrs = ["overworld_encounters.h"],
     deps = [
-        "//external:imgui",
+        "@imgui_git//:imgui",
         "//nes:mappers",
         "//util:config",
     ],
@@ -213,7 +213,7 @@ cc_library(
     hdrs = ["palace_gfx.h"],
     deps = [
         ":base",
-        "//external:imgui",
+        "@imgui_git//:imgui",
         "//nes:mappers",
         "//proto:rominfo",
         "//util:config",
@@ -227,7 +227,7 @@ cc_library(
     deps = [
         ":map_connect",
         "//alg:terrain",
-        "//external:imgui",
+        "@imgui_git//:imgui",
         "//proto:rominfo",
         "//util:config",
         "//util:stb-tilemap-editor",
@@ -240,7 +240,7 @@ cc_library(
     hdrs = ["start_values.h"],
     deps = [
         ":base",
-        "//external:imgui",
+        "@imgui_git//:imgui",
         "//nes:mappers",
         "//util:config",
     ],
@@ -253,12 +253,12 @@ cc_library(
     deps = [
         ":base",
         ":hwpalette",
-        "//external:imgui",
+        "@imgui_git//:imgui",
         "//nes:mappers",
         "//nes:z2objcache",
         "//proto:rominfo",
         "//util:config",
-        "//external:gflags",
+        "@gflags//:gflags",
     ],
 )
 
@@ -269,8 +269,8 @@ cc_library(
     deps = [
         ":base",
         ":error_dialog",
-        "//external:gflags",
-        "//external:imgui",
+        "@gflags//:gflags",
+        "@imgui_git//:imgui",
         "//nes:mappers",
         "//nes:z2objcache",
         "//proto:rominfo",
@@ -285,8 +285,8 @@ cc_library(
     deps = [
         ":base",
         ":error_dialog",
-        "//external:gflags",
-        "//external:imgui",
+        "@gflags//:gflags",
+        "@imgui_git//:imgui",
         "//nes:mappers",
         "//nes:text_encoding",
         "//nes:z2objcache",
@@ -302,8 +302,8 @@ cc_library(
     deps = [
         ":base",
         ":error_dialog",
-        "//external:gflags",
-        "//external:imgui",
+        "@gflags//:gflags",
+        "@imgui_git//:imgui",
         "//nes:mappers",
         "//nes:text_list",
         "//proto:rominfo",
@@ -318,7 +318,7 @@ cc_library(
     deps = [
         ":base",
         ":error_dialog",
-        "//external:imgui",
+        "@imgui_git//:imgui",
         "//ips",
         "//nes:cartridge",
         "//proto:project",
@@ -338,7 +338,7 @@ cc_library(
     deps = [
         ":base",
         ":simplemap",
-        "//external:imgui",
+        "@imgui_git//:imgui",
         "//nes:mappers",
         "//proto:rominfo",
         "//util:config",
@@ -351,7 +351,7 @@ cc_library(
     hdrs = ["tile_transform.h"],
     deps = [
         ":base",
-        "//external:imgui",
+        "@imgui_git//:imgui",
         "//nes:mappers",
         "//proto:rominfo",
         "//util:config",
@@ -364,7 +364,7 @@ cc_library(
     hdrs = ["item_effects.h"],
     deps = [
         ":base",
-        "//external:imgui",
+        "@imgui_git//:imgui",
         "//nes:mappers",
         "//proto:rominfo",
         "//util:config",
@@ -378,8 +378,8 @@ cc_library(
     deps = [
         ":base",
         ":glbitmap",
-        "//external:gflags",
-        "//external:imgui",
+        "@gflags//:gflags",
+        "@imgui_git//:imgui",
         "//nes:mappers",
     ],
 )

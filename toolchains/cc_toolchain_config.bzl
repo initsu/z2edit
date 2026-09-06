@@ -17,7 +17,6 @@ ACTION_NAMES = struct(
 )
 
 SYSTEMROOT = "external/llvm_mingw"
-ABSROOT = "/home/marcus/z2bazel/execroot/__main__/external/llvm_mingw"
 
 STDINCLUDE_DIRS = [
     SYSTEMROOT + "/x86_64-w64-mingw32/include/c++/v1",
@@ -26,18 +25,27 @@ STDINCLUDE_DIRS = [
     SYSTEMROOT + "/lib/clang/23/include",
 ]
 
-# All execroot-relative so depfiles record sandbox-visible paths (the toolchain
-# itself lives outside the workspace via new_local_repository).  libc++ first,
-# then the target CRT, the generic CRT, and finally clang's builtin headers.
-def _stdinc_flags():
+# The compile-time sysroot lives inside the execroot, but its absolute path is
+# not available at analysis time.  The build scripts derive it via `bazel info
+# execution_root` and pass it as --define EXECUTION_ROOT=<...>.  The toolchain
+# repo is always <execution_root>/<workspace_root> (external/llvm_mingw under
+# WORKSPACE, external/_main~deps~llvm_mingw under Bzlmod's execroot layout).
+# Falls back to the old hardcoded path when the flag is absent.
+DEFAULT_EXECUTION_ROOT = "/home/marcus/z2bazel/execroot/_main"
+
+def _absroot(ctx):
+    execroot = ctx.var.get("EXECUTION_ROOT") or DEFAULT_EXECUTION_ROOT
+    return execroot.rstrip("/") + "/" + ctx.label.workspace_root
+
+def _stdinc_flags(absroot):
     flags = []
     for d in STDINCLUDE_DIRS:
-        flags += ["-isystem", d.replace(SYSTEMROOT, ABSROOT)]
+        flags += ["-isystem", d.replace(SYSTEMROOT, absroot)]
     return flags
 
-STDINC_FLAGS = _stdinc_flags()
-
 def _impl(ctx):
+    absroot = _absroot(ctx)
+    stdinc_flags = _stdinc_flags(absroot)
     tool_paths = [
         # gcc/g++ are llvm-mingw's clang driver binaries.  g++ is used for
         # compiling and as the linker so the C++ runtime is pulled in
@@ -101,9 +109,9 @@ def _impl(ctx):
             ],
         ),
         feature(name = "fastbuild"),
-        # absl (2019-era) on MinGW selects the POSIX-setspecific thread identity
-        # path whose pthread_key code needs <pthread.h>, which the _WIN32 guard
-        # never includes.  Force the C++11 mode like MSVC does.
+        # absl selects POSIX pthread TLS for MinGW (it only uses C++11 TLS on
+        # MSVC/Apple), even though 2024-era absl ships pthreads-win32 support.
+        # Force the C++11 mode like MSVC does: no pthread linkage on Windows.
         feature(
             name = "abs_force_cpp11_tls",
             enabled = True,
@@ -134,12 +142,12 @@ def _impl(ctx):
                         ACTION_NAMES.cpp_header_parsing,
                     ],
                     flag_groups = [flag_group(
-                        flags = ["--sysroot", ABSROOT] + STDINC_FLAGS,
+                        flags = ["--sysroot", absroot] + stdinc_flags,
                     )],
                 ),
                 flag_set(
                     actions = [ACTION_NAMES.link],
-                    flag_groups = [flag_group(flags = ["--sysroot", ABSROOT])],
+                    flag_groups = [flag_group(flags = ["--sysroot", absroot])],
                 ),
             ],
         ),
@@ -152,15 +160,15 @@ def _impl(ctx):
         target_system_name = "x86_64-w64-mingw32",
         target_cpu = "x86_64",
         target_libc = "mingw",
-        compiler = "clang",
+        compiler = "mingw-gcc",
         abi_version = "unknown",
         abi_libc_version = "unknown",
         tool_paths = tool_paths,
         cxx_builtin_include_directories = [
-            ABSROOT + "/generic-w64-mingw32/include",
-            ABSROOT + "/x86_64-w64-mingw32/include",
-            ABSROOT + "/x86_64-w64-mingw32/include/c++/v1",
-            ABSROOT + "/lib/clang/23/include",
+            absroot + "/generic-w64-mingw32/include",
+            absroot + "/x86_64-w64-mingw32/include",
+            absroot + "/x86_64-w64-mingw32/include/c++/v1",
+            absroot + "/lib/clang/23/include",
         ],
         artifact_name_patterns = [
             # The clang driver appends .exe itself, so tell bazel our

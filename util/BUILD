@@ -75,7 +75,7 @@ cc_library(
         "logging.h",
     ],
     deps = [
-        "//external:gflags",
+        "@gflags//:gflags",
         "@com_google_absl//absl/strings",
     ],
 )
@@ -104,7 +104,8 @@ cc_library(
         "statusor.h",
     ],
     deps = [
-        "@com_google_protobuf//:protobuf",
+        "@com_google_absl//absl/status",
+        "@com_google_absl//absl/status:statusor",
     ],
 )
 
@@ -150,7 +151,7 @@ cc_library(
         "imgui_hidpi.h",
     ],
     deps = [
-        "//external:imgui",
-        "//external:sdl2",
+        "@imgui_git//:imgui",
+        "@sdl2_ext//:sdl2",
     ],
 )

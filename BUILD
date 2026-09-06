@@ -54,15 +54,15 @@ cc_library(
         "//util:imgui_sdl_opengl",
         "//util:os",
         "//util:logging",
-        "//external:gflags",
-        "//external:sdl2",
-        "//external:sdl2main",
+        "@gflags//:gflags",
+        "@sdl2_ext//:sdl2",
+        "@sdl2_ext//:sdl2main",
 
         # TODO(cfrantz): on ubuntu 16 with MIR, there is a library conflict
         # between MIR (linked with protobuf 2.6.1) and this program,
         # which builds with protbuf 3.x.x.  A temporary workaround is to
         # not link with nfd (native-file-dialog).
-        "//external:nfd",
+        "@nativefiledialog_git//:nfd",
     ],
 )
 
@@ -118,7 +118,7 @@ cc_binary(
     }),
     deps = [
         ":app",
-        "//external:gflags",
+        "@gflags//:gflags",
         "//util:config",
     ],
 )

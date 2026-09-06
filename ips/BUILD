@@ -18,7 +18,7 @@ cc_binary(
     srcs = ["ipspatch.cc"],
     deps = [
         ":ips",
-        "//external:gflags",
+        "@gflags//:gflags",
         "//util:file",
         "//util:status",
     ],

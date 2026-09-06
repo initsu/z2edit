@@ -9,7 +9,7 @@ cc_library(
         "romfile.h",
     ],
     deps = [
-        "//external:gflags",
+        "@gflags//:gflags",
         "//util:file",
         "//util:string",
     ],
@@ -37,7 +37,7 @@ cc_binary(
     deps = [
         ":overworld",
         ":romfile",
-        "//external:gflags",
+        "@gflags//:gflags",
     ],
 )
 

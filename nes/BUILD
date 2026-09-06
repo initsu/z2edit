@@ -5,7 +5,7 @@ cc_library(
     srcs = ["cartridge.cc"],
     hdrs = ["cartridge.h"],
     deps = [
-        "//external:gflags",
+        "@gflags//:gflags",
         "//imwidget:base",
         "//util:file",
     ],
@@ -98,7 +98,7 @@ cc_library(
     hdrs = ["z2decompress.h"],
     deps = [
         ":mappers",
-        "//external:gflags",
+        "@gflags//:gflags",
         "//proto:rominfo",
         "//util:config",
         "//util:logging",

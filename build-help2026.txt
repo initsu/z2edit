@@ -13,17 +13,6 @@ The release script invokes plain "bazel", and .bazelversion pins 7.7.1.
 If you use bazelisk you're done; otherwise symlink it in:
 sudo ln -s /usr/bin/bazel-7.7.1 /usr/bin/bazel
 
-Install python2 and symlink on newer Ubuntu versions:
-pushd ~
-sudo wget http://security.ubuntu.com/ubuntu/pool/universe/p/python2.7/python2.7_2.7.18-13ubuntu1.5_amd64.deb http://security.ubuntu.com/ubuntu/pool/universe/p/python2.7/libpython2.7-stdlib_2.7.18-13ubuntu1.5_amd64.deb http://security.ubuntu.com/ubuntu/pool/universe/p/python2.7/python2.7-minimal_2.7.18-13ubuntu1.5_amd64.deb http://security.ubuntu.com/ubuntu/pool/universe/p/python2.7/libpython2.7-minimal_2.7.18-13ubuntu1.5_amd64.deb
-sudo apt install ./libpython2.7-minimal_2.7.18-13ubuntu1.5_amd64.deb ./libpython2.7-stdlib_2.7.18-13ubuntu1.5_amd64.deb ./python2.7-minimal_2.7.18-13ubuntu1.5_amd64.deb ./python2.7_2.7.18-13ubuntu1.5_amd64.deb
-popd
-
-pushd /usr/bin
-sudo ln -s python2.7 python
-sudo ln -s python2.7 python2
-popd
-
 Creating the build: (run from project directory, NOT from the tools directory.)
 tools/release_windows.sh
 
@@ -32,7 +21,8 @@ produce a versioned zip named z2edit-windows-<git version>.zip. The version
 comes from `git describe --tags` (the repo uses lightweight tags, hence the
 --tags flag). If you don't want an explicit git version, you can run the
 build directly instead:
-bazel build --config win64 -c opt :z2edit-windows
+bazel build --config win64 -c opt :z2edit-windows \
+  --define EXECUTION_ROOT="$(bazel info execution_root)"
 
 
 I'm not sure which of these dependencies were actually needed:

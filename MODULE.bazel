@@ -1,0 +1,39 @@
+module(
+    name = "z2edit",
+    version = "0.1.2",
+)
+
+bazel_dep(name = "platforms", version = "0.0.10")
+bazel_dep(name = "bazel_skylib", version = "1.7.1")
+bazel_dep(name = "rules_cc", version = "0.0.9")
+bazel_dep(name = "rules_proto", version = "4.0.0")
+bazel_dep(name = "abseil-cpp", repo_name = "com_google_absl", version = "20240722.0")
+bazel_dep(name = "protobuf", version = "24.4")
+bazel_dep(name = "gflags", version = "2.2.2.bcr.1")
+
+# gflags' BUILD keys its Windows path off cpu == "x64_windows", which a
+# non-MSVC toolchain never sets.  Match the way our (and the old mxebzl)
+# toolchains are selected: by platform constraint.
+single_version_override(
+    module_name = "gflags",
+    version = "2.2.2.bcr.1",
+    patches = [
+        "//rules:gflags.patch",
+        "//rules:gflags-module.patch",
+    ],
+    patch_strip = 1,
+)
+bazel_dep(name = "zlib", version = "1.2.11")
+
+deps = use_extension("//:deps.bzl", "deps")
+use_repo(
+    deps,
+    "sdl2_ext",
+    "imgui_git",
+    "iconfonts",
+    "nativefiledialog_git",
+    "llvm_mingw",
+    "rules_ruby",
+)
+
+register_toolchains("//toolchains:win64_toolchain")

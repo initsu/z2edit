@@ -1,0 +1,6 @@
+--- a/MODULE.bazel
++++ b/MODULE.bazel
+@@ -6 +6,2 @@
+-bazel_dep(name = "rules_cc", version = "0.0.10")
++bazel_dep(name = "rules_cc", version = "0.0.10")
++bazel_dep(name = "platforms", version = "0.0.10")

@@ -5,6 +5,7 @@ cc_library(
     srcs = [
         "x86_64-w64-mingw32/lib/libSDL2.a",
     ],
+    hdrs = glob(["x86_64-w64-mingw32/include/**"]),
     includes = ["x86_64-w64-mingw32/include"],
     alwayslink = 1,
 )

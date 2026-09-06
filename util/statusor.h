@@ -2,9 +2,9 @@
 #define Z2HD_UTIL_STATUSOR_H
 
 
-// Grab useful utility functions from the protobuf library and put them in
+// Grab a useful utility function from absl and put it in
 // the root namespace.
-#include "google/protobuf/stubs/statusor.h"
-using google::protobuf::util::StatusOr;
+#include "absl/status/statusor.h"
+using absl::StatusOr;
 
 #endif // Z2HD_UTIL_STATUSOR_H

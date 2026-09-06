@@ -1,8 +1,6 @@
-diff --git a/BUILD b/BUILD
-index 0e7ccdd..e22dcb8 100644
 --- a/BUILD
 +++ b/BUILD
-@@ -8,7 +8,9 @@ exports_files(["src/gflags_completions.sh", "COPYING.txt"])
+@@ -9,5 +9,7 @@ exports_files(["src/gflags_completions.sh", "COPYING.txt"])
  
  config_setting(
      name = "x64_windows",
@@ -11,5 +9,3 @@ index 0e7ccdd..e22dcb8 100644
 +        "@platforms//os:windows",
 +    ],
  )
- 
- load(":bazel/gflags.bzl", "gflags_sources", "gflags_library")

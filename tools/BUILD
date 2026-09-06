@@ -4,7 +4,7 @@ cc_binary(
     name = "pack_config",
     srcs = ["pack_config.cc"],
     deps = [
-        "//external:gflags",
+        "@gflags//:gflags",
         "//proto:rominfo",
         "//util:config",
     ],

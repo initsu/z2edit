@@ -6,7 +6,7 @@ cc_library(
         "vec2.h",
     ],
     deps = [
-        "//external:imgui",
+        "@imgui_git//:imgui",
     ],
 )
 

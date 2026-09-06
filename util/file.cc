@@ -126,7 +126,7 @@ File::~File() {
 }
 
 Stat File::FStat() {
-    return Stat::FileDescriptor(fileno(fp_)).ValueOrDie();
+    return Stat::FileDescriptor(fileno(fp_)).value();
 }
 
 int64_t File::Length() {

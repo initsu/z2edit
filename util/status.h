@@ -2,14 +2,15 @@
 #define Z2HD_UTIL_STATUS_H
 #include <string>
 
-#include "google/protobuf/stubs/status.h"
+#include "absl/status/status.h"
 
 namespace util {
-namespace error {
-using google::protobuf::util::error::Code;
-}
 
-using google::protobuf::util::Status;
+using absl::Status;
+
+namespace error {
+using Code = absl::StatusCode;
+}
 
 std::string StrError(int error);
 Status PosixStatus(int error);

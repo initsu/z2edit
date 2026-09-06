@@ -34,13 +34,13 @@ StatusOr<std::string> ZLib::Uncompress(const std::string& data, int size) {
             break;
         }
         if (zret == Z_DATA_ERROR) {
-            return util::Status(util::error::Code::INVALID_ARGUMENT,
+            return util::Status(absl::StatusCode::kInvalidArgument,
                           "Compressed data corrputed");
         }
 
         size *= 2;
         if (zret == Z_MEM_ERROR || size < 0) {
-            return util::Status(util::error::Code::ABORTED, "Out of memory");
+            return util::Status(absl::StatusCode::kAborted, "Out of memory");
         }
     }
     return result;

@@ -1,8 +1,11 @@
 #!/bin/bash
 
 set -e
-bazel build \
+BAZEL="${BAZEL:-bazel}"
+EXECUTION_ROOT=$($BAZEL info execution_root)
+$BAZEL build \
       --config win64 \
+      --define EXECUTION_ROOT="$EXECUTION_ROOT" \
       --sandbox_debug \
       --workspace_status_command tools/buildstamp/get_workspace_status \
       -c opt :z2edit-windows "$@"
