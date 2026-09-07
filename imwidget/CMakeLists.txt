@@ -49,7 +49,7 @@ target_link_libraries(z2edit_palette PUBLIC
 z2edit_library(simplemap map_command.cc map_command.h simplemap.cc simplemap.h)
 target_link_libraries(z2edit_simplemap PUBLIC
   z2edit::base z2edit::error_dialog z2edit::glbitmap z2edit::hwpalette
-  z2edit::overworld_encounters fontawesome
+  z2edit::overworld_encounters
   z2edit::enemylist z2edit::mappers z2edit::text_list z2edit::z2decompress
   z2edit::z2objcache z2edit::proto_rominfo z2edit::config absl::strings)
 

@@ -27,7 +27,7 @@ if(MSVC)
   endif()
 endif()
 
-# All the small fetch-and-assemble repos (imgui, IconFontCppHeaders,
+# All the small fetch-and-assemble repos (imgui,
 # nativefiledialog) have no CMakeLists.txt of their own; CPM populates their
 # source dirs and we build the targets ourselves below.
 # (Absolutely never discover a dep that later grows a CMakeLists.)
@@ -40,7 +40,7 @@ set(ABSL_MSVC_STATIC_RUNTIME ON CACHE BOOL "" FORCE)
 CPMAddPackage(
   NAME absl
   GIT_REPOSITORY https://github.com/abseil/abseil-cpp.git
-  GIT_TAG 20260107.1
+  GIT_TAG 20260817.0
 )
 
 # --- gflags ------------------------------------------------------------------
@@ -51,7 +51,7 @@ set(gflags_INSTALL OFF CACHE BOOL "" FORCE)
 CPMAddPackage(
   NAME gflags
   GIT_REPOSITORY https://github.com/gflags/gflags.git
-  GIT_TAG v2.3.0
+  GIT_TAG v2.3.1
 )
 if(TARGET gflags_static AND NOT TARGET gflags::gflags)
   add_library(gflags::gflags ALIAS gflags_static)
@@ -135,7 +135,7 @@ set(absl_DIR "${absl_BINARY_DIR}")
 CPMAddPackage(
   NAME protobuf
   GIT_REPOSITORY https://github.com/protocolbuffers/protobuf.git
-  GIT_TAG v33.4
+  GIT_TAG v36.1
 )
 if(NOT TARGET protobuf::libprotobuf)
   add_library(protobuf::libprotobuf ALIAS libprotobuf)
@@ -179,21 +179,11 @@ if(_z2edit_imgui_in_buildtree EQUAL 0)
     "${imgui_SOURCE_DIR}/tools")
 endif()
 
-# --- IconFontCppHeaders ------------------------------------------------------
-CPMAddPackage(
-  NAME iconfonts
-  GIT_REPOSITORY https://github.com/juliettef/IconFontCppHeaders.git
-  GIT_TAG fda5f470b767f7b413e4a3995fa8cfe47f78b586
-  DOWNLOAD_ONLY YES
-)
-add_library(fontawesome INTERFACE)
-target_include_directories(fontawesome INTERFACE ${iconfonts_SOURCE_DIR})
-
 # --- nativefiledialog --------------------------------------------------------
 CPMAddPackage(
   NAME nfd
   GIT_REPOSITORY https://github.com/mlabbe/nativefiledialog.git
-  GIT_TAG 5cfe5002eb0fac1e49777a17dec70134147931e2
+  GIT_TAG release_116
   DOWNLOAD_ONLY YES
 )
 
