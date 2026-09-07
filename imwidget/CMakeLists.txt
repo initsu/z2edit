@@ -6,7 +6,7 @@ z2edit_library(base
   imutil.cc imutil.h
   imwidget.h)
 target_link_libraries(z2edit_base PUBLIC
-  gflags::gflags imgui SDL2::SDL2
+  gflags::gflags imgui SDL3::SDL3
   z2edit::fpsmgr z2edit::gamecontrollerdb z2edit::imgui_sdl_opengl
   z2edit::logging z2edit::os)
 
@@ -14,7 +14,7 @@ z2edit_library(error_dialog error_dialog.cc error_dialog.h)
 target_link_libraries(z2edit_error_dialog PUBLIC z2edit::base absl::strings)
 
 z2edit_library(glbitmap glbitmap.cc glbitmap.h)
-target_link_libraries(z2edit_glbitmap PUBLIC imgui SDL2::SDL2)
+target_link_libraries(z2edit_glbitmap PUBLIC imgui SDL3::SDL3)
 
 z2edit_library(hwpalette hwpalette.cc hwpalette.h)
 target_link_libraries(z2edit_hwpalette PUBLIC z2edit::base)

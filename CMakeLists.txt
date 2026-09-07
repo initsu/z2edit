@@ -182,12 +182,12 @@ target_link_libraries(z2edit_app PUBLIC
   z2edit::os
   z2edit::logging
   gflags::gflags
-  SDL2::SDL2
+  SDL3::SDL3
   nfd
 )
-# SDL2main only exists / is needed on Windows (console main elsewhere).
-if(WIN32 AND TARGET SDL2::SDL2main)
-  target_link_libraries(z2edit_app PUBLIC SDL2::SDL2main)
+# SDL3main only exists / is needed on Windows (console main elsewhere).
+if(WIN32 AND TARGET SDL3::SDL3main)
+  target_link_libraries(z2edit_app PUBLIC SDL3::SDL3main)
 endif()
 if(TARGET imgui)
   target_link_libraries(z2edit_app PUBLIC imgui)

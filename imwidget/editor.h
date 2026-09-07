@@ -11,7 +11,7 @@
 #include "nes/z2objcache.h"
 #include "imgui.h"
 
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 
 typedef struct stbte_tilemap stbte_tilemap;
 

@@ -5,7 +5,7 @@
 #include <memory>
 
 // FIXME(cfrantz): probably include the real opengl headers
-#include <SDL2/SDL_opengl.h>
+#include <SDL3/SDL_opengl.h>
 
 class GLBitmap {
   public:

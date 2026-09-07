@@ -8,7 +8,7 @@ needs no DLLs next to it.
 
 ## Dependencies are fetched from source (CPM)
 
-All third-party dependencies (SDL2, protobuf, absl, gflags, zlib, imgui,
+All third-party dependencies (SDL3, protobuf, absl, gflags, zlib, imgui,
 IconFontCppHeaders, nativefiledialog) are fetched and compiled from source
 through **CPM.cmake** on the first configure. There is no system package
 manager, no vcpkg, and no prebuilt binaries. Versions are pinned in

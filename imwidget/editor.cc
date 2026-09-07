@@ -430,33 +430,33 @@ void Editor::HandleEvent(SDL_Event* e) {
     const auto& keybinds = ConfigLoader<RomInfo>::GetConfig().overworld_editor_keybind();
     float hidpi = ImGui_ImplSdl_GetHiDPIScale();
     switch (e->type) {
-        case SDL_MOUSEMOTION:
+        case SDL_EVENT_MOUSE_MOTION:
             e->motion.x /= hidpi; e->motion.y /= hidpi;
             e->motion.x -= mouse_origin_.x; e->motion.y -= mouse_origin_.y;
             e->motion.x /= scale_; e->motion.y /= scale_;
             stbte_mouse_sdl(editor_, e, 1.0f,1.0f,0,0);
             break;
-        case SDL_MOUSEBUTTONDOWN:
-        case SDL_MOUSEBUTTONUP:
+        case SDL_EVENT_MOUSE_BUTTON_DOWN:
+        case SDL_EVENT_MOUSE_BUTTON_UP:
             e->button.x /= hidpi; e->button.y /= hidpi;
             e->button.x -= mouse_origin_.x; e->button.y -= mouse_origin_.y;
             e->button.x /= scale_; e->button.y /= scale_;
             stbte_mouse_sdl(editor_, e, 1.0f,1.0f,0,0);
             break;
-        case SDL_MOUSEWHEEL:
+        case SDL_EVENT_MOUSE_WHEEL:
             e->wheel.x /= hidpi; e->wheel.y /= hidpi;
             e->wheel.x -= mouse_origin_.x; e->wheel.y -= mouse_origin_.y;
             e->wheel.x /= scale_; e->wheel.y /= scale_;
             stbte_mouse_sdl(editor_, e, 1.0f,1.0f,0,0);
             break;
 
-        case SDL_KEYDOWN:
+        case SDL_EVENT_KEY_DOWN:
             for(const auto& kb : keybinds) {
                 int mod = int(kb.mod());
                 int scancode = int(kb.scancode());
                 if (mod == 0 || (
-                    (e->key.keysym.mod & mod) && !(e->key.keysym.mod & ~mod))) {
-                    if (e->key.keysym.scancode == scancode) {
+                    (e->key.mod & mod) && !(e->key.mod & ~mod))) {
+                    if (e->key.scancode == scancode) {
                         stbte_action(editor_,
                                 static_cast<enum stbte_action>(kb.action()));
                         break;

@@ -45,10 +45,16 @@ add_library(z2edit_stb_perlin INTERFACE)
 target_include_directories(z2edit_stb_perlin INTERFACE ${PROJECT_SOURCE_DIR})
 add_library(z2edit::stb_perlin ALIAS z2edit_stb_perlin)
 
-# imgui backends carried in-tree
+# imgui backends, compiled straight from the fetched imgui source
+# (dependencies.cmake pins the tag and keeps backends/).  Only the project's
+# own HiDPI shim is carried in-tree.
 z2edit_library(imgui_sdl_opengl
-  imgui_impl_opengl3.cpp imgui_impl_opengl3.h
-  imgui_impl_opengl3_loader.h
-  imgui_impl_sdl2.cpp imgui_impl_sdl2.h
+  ${imgui_SOURCE_DIR}/backends/imgui_impl_sdl3.cpp
+  ${imgui_SOURCE_DIR}/backends/imgui_impl_sdl3.h
+  ${imgui_SOURCE_DIR}/backends/imgui_impl_opengl3.cpp
+  ${imgui_SOURCE_DIR}/backends/imgui_impl_opengl3.h
+  ${imgui_SOURCE_DIR}/backends/imgui_impl_opengl3_loader.h
   imgui_hidpi.cc imgui_hidpi.h)
-target_link_libraries(z2edit_imgui_sdl_opengl PUBLIC imgui SDL2::SDL2)
+target_include_directories(z2edit_imgui_sdl_opengl PUBLIC
+  ${imgui_SOURCE_DIR}/backends)
+target_link_libraries(z2edit_imgui_sdl_opengl PUBLIC imgui SDL3::SDL3)

@@ -5,8 +5,8 @@
 #include "util/gamecontrollerdb.h"
 #include "util/logging.h"
 #include "util/imgui_hidpi.h"
-#include "util/imgui_impl_sdl2.h"
-#include "util/imgui_impl_opengl3.h"
+#include "imgui_impl_sdl3.h"
+#include "imgui_impl_opengl3.h"
 #include "absl/strings/str_cat.h"
 
 DEFINE_double(hidpi, 1.0, "HiDPI scaling factor");
@@ -24,9 +24,8 @@ ImApp::ImApp(const std::string& name, int width, int height)
     singleton_ = this;
     SDL_Init(SDL_INIT_VIDEO |
              SDL_INIT_AUDIO |
-             SDL_INIT_TIMER |
              SDL_INIT_JOYSTICK |
-             SDL_INIT_GAMECONTROLLER);
+             SDL_INIT_GAMEPAD);
 
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
@@ -34,10 +33,7 @@ ImApp::ImApp(const std::string& name, int width, int height)
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
 
-    window_ = SDL_CreateWindow(name.c_str(),
-                               SDL_WINDOWPOS_UNDEFINED,
-                               SDL_WINDOWPOS_UNDEFINED,
-                               width_, height_,
+    window_ = SDL_CreateWindow(name.c_str(), width_, height_,
                                SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
 
     glcontext_ = SDL_GL_CreateContext(window_);
@@ -45,7 +41,7 @@ ImApp::ImApp(const std::string& name, int width, int height)
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
     ImGui_ImplSdl_SetHiDPIScale(FLAGS_hidpi);
-    ImGui_ImplSDL2_InitForOpenGL(window_, glcontext_);
+    ImGui_ImplSDL3_InitForOpenGL(window_, glcontext_);
     ImGui_ImplOpenGL3_Init(nullptr);
     clear_color_ = ImColor(0, 16, 64);
     fpsmgr_.SetRate(60);
@@ -55,42 +51,44 @@ ImApp::ImApp(const std::string& name, int width, int height)
 
 ImApp::~ImApp() {
     ImGui_ImplOpenGL3_Shutdown();
-    ImGui_ImplSDL2_Shutdown();
+    ImGui_ImplSDL3_Shutdown();
     ImGui::DestroyContext();
-    SDL_GL_DeleteContext(glcontext_);
+    SDL_GL_DestroyContext(glcontext_);
     SDL_DestroyWindow(window_);
     SDL_Quit();
 }
 
 void ImApp::InitControllers() {
     if (FLAGS_controller_db.empty()) {
-        SDL_RWops* f = SDL_RWFromConstMem(kGameControllerDB,
-                                          kGameControllerDB_len);
-        SDL_GameControllerAddMappingsFromRW(f, 1);
+        SDL_IOStream* f = SDL_IOFromConstMem(kGameControllerDB,
+                                             kGameControllerDB_len);
+        SDL_AddGamepadMappingsFromIO(f, 1);
     } else {
-        SDL_GameControllerAddMappingsFromFile(FLAGS_controller_db.c_str());
+        SDL_AddGamepadMappingsFromFile(FLAGS_controller_db.c_str());
     }
 
-    int controllers = 0;
-    char guid[64];
-    for(int i=0; i<SDL_NumJoysticks(); ++i) {
+    int num_joysticks = 0;
+    SDL_JoystickID* joysticks = SDL_GetJoysticks(&num_joysticks);
+    char guid[33];
+    for(int i=0; i<num_joysticks; ++i) {
         const char *name, *desc;
-        SDL_JoystickGetGUIDString(SDL_JoystickGetDeviceGUID(i), guid, sizeof(guid));
-        if (SDL_IsGameController(i)) {
-            controllers++;
-            name = SDL_GameControllerNameForIndex(i);
+        SDL_GUIDToString(SDL_GetJoystickGUIDForID(joysticks[i]),
+                         guid, sizeof(guid));
+        if (SDL_IsGamepad(joysticks[i])) {
+            name = SDL_GetGamepadNameForID(joysticks[i]);
             desc = "Controller";
+            printf("%s %d: %s (guid: %s)\n", desc, i,
+                   name ? name : "Unknown", guid);
+            printf("Opening controller %d\n", i);
+            SDL_OpenGamepad(joysticks[i]);
         } else {
-            name = SDL_JoystickNameForIndex(i);
+            name = SDL_GetJoystickNameForID(joysticks[i]);
             desc = "Joystick";
+            printf("%s %d: %s (guid: %s)\n", desc, i,
+                   name ? name : "Unknown", guid);
         }
-        printf("%s %d: %s (guid: %s)\n", desc, i,
-               name ? name : "Unknown", guid);
     }
-    for(int i=0; i<controllers; i++) {
-        printf("Opening controller %d\n", i);
-        SDL_GameControllerOpen(i);
-    }
+    SDL_free(joysticks);
 }
 
 void ImApp::Quit(DebugConsole* console, int argc, char **argv) {
@@ -124,8 +122,8 @@ bool ImApp::ProcessEvents() {
     SDL_Event event;
     bool done = false;
     while (SDL_PollEvent(&event)) {
-        ImGui_ImplSDL2_ProcessEvent(&event);
-        if (event.type == SDL_QUIT)
+        ImGui_ImplSDL3_ProcessEvent(&event);
+        if (event.type == SDL_EVENT_QUIT)
             done = true;
         ProcessEvent(&event);
     }
@@ -142,7 +140,7 @@ void ImApp::BaseDraw() {
     }
 
     ImGui_ImplOpenGL3_NewFrame();
-    ImGui_ImplSDL2_NewFrame();
+    ImGui_ImplSDL3_NewFrame();
     ImGui::NewFrame();
     console_.Draw();
     for(auto it=draw_callback_.begin(); it != draw_callback_.end();) {
@@ -167,20 +165,15 @@ void ImApp::BaseDraw() {
 
 
 void ImApp::InitAudio(int freq, int chan, int bufsz, SDL_AudioFormat fmt) {
-    SDL_AudioSpec want, have;
-    SDL_AudioDeviceID dev;
-
-    SDL_memset(&want, 0, sizeof(want));
+    SDL_AudioSpec want;
+    SDL_zero(want);
+    want.format = fmt;
     want.freq = freq;
     want.channels = chan;
-    want.samples = bufsz;
-    want.format = fmt;
-    want.callback = ImApp::AudioCallback_;
-    want.userdata = (void*)this;
 
-    dev = SDL_OpenAudioDevice(NULL, 0, &want, &have,
-                              SDL_AUDIO_ALLOW_FORMAT_CHANGE);
-    SDL_PauseAudioDevice(dev, 0);
+    // Opens a device with an unbound audio stream; SDL3 fills any unconsumed
+    // space with silence, so no callback is needed.
+    SDL_OpenAudioDeviceStream(0, &want, nullptr, nullptr);
 }
 
 void ImApp::HelpButton(const std::string& topickey, bool right_justify) {
@@ -192,13 +185,16 @@ void ImApp::HelpButton(const std::string& topickey, bool right_justify) {
     }
 }
 
-void ImApp::AudioCallback(void* stream, int len) {
-    memset(stream, 0, len);
+void ImApp::AudioCallback(SDL_AudioStream* stream,
+                          int additional_amount, int total_amount) {
+    // Fill any requested audio with silence.  SDL3 already produces silence on
+    // its own for unconsumed space, so nothing needs to be done here.
 }
 
-void ImApp::AudioCallback_(void* userdata, uint8_t* stream, int len) {
+void ImApp::AudioCallback_(void* userdata, SDL_AudioStream* stream,
+                           int additional_amount, int total_amount) {
     ImApp* instance = (ImApp*)userdata;
-    instance->AudioCallback(stream, len);
+    instance->AudioCallback(stream, additional_amount, total_amount);
 }
 
 void ImApp::AddDrawCallback(ImWindowBase* window) {

@@ -1,6 +1,6 @@
 #ifndef PROJECT_UTIL_FPSMGR_H
 #define PROJECT_UTIL_FPSMGR_H
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 
 class FPSManager {
   public:

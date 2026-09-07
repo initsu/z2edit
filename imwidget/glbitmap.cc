@@ -1,6 +1,6 @@
 #include "imwidget/glbitmap.h"
 #include "imgui.h"
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 
 GLBitmap::GLBitmap()
   : width_(0),
@@ -130,11 +130,8 @@ void GLBitmap::Blit(int x, int y, int w, int h, uint32_t* pixels) {
 }
 
 bool GLBitmap::Save(const std::string& filename) {
-    SDL_Surface *surface = SDL_CreateRGBSurface(0, width_, height_, 32,
-                                                0x000000FF,
-                                                0x0000FF00,
-                                                0x00FF0000,
-                                                0xFF000000);
+    SDL_Surface *surface = SDL_CreateSurface(width_, height_,
+                                             SDL_PIXELFORMAT_ABGR8888);
 
     uint8_t *src = (uint8_t*)data_;
     uint8_t *dst = (uint8_t*)surface->pixels;
@@ -145,7 +142,7 @@ bool GLBitmap::Save(const std::string& filename) {
     }
 
     bool retval = (SDL_SaveBMP(surface, filename.c_str()) == 0);
-    SDL_FreeSurface(surface);
+    SDL_DestroySurface(surface);
     return retval;
 }
 
@@ -155,7 +152,7 @@ bool GLBitmap::Load(const std::string& filename) {
     uint8_t *dst = nullptr, *src = nullptr;
     orig = SDL_LoadBMP(filename.c_str());
     if (!orig) goto exitproc;
-    surface = SDL_ConvertSurfaceFormat(orig, SDL_PIXELFORMAT_ABGR8888, 0);
+    surface = SDL_ConvertSurface(orig, SDL_PIXELFORMAT_ABGR8888);
     if (!surface) goto exitproc;
 
     width_ = surface->w;
@@ -170,7 +167,7 @@ bool GLBitmap::Load(const std::string& filename) {
     Update();
     retval = true;
 exitproc:
-    SDL_FreeSurface(surface);
-    SDL_FreeSurface(orig);
+    SDL_DestroySurface(surface);
+    SDL_DestroySurface(orig);
     return retval;
 }

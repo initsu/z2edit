@@ -3,8 +3,8 @@
 #include <memory>
 
 #include <string>
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_opengl.h>
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_opengl.h>
 
 #include "util/fpsmgr.h"
 #include "imwidget/debug_console.h"
@@ -56,7 +56,8 @@ class ImApp {
     inline void set_clear_color(const ImVec4& c) { clear_color_ = c; }
 
   protected:
-    virtual void AudioCallback(void* stream, int len);
+    virtual void AudioCallback(SDL_AudioStream* stream,
+                               int additional_amount, int total_amount);
     std::string name_;
     int width_;
     int height_;
@@ -67,14 +68,12 @@ class ImApp {
 
   private:
     void Quit(DebugConsole* console, int argc, char **argv);
-    static void AudioCallback_(void* userdata, uint8_t* stream, int len);
+    static void AudioCallback_(void* userdata, SDL_AudioStream* stream,
+                               int additional_amount, int total_amount);
 
     static ImApp* singleton_;
 
     SDL_Window *window_;
-    SDL_Renderer *renderer_;
-    SDL_Texture *texture_;
-    SDL_PixelFormat *format_;
     SDL_GLContext glcontext_;
     FPSManager fpsmgr_;
 

@@ -5,7 +5,7 @@ rem Requires, on PATH:
 rem   - a MinGW compiler (e.g. MSYS2 ucrt64 or winlibs): g++, ld, windres
 rem   - ninja
 rem   - Internet on first configure (every dependency is fetched and built
-rem     from source via CPM; SDL2/protobuf/absl take a few minutes once).
+rem     from source via CPM; SDL3/protobuf/absl take a few minutes once).
 
 setlocal
 

@@ -78,24 +78,45 @@ elseif(TARGET zlibstatic)
   add_library(ZLIB::ZLIB ALIAS zlibstatic)
 endif()
 
-# --- SDL2 (static, in-tree; no prebuilt packages anywhere) --------------------
+# --- SDL3 (static, in-tree; no prebuilt packages anywhere) --------------------
 set(SDL_SHARED OFF CACHE BOOL "" FORCE)
 set(SDL_STATIC ON CACHE BOOL "" FORCE)
 set(SDL_TEST OFF CACHE BOOL "" FORCE)
+
+# z2edit only plumbers SDL's video (window + OpenGL), audio
+# (imwidget/imapp.cc:ImApp::InitAudio opens an unbound stream) and
+# joystick/gamepad subsystems.  Everything else SDL3 drags in by default - the
+# CPU/API renderers, GPU, camera, haptics, power, sensors, native file-dialog
+# and tray support - is unused here, so it's switched off to shrink the static
+# binary.  Platform render drivers (D3D/Metal/Vulkan/software) drop out with
+# SDL_RENDER; DIALOG is dead weight because z2edit shells out to
+# nativefiledialog.
+set(SDL_AUDIO ON CACHE BOOL "" FORCE)
+set(SDL_VIDEO ON CACHE BOOL "" FORCE)
+set(SDL_JOYSTICK ON CACHE BOOL "" FORCE)
+set(SDL_HIDAPI ON CACHE BOOL "" FORCE)
+set(SDL_RENDER OFF CACHE BOOL "" FORCE)
+set(SDL_GPU OFF CACHE BOOL "" FORCE)
+set(SDL_CAMERA OFF CACHE BOOL "" FORCE)
+set(SDL_HAPTIC OFF CACHE BOOL "" FORCE)
+set(SDL_POWER OFF CACHE BOOL "" FORCE)
+set(SDL_SENSOR OFF CACHE BOOL "" FORCE)
+set(SDL_DIALOG OFF CACHE BOOL "" FORCE)
+set(SDL_TRAY OFF CACHE BOOL "" FORCE)
 CPMAddPackage(
-  NAME sdl2
+  NAME sdl3
   GIT_REPOSITORY https://github.com/libsdl-org/SDL.git
-  GIT_TAG release-2.32.10
+  GIT_TAG release-3.4.16
 )
-if(NOT TARGET SDL2::SDL2)
-  if(TARGET SDL2-static)
-    add_library(SDL2::SDL2 ALIAS SDL2-static)
-  elseif(TARGET SDL2)
-    add_library(SDL2::SDL2 ALIAS SDL2)
+if(NOT TARGET SDL3::SDL3)
+  if(TARGET SDL3-static)
+    add_library(SDL3::SDL3 ALIAS SDL3-static)
+  elseif(TARGET SDL3)
+    add_library(SDL3::SDL3 ALIAS SDL3)
   endif()
 endif()
-if(NOT TARGET SDL2::SDL2main AND TARGET SDL2main)
-  add_library(SDL2::SDL2main ALIAS SDL2main)
+if(NOT TARGET SDL3::SDL3main AND TARGET SDL3main)
+  add_library(SDL3::SDL3main ALIAS SDL3main)
 endif()
 
 # --- protobuf ----------------------------------------------------------------
@@ -139,16 +160,24 @@ target_include_directories(imgui PUBLIC ${imgui_SOURCE_DIR})
 target_link_libraries(imgui PUBLIC Threads::Threads)
 
 # The imgui repo ships a pile of example projects (with pre-built .vcxproj
-# files), plus docs and its own backends; none are used here.  Drop them so
-# IDE folder views (e.g. Visual Studio) don't show a hundred example projects.
+# files), plus docs; none are used here.  Drop them so IDE folder views (e.g.
+# Visual Studio) don't show a hundred example projects.  The backends/ dir is
+# kept: util/CMakeLists.txt builds the SDL3+OpenGL3 backends straight from the
+# fetched source, so no copy is carried in the repo.  (The SDL3 backend already
+# includes each header as <SDL3/...>, matching SDL3's build-tree layout, so no
+# in-place rewrite is needed.)
 # Runs on every configure; if the source was already populated this prunes the
-# stale copy in place.
-file(REMOVE_RECURSE
-  "${imgui_SOURCE_DIR}/examples"
-  "${imgui_SOURCE_DIR}/misc"
-  "${imgui_SOURCE_DIR}/docs"
-  "${imgui_SOURCE_DIR}/tools"
-  "${imgui_SOURCE_DIR}/backends")
+# stale copy in place.  Only prune the copy inside this build tree: with a CPM
+# source cache the source dir may point straight at the shared cache (~/.cpm),
+# which must stay pristine or future configures will surface a dirty worktree.
+string(FIND "${imgui_SOURCE_DIR}" "${CMAKE_BINARY_DIR}/" _z2edit_imgui_in_buildtree)
+if(_z2edit_imgui_in_buildtree EQUAL 0)
+  file(REMOVE_RECURSE
+    "${imgui_SOURCE_DIR}/examples"
+    "${imgui_SOURCE_DIR}/misc"
+    "${imgui_SOURCE_DIR}/docs"
+    "${imgui_SOURCE_DIR}/tools")
+endif()
 
 # --- IconFontCppHeaders ------------------------------------------------------
 CPMAddPackage(
