@@ -129,21 +129,21 @@ std::string Executable() {
 std::string ResourceDir(const std::string& name) {
     std::string exe = Executable();
     if (exe.find("_bazel_") != std::string::npos) {
-        LOG(INFO, "Executable contains '_bazel_'. Assuming ResourceDir is CWD.");
+        ZLOG(INFO, "Executable contains '_bazel_'. Assuming ResourceDir is CWD.");
         return GetCWD();
     }
     std::vector<std::string> path = Split(exe);
     path.pop_back(); // Remove exe filename
 
 #ifdef _WIN32
-    LOG(INFO, "Windows: assuming ResourceDir is", Join(path));
+    ZLOG(INFO, "Windows: assuming ResourceDir is", Join(path));
 #else
     if (path.back() == "bin") {
         path.pop_back();
         path.push_back("share");
         path.push_back(name);
     } else {
-        LOG(INFO, "Unix: Did not find 'bin' in executable path. "
+        ZLOG(INFO, "Unix: Did not find 'bin' in executable path. "
                   "Assuming ResourcDir is ", Join(path));
     }
 #endif
@@ -167,7 +167,7 @@ std::string DataPath(const std::vector<std::string>& components) {
         p = Split(home);
         p.push_back(absl::StrCat(".", GetApplicationName()));
     } else {
-        LOG(ERROR, "ConfigPath is unknown.");
+        ZLOG(ERROR, "ConfigPath is unknown.");
     }
     p.insert(p.end(), components.begin(), components.end());
     return Join(p);

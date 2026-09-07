@@ -1227,7 +1227,7 @@ void Z2Edit::Help(const std::string& topickey) {
     const auto& ri = ConfigLoader<RomInfo>::GetConfig();
     const auto& it = ri.help().url().find(topickey);
     if (it == ri.help().url().end()) {
-        LOG(ERROR, "No help for topickey=", topickey);
+        ZLOG(ERROR, "No help for topickey=", topickey);
         if (topickey != "root") {
             Help("root");
         }

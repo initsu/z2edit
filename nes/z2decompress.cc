@@ -8,8 +8,8 @@
 // Turn off logging in this module when not in debug mode, as logging to the
 // console on windows is very slow and the decompressor is in the sideview
 // editor's draw routine.
-#undef LOG
-#define LOG(...) do { } while(0)
+#undef ZLOG
+#define ZLOG(...) do { } while(0)
 #endif
 
 DEFINE_int32(max_map_height, 0, "Maximum height of overworld maps");
@@ -46,13 +46,13 @@ void Z2Decompress::Decompress(const Map& map) {
     Address p = map.pointer();
 
     if (p.address()) {
-        LOG(INFO, "Map pointer at bank=", p.bank(), " address=", HEX(p.address()));
+        ZLOG(INFO, "Map pointer at bank=", p.bank(), " address=", HEX(p.address()));
         Address a = mapper_->ReadAddr(p, 0);
         *compressed_map_.mutable_address() = a;
     }
 
     Clear();
-    LOG(INFO, "Map at bank=", map.address().bank(),
+    ZLOG(INFO, "Map at bank=", map.address().bank(),
               " address=", HEX(map.address().address()));
     if (map.type() == MapType::OVERWORLD) {
         DecompressOverWorld(compressed_map_);
@@ -66,13 +66,13 @@ void Z2Decompress::DecompressOverWorld(const Map& map) {
     const auto& misc = ConfigLoader<RomInfo>::GetConfig().misc();
     uint8_t *mm = (uint8_t*)map_;
     // FIXME: how to determine the map length instead of specifying manually
-    LOG(INFO, "DecompressOverWorld: bank=", map.address().bank(),
+    ZLOG(INFO, "DecompressOverWorld: bank=", map.address().bank(),
               " address=", HEX(map.address().address()),
               " length=", map.length());
 
     width_ = misc.overworld_width();
     if (width_ != 64) {
-        LOG(FATAL, "Overworld width must be 64.");
+        ZLOG(FATAL, "Overworld width must be 64.");
     }
     height_ = misc.overworld_height();
     if (FLAGS_max_map_height) height_ = FLAGS_max_map_height;
@@ -120,7 +120,7 @@ const BackgroundInfo& Z2Decompress::GetBackgroundInfo() {
             return bg;
         }
     }
-    LOG(ERROR, "Could not find background info for type=",
+    ZLOG(ERROR, "Could not find background info for type=",
             compressed_map_.type(), " index=", n);
     return ri.background(0);
 }
@@ -237,9 +237,9 @@ void Z2Decompress::DecompressSideView(const uint8_t* data, bool collapse) {
         // current bank.
         backaddr.set_address(0);
         backaddr.set_address(ReadWord(backaddr, 2 * ((back_ & 7) - 1)));
-        LOG(INFO, "Decompressing background map ", (back_&7), " at ", HEX(backaddr.address()));
+        ZLOG(INFO, "Decompressing background map ", (back_&7), " at ", HEX(backaddr.address()));
         if (backaddr.address() == 0 || backaddr.address() == 0xFFFF) {
-            LOG(ERROR, "Unexpected address for background map");
+            ZLOG(ERROR, "Unexpected address for background map");
         } else {
             DecompressSideView(backaddr, &address());
             layer_++;
@@ -255,15 +255,15 @@ void Z2Decompress::DecompressSideView(const uint8_t* data, bool collapse) {
     ground_ = data[2];
     back_ = data[3];
 
-    LOG(VERBOSE, "Map Length: ", HEX(len));
-    LOG(VERBOSE, "Flags: objset=", !!(flags_ & 0x80),
+    ZLOG(VERBOSE, "Map Length: ", HEX(len));
+    ZLOG(VERBOSE, "Flags: objset=", !!(flags_ & 0x80),
                  " width=", (flags_ >> 5) & 3,
                  " grass=" , !!(flags_ & 8),
                  " bushes=", !!(flags_ & 4));
-    LOG(VERBOSE, "HasCeiling=", !!(ground_ & 0x80),
+    ZLOG(VERBOSE, "HasCeiling=", !!(ground_ & 0x80),
                  " GroundTiles=", (ground_ >> 4) & 7,
                  " Floor=", ground_ & 0xF);
-    LOG(VERBOSE, "SpritePal=", (back_ >> 6) & 3,
+    ZLOG(VERBOSE, "SpritePal=", (back_ >> 6) & 3,
                  " BackPal=", (back_ >> 3) & 7,
                  " BackMap=", back_ & 7);
 
@@ -282,7 +282,7 @@ void Z2Decompress::DecompressSideView(const uint8_t* data, bool collapse) {
         uint8_t pos = data[i];
         uint8_t obj = data[i+1];
 //        if (i>4) Print();
-        LOG(VERBOSE, "op = ", HEX(pos), " ", HEX(obj));
+        ZLOG(VERBOSE, "op = ", HEX(pos), " ", HEX(obj));
 
         xspace = pos & 0xf;
         y = pos >> 4;
@@ -361,18 +361,18 @@ void Z2Decompress::DecompressSideView(const uint8_t* data, bool collapse) {
                     case DecompressInfo::RENDER_CUSTOM:
                         fn = info->custom(); break;
                     default:
-                        LOG(ERROR, "Couldn't find renderer ", info->render());
+                        ZLOG(ERROR, "Couldn't find renderer ", info->render());
                         ; // Do nothing
                 }
             } else {
-                LOG(ERROR, "Couldn't look up ", HEX(obj), " for o=",
+                ZLOG(ERROR, "Couldn't look up ", HEX(obj), " for o=",
                            oindex, " f=", findex, " extra=", extra);
             }
 
             // Look up the put funtion and call it
             PutFn put = put_[fn];
             if (!put) {
-                LOG(ERROR, "Couldn't find PutFn for '", fn, "': ",
+                ZLOG(ERROR, "Couldn't find PutFn for '", fn, "': ",
                         info->DebugString());
                 put = &Z2Decompress::Invalid;
             }

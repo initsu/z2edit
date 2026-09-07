@@ -13,7 +13,7 @@ int main(int argc, char *argv[]) {
 
     auto* loader = ConfigLoader<z2util::RomInfo>::Get();
     if (FLAGS_config.empty()) {
-        LOG(FATAL, "Need a config file.");
+        ZLOG(FATAL, "Need a config file.");
     }
 
     loader->Load(FLAGS_config);
@@ -22,7 +22,7 @@ int main(int argc, char *argv[]) {
     config->mutable_load()->Clear();
     std::string data;
     if (!google::protobuf::TextFormat::PrintToString(*config, &data)) {
-        LOG(FATAL, "Failed to serialize config.");
+        ZLOG(FATAL, "Failed to serialize config.");
     }
     
     printf("const char %s[] = R\"%s(%s)%s\";\n",

@@ -61,7 +61,7 @@ void logging_init() {
     }
     logfp_isatty = isatty(fileno(logfp));
     if (initerror) {
-        LOG(FATAL, "Could not open ", FLAGS_logfile, " for writing.");
+        ZLOG(FATAL, "Could not open ", FLAGS_logfile, " for writing.");
     }
 }
 

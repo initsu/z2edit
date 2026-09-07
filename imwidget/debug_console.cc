@@ -64,7 +64,7 @@ void  DebugConsole::AddLog(const char* fmt, ...) {
     while(end > log && (*end == '\r' || *end == '\n')) {
         *end-- = '\0';
     }
-    LOG(INFO, "$$ ", log);
+    ZLOG(INFO, "$$ ", log);
 }
 
 bool DebugConsole::Draw() {

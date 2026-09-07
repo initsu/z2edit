@@ -112,19 +112,19 @@ bool Project::LoadWorker(const std::string& filename) {
     } else {
         std::string content;
         if (!File::GetContents(filename, &content)) {
-            LOG(ERROR, "Could not load project: ", filename);
+            ZLOG(ERROR, "Could not load project: ", filename);
             return false;
         }
         if (!project_.ParseFromString(content)) {
-            LOG(INFO, "Could not parse project, trying TextFormat");
+            ZLOG(INFO, "Could not parse project, trying TextFormat");
             if (!TextFormat::ParseFromString(content, &project_)) {
-                LOG(ERROR, "Could not parse project from ", filename);
+                ZLOG(ERROR, "Could not parse project from ", filename);
                 return false;
             }
         }
 #if 0
-        LOG(INFO, "Loaded project: ", project_.name());
-        LOG(INFO, "  compressed rom is ", project_.rom().size(), " bytes");
+        ZLOG(INFO, "Loaded project: ", project_.name());
+        ZLOG(INFO, "  compressed rom is ", project_.rom().size(), " bytes");
         File::SetContents(absl::StrCat(project_.name(), "-rom.nes"), project_.rom());
         for(int i=0; i<project_.history_size(); i++) {
             File::SetContents(absl::StrCat(project_.name(), "-", i, ".nes"), project_.history(i).rom());
@@ -137,7 +137,7 @@ bool Project::LoadWorker(const std::string& filename) {
         if (rom.ok()) {
             cartridge_->LoadRom(rom.value());
         } else {
-            LOG(ERROR, filename, ": error uncompressing ROM in project: ",
+            ZLOG(ERROR, filename, ": error uncompressing ROM in project: ",
                     rom.status().ToString());
         }
     }
@@ -160,7 +160,7 @@ bool Project::Save(const std::string& filename, bool as_text) {
     if (ret) {
         changed_ = false;
     } else {
-        LOG(ERROR, "Could not save project: ", filename);
+        ZLOG(ERROR, "Could not save project: ", filename);
     }
     return ret; 
 }

@@ -10,7 +10,7 @@
 #include "absl/strings/str_cat.h"
 
 
-#define LOG(LEVEL, ...) \
+#define ZLOG(LEVEL, ...) \
     logging::Log(logging::LogLevel::LL_##LEVEL, __VA_ARGS__)
 #define LOGF(LEVEL, ...) \
     logging::LogF(logging::LogLevel::LL_##LEVEL, __VA_ARGS__)

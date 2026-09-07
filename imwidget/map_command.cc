@@ -603,7 +603,7 @@ std::vector<uint8_t> MapHolder::MapDataWorker(std::vector<MapCommand>& list) {
 #ifndef NDEBUG
         // Turn this log message off in non-debug builds, as this method is
         // in the sideview editors draw loop.
-        LOG(INFO, "CMD: op = ", HEX(bytes[0]), " ", HEX(bytes[1]));
+        ZLOG(INFO, "CMD: op = ", HEX(bytes[0]), " ", HEX(bytes[1]));
 #endif
     }
     map[0] = map.size();
@@ -663,13 +663,13 @@ std::vector<uint8_t> MapHolder::MapDataAbs() {
 
 void MapHolder::Save(std::function<void()> finish, bool force) {
     if (!addr_changed_ && !data_changed_) {
-        LOG(INFO, "No changes; nothing to save.");
+        ZLOG(INFO, "No changes; nothing to save.");
         // Nothing to save.
         finish();
         return;
     }
     if (addr_changed_ && !data_changed_) {
-        LOG(INFO, "Address only changed.");
+        ZLOG(INFO, "Address only changed.");
         mapper_->WriteWord(map_.pointer(), 0, map_addr_);
         addr_changed_ = false;
         finish();
@@ -682,7 +682,7 @@ void MapHolder::Save(std::function<void()> finish, bool force) {
     }
     Pack();
     std::vector<uint8_t> data = MapDataAbs();
-    LOG(INFO, "Saving ", map_.name(), " (", data.size(), " bytes)");
+    ZLOG(INFO, "Saving ", map_.name(), " (", data.size(), " bytes)");
 
 
     // Determine if any other maps point to the same map data
@@ -696,7 +696,7 @@ void MapHolder::Save(std::function<void()> finish, bool force) {
             mptr.address() == map_.address().address()) {
             sameptr.push_back(&m);
             absl::StrAppend(&names, "+ ", m.name(), "\n");
-            LOG(INFO, "Duplicate data: ", m.name());
+            ZLOG(INFO, "Duplicate data: ", m.name());
         }
     }
 
@@ -713,7 +713,7 @@ void MapHolder::Save(std::function<void()> finish, bool force) {
             ErrorDialog::Spawn("Error Saving Map",
                 "Can't save map: ", map_.name(), "\n\n"
                 "Can't find ", data.size(), " free bytes in bank ", addr.bank());
-            LOG(ERROR, "Can't save map: can't find ", data.size(), "bytes"
+            ZLOG(ERROR, "Can't save map: can't find ", data.size(), "bytes"
                        " in bank=", addr.bank());
             // Can't finish.
             return;
@@ -754,7 +754,7 @@ void MapHolder::Save(std::function<void()> finish, bool force) {
     };
 
     if (sameptr.empty() || force) {
-        LOG(INFO, "No duplicate pointers detected; saving normally.");
+        ZLOG(INFO, "No duplicate pointers detected; saving normally.");
         dosave(true);
         return;
     }
@@ -1493,7 +1493,7 @@ void MapSwapper::Swap() {
             avail = a;
         }
     }
-    LOG(INFO, "Swapping ", a->name(), " with ", b->name());
+    ZLOG(INFO, "Swapping ", a->name(), " with ", b->name());
 
     if (swap_map_) {
         uint16_t pa = mapper_->ReadWord(a->pointer(), 0);
@@ -1574,7 +1574,7 @@ void MapSwapper::Copy() {
             avail = a;
         }
     }
-    LOG(INFO, "Copying ", a->name(), " to ", b->name());
+    ZLOG(INFO, "Copying ", a->name(), " to ", b->name());
 
     if (swap_map_) {
         uint16_t pa = mapper_->ReadWord(a->pointer(), 0);

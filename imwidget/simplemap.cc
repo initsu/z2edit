@@ -254,7 +254,7 @@ bool SimpleMap::Draw() {
     DrawMap(cursor);
     ImGui::SetCursorPos(cursor);
     if (holder_.DrawPopup(scale_)) {
-        LOG(INFO, "map changed");
+        ZLOG(INFO, "map changed");
         changed_ = true;
         want_redraw = true;
     }

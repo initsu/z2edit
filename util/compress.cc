@@ -13,7 +13,7 @@ std::string ZLib::Compress(const std::string& data) {
     buf.resize(size);
     if (compress2((unsigned char*)buf.data(), &size,
                   (const unsigned char*)data.data(), data.size(), -1) != Z_OK) {
-        LOG(FATAL, "Failed to compress rom buffer.");
+        ZLOG(FATAL, "Failed to compress rom buffer.");
     }
     buf.resize(size);
     return buf;

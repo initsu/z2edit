@@ -94,7 +94,7 @@ void Editor::ConvertFromMap(Map* map) {
                           map->subworld());
         width = decomp.width();
         height = decomp.height();
-        LOG(INFO, "map ", map_->name(),
+        ZLOG(INFO, "map ", map_->name(),
                   " decompressed to ", width, "x", height);
         encounters_.set_map(*map);
         encounters_.Unpack();
@@ -212,12 +212,12 @@ void Editor::SaveMap() {
     if (FLAGS_max_map_length) max_length = FLAGS_max_map_length;
 
     if (!map_) {
-        LOG(ERROR, "Can't save map: map_ == nullptr");
+        ZLOG(ERROR, "Can't save map: map_ == nullptr");
         return;
     }
 
-    LOG(INFO, "Saving ", map_->name());
-    LOG(INFO, "Map compresses to ", data.size(), " bytes.");
+    ZLOG(INFO, "Saving ", map_->name());
+    ZLOG(INFO, "Map compresses to ", data.size(), " bytes.");
 
     if (data.size() > size_t(max_length)) {
         ErrorDialog::Spawn("Overworld Save Error",
@@ -234,7 +234,7 @@ void Editor::SaveMap() {
     if (addr.address() == 0) {
         ErrorDialog::Spawn("Overworld Save Error",
             "Can't allocate free space for ", map_->name(), ".\n");
-        LOG(ERROR, "Can't save map: can't find ", data.size(), " bytes"
+        ZLOG(ERROR, "Can't save map: can't find ", data.size(), " bytes"
                    " in bank=", addr.bank());
         return;
     }
@@ -242,7 +242,7 @@ void Editor::SaveMap() {
     // Always mapped at 0x8000
     addr.set_address(0x8000 | addr.address());
 
-    LOG(INFO, "Saving map to offset ", HEX(addr.address()),
+    ZLOG(INFO, "Saving map to offset ", HEX(addr.address()),
               " in bank=", addr.bank());
     for(unsigned i=0; i<data.size(); i++) {
         mapper_->Write(addr, i, data[i]);

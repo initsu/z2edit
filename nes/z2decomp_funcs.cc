@@ -8,7 +8,7 @@ void Z2Decompress::Invalid(int x, int y, uint8_t item,
     const char *dbg = "<null>";
     if (info)
         dbg = info->DebugString().c_str();
-    LOG(ERROR, "Invalid item ", HEX(item), ": ", dbg);
+    ZLOG(ERROR, "Invalid item ", HEX(item), ": ", dbg);
 }
 
 void Z2Decompress::NotYet(int x, int y, uint8_t item,
@@ -16,7 +16,7 @@ void Z2Decompress::NotYet(int x, int y, uint8_t item,
     const char *dbg = "<null>";
     if (info)
         dbg = info->DebugString().c_str();
-    LOG(WARN, "Item ", HEX(item), " not implemented yet:", dbg);
+    ZLOG(WARN, "Item ", HEX(item), " not implemented yet:", dbg);
 }
 
 // Render an 'item & 15' horizontal stripe of a 'height' tall object
@@ -42,7 +42,7 @@ void Z2Decompress::RenderBuilding(int x, int y, uint8_t item,
     int height = info->height() ? info->height() : 13;
     int n = info->objid_size();
     if (n != 2) {
-        LOG(ERROR, "Expecting exactly 2 objids in: ", info->DebugString());
+        ZLOG(ERROR, "Expecting exactly 2 objids in: ", info->DebugString());
         return;
     }
     if (info->fixed_y()) y = info->fixed_y();

@@ -51,10 +51,10 @@ class ConfigLoader {
         if (data) {
             pb = *data;
         } else if (!File::GetContents(filename, &pb)) {
-            LOG(FATAL, "Could not read '", filename, "'.");
+            ZLOG(FATAL, "Could not read '", filename, "'.");
         }
         if (!google::protobuf::TextFormat::ParseFromString(pb, &local_config)) {
-            LOG(FATAL, "Could not parse '", filename, "'.");
+            ZLOG(FATAL, "Could not parse '", filename, "'.");
         }
 
         for(const auto& file : local_config.load()) {
