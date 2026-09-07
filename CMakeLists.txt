@@ -158,9 +158,9 @@ target_link_libraries(z2edit_app PUBLIC
   z2edit::enemyattr
   z2edit::hwpalette
   z2edit::item_effects
-  z2edit::misc_hacks
   z2edit::neschrview
   z2edit::object_table
+  z2edit::overworld_tiles
   z2edit::palace_gfx
   z2edit::palette
   z2edit::project

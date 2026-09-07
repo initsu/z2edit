@@ -78,7 +78,6 @@ void Z2Edit::Init() {
     hwpal_ = NesHardwarePalette::Get();
     chrview_.reset(new NesChrView);
     simplemap_.reset(new z2util::SimpleMap);
-    misc_hacks_.reset(new z2util::MiscellaneousHacks);
     palace_gfx_.reset(new z2util::PalaceGraphics);
     palette_editor_.reset(new z2util::PaletteEditor);
     rom_memory_.reset(new z2util::RomMemory);
@@ -87,6 +86,7 @@ void Z2Edit::Init() {
     tile_transform_.reset(new z2util::TileTransform);
     item_effects_.reset(new z2util::ItemEffects);
     object_table_.reset(new z2util::ObjectTable);
+    overworld_tiles_.reset(new z2util::OverworldTiles);
     enemy_editor_.reset(new z2util::EnemyEditor);
     experience_table_.reset(new z2util::ExperienceTable);
     drops_.reset(new z2util::Drops);
@@ -127,11 +127,9 @@ void Z2Edit::LoadPostProcess(int movekeepout) {
         n++;
     }
 
-    // Misc hacks first because it can modify config.
-    misc_hacks_->set_mapper(mapper_.get());
-    misc_hacks_->Refresh();
-
     editor_->set_mapper(mapper_.get());
+    overworld_tiles_->set_mapper(mapper_.get());
+    overworld_tiles_->Refresh();
     editor_->Refresh();
     palace_gfx_->set_mapper(mapper_.get());
     palace_gfx_->Refresh();
@@ -1007,9 +1005,6 @@ void Z2Edit::ProcessMessage(const std::string& msg, const void* extra) {
         tile_transform_->Refresh();
     } else if (msg == "loadpostprocess") {
         LoadPostProcess(reinterpret_cast<intptr_t>(extra));
-    } else if (msg == "overworld_tile_hack") {
-        object_table_->Init();
-        palette_editor_->Init();
     } else if (msg == "repack") {
         simplemap_->Refresh();
         editor_->Refresh();
@@ -1144,8 +1139,6 @@ export_as:
                             &editor_->visible());
             ImGui::MenuItem("Sideview Editor", nullptr,
                             &simplemap_->visible());
-            ImGui::MenuItem("Miscellaneous Hacks", nullptr,
-                            &misc_hacks_->visible());
             ImGui::MenuItem("Palace Graphics", nullptr,
                             &palace_gfx_->visible());
             ImGui::MenuItem("Palette Editor", nullptr,
@@ -1196,7 +1189,6 @@ export_as:
     text_table_->Draw();
     tile_transform_->Draw();
     item_effects_->Draw();
-    misc_hacks_->Draw();
     palace_gfx_->Draw();
     palette_editor_->Draw();
     rom_memory_->Draw();

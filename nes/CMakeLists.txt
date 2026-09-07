@@ -13,6 +13,10 @@ z2edit_library(enemylist enemylist.cc enemylist.h)
 target_link_libraries(z2edit_enemylist PUBLIC
   z2edit::mappers z2edit::proto_rominfo z2edit::config z2edit::logging)
 
+z2edit_library(overworld_tiles overworld_tiles.cc overworld_tiles.h)
+target_link_libraries(z2edit_overworld_tiles PUBLIC
+  z2edit::mappers z2edit::proto_rominfo z2edit::config z2edit::logging)
+
 # mappers rely on a static registry referenced through function pointers, so
 # they must be linked whole (bazel set alwayslink = 1).
 z2edit_library(mappers mapper.cc mapper1.cc mapper1.h memory.cc memory.h mapper.h)

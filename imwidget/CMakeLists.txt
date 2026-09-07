@@ -65,10 +65,6 @@ z2edit_library(map_connect map_connect.cc map_connect.h)
 target_link_libraries(z2edit_map_connect PUBLIC
   z2edit::base z2edit::multimap z2edit::mappers z2edit::proto_rominfo)
 
-z2edit_library(misc_hacks misc_hacks.cc misc_hacks.h)
-target_link_libraries(z2edit_misc_hacks PUBLIC
-  z2edit::base z2edit::mappers z2edit::proto_rominfo z2edit::config)
-
 z2edit_library(overworld_encounters overworld_encounters.cc overworld_encounters.h)
 target_link_libraries(z2edit_overworld_encounters PUBLIC
   z2edit::mappers z2edit::config)

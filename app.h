@@ -10,7 +10,6 @@
 #include "imwidget/hwpalette.h"
 #include "imwidget/imwidget.h"
 #include "imwidget/item_effects.h"
-#include "imwidget/misc_hacks.h"
 #include "imwidget/neschrview.h"
 #include "imwidget/palace_gfx.h"
 #include "imwidget/palette.h"
@@ -25,6 +24,7 @@
 #include "nes/cartridge.h"
 #include "nes/mapper.h"
 #include "nes/memory.h"
+#include "nes/overworld_tiles.h"
 
 namespace z2util {
 
@@ -93,7 +93,6 @@ class Z2Edit: public ImApp {
     std::unique_ptr<z2util::SimpleMap> simplemap_;
     std::unique_ptr<z2util::Drops> drops_;
     std::unique_ptr<z2util::Editor> editor_;
-    std::unique_ptr<z2util::MiscellaneousHacks> misc_hacks_;
     std::unique_ptr<z2util::PalaceGraphics> palace_gfx_;
     std::unique_ptr<z2util::PaletteEditor> palette_editor_;
     std::unique_ptr<z2util::RomMemory> rom_memory_;
@@ -102,6 +101,7 @@ class Z2Edit: public ImApp {
     std::unique_ptr<z2util::TileTransform> tile_transform_;
     std::unique_ptr<z2util::ItemEffects> item_effects_;
     std::unique_ptr<z2util::ObjectTable> object_table_;
+    std::unique_ptr<z2util::OverworldTiles> overworld_tiles_;
     std::unique_ptr<z2util::EnemyEditor> enemy_editor_;
     std::unique_ptr<z2util::ExperienceTable> experience_table_;
 
