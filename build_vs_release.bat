@@ -25,10 +25,10 @@ if not exist "%VSROOT%\VC\Auxiliary\Build\vcvars64.bat" (
 call "%VSROOT%\VC\Auxiliary\Build\vcvars64.bat" >nul
 set "PATH=%VSROOT%\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin;%VSROOT%\Common7\IDE\CommonExtensions\Microsoft\CMake\Ninja;%PATH%"
 
-cmake --preset windows-msvc-static -DCMAKE_BUILD_TYPE=Release
+cmake --preset windows-msvc-static-release -DCMAKE_BUILD_TYPE=Release
 if errorlevel 1 exit /b %errorlevel%
 
-cmake --build --preset windows-msvc-static
+cmake --build --preset windows-msvc-static-release
 if errorlevel 1 exit /b %errorlevel%
 
 powershell -NoProfile -Command "Compress-Archive -Force -Path '%~dp0build\windows-msvc\z2edit.exe' -DestinationPath '%~dp0z2edit-windows.zip'"

@@ -18,11 +18,27 @@
       }
     },
     {
-      "name": "windows-msvc-static",
-      "displayName": "Windows - MSVC (static)",
+      "name": "windows-msvc-static-debug",
+      "displayName": "Windows - MSVC (static, Debug)",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/windows-msvc-debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_MSVC_RUNTIME_LIBRARY": "MultiThreaded$<$<CONFIG:Debug>:Debug>"
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
+    },
+    {
+      "name": "windows-msvc-static-release",
+      "displayName": "Windows - MSVC (static, Release)",
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/build/windows-msvc",
       "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
         "CMAKE_MSVC_RUNTIME_LIBRARY": "MultiThreaded$<$<CONFIG:Debug>:Debug>"
       },
       "condition": {
@@ -67,7 +83,18 @@
   "buildPresets": [
     { "name": "windows-mingw", "configurePreset": "windows-mingw" },
     { "name": "windows-mingw-cross", "configurePreset": "windows-mingw-cross" },
-    { "name": "windows-msvc-static", "configurePreset": "windows-msvc-static" },
+    {
+      "name": "windows-msvc-static-debug",
+      "displayName": "Visual Studio Debug",
+      "configurePreset": "windows-msvc-static-debug",
+      "configuration": "Debug"
+    },
+    {
+      "name": "windows-msvc-static-release",
+      "displayName": "Visual Studio Release",
+      "configurePreset": "windows-msvc-static-release",
+      "configuration": "Release"
+    },
     { "name": "linux", "configurePreset": "linux" },
     { "name": "macos", "configurePreset": "macos" }
   ]
