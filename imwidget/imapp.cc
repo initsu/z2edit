@@ -1,6 +1,7 @@
 #include <gflags/gflags.h>
 #include "imapp.h"
 #include "imgui.h"
+#include "util/file.h"
 #include "util/os.h"
 #include "util/gamecontrollerdb.h"
 #include "util/logging.h"
@@ -39,7 +40,10 @@ ImApp::ImApp(const std::string& name, int width, int height)
     glcontext_ = SDL_GL_CreateContext(window_);
     // Setup ImGui binding
     ImGui::CreateContext();
+    ini_filename_ = os::path::Join({os::path::DataPath(), "imgui.ini"});
+    File::MakeDirs(os::path::DataPath());
     ImGuiIO& io = ImGui::GetIO(); (void)io;
+    io.IniFilename = ini_filename_.c_str();
     ImGui_ImplSdl_SetHiDPIScale(FLAGS_hidpi);
     ImGui_ImplSDL3_InitForOpenGL(window_, glcontext_);
     ImGui_ImplOpenGL3_Init(nullptr);
@@ -199,4 +203,14 @@ void ImApp::AudioCallback_(void* userdata, SDL_AudioStream* stream,
 
 void ImApp::AddDrawCallback(ImWindowBase* window) {
     draw_added_.emplace_back(window);
+}
+
+void ImApp::GetWindowGeometry(int* x, int* y, int* w, int* h) {
+    SDL_GetWindowPosition(window_, x, y);
+    SDL_GetWindowSize(window_, w, h);
+}
+
+void ImApp::SetWindowGeometry(int x, int y, int w, int h) {
+    SDL_SetWindowPosition(window_, x, y);
+    SDL_SetWindowSize(window_, w, h);
 }

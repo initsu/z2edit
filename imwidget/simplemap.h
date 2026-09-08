@@ -25,6 +25,9 @@ class SimpleMap: public ImWindowBase {
     void SetMap(const Map& map, int mapsel=-1);
     void StartEmulator(int screen);
     inline const std::string& name() const { return decomp_.name(); }
+    // The map name the editor currently has loaded ("" / "Sideview Editor"
+    // if no map has been set).
+    inline const std::string& map_name() const { return title_; }
     void RenderToBuffer(GLBitmap *buffer);
     std::unique_ptr<GLBitmap> RenderToNewBuffer();
   private:

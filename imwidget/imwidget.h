@@ -22,6 +22,7 @@ class ImWindowBase {
     inline bool& visible() { return visible_; }
     inline void set_visible(bool v) { visible_ = v; }
     inline bool want_dispose() { return want_dispose_; }
+    inline void set_want_dispose(bool v) { want_dispose_ = v; }
   protected:
     int id_;
     bool visible_;

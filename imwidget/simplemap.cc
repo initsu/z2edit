@@ -26,7 +26,7 @@ SimpleMap::SimpleMap()
     tab_(0),
     startscreen_(0),
     title_("Sideview Editor"),
-    window_title_(title_),
+    window_title_("Sideview Editor##SimpleMap"),
     grayout_(256, 208) {
     for(int y=0; y<grayout_.height(); y++) {
         for(int x=0; x<grayout_.width(); x++) {
@@ -43,7 +43,12 @@ SimpleMap::SimpleMap(Mapper* m, const Map& map, int startscreen)
     startscreen_ = startscreen;
     mapsel_ = -1;
     title_ = map.name();
-    window_title_ = absl::StrCat(title_, "##", id_);
+    // The window id must be stable so imgui.ini can persist position/size
+    // across sessions.  Key spawned windows on the map's pointer bank/address
+    // so each instance gets a unique, persistent key.
+    window_title_ = absl::StrCat(title_, "##SimpleMap:",
+                                 map.pointer().bank(), ":",
+                                 map.pointer().address());
     bgmap_ = map.world() == -1;
 }
 

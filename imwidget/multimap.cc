@@ -62,7 +62,12 @@ void MultiMap::Init() {
         mcfg_->set_show_labels(true);
         mcfg_->set_show_arrows(true);
     }
-    title_ = absl::StrCat(title_, "##", id_);
+    // Stable window id so imgui.ini can restore the position across
+    // sessions: spawn params fully determine the map being displayed.
+    // (Previously this used an uninitialized per-instance integer, so the
+    // window id changed every launch and the position was never saved.)
+    title_ = absl::StrCat(title_, "##MultiMap:", world_, ":",
+                          overworld_, ":", subworld_, ":", start_);
     if (start_ != 0) {
         // Room 0 is often used as the destination for illegal exits
         visited_[0] = true;

@@ -1,7 +1,10 @@
 #ifndef Z2UTIL_APP_H
 #define Z2UTIL_APP_H
+#include <map>
 #include <memory>
 #include <string>
+#include <utility>
+#include <vector>
 
 #include "imwidget/imapp.h"
 #include "imwidget/drops.h"
@@ -31,7 +34,7 @@ namespace z2util {
 class Z2Edit: public ImApp {
   public:
     Z2Edit(const std::string& name) : ImApp(name, 1280, 720) {}
-    ~Z2Edit() override {}
+    ~Z2Edit() override;
 
     void Init() override;
     void ProcessEvent(SDL_Event* event) override;
@@ -81,6 +84,13 @@ class Z2Edit: public ImApp {
     int EncodedText(int ch);
     bool ParseChr(const std::string& a, int* bank, uint8_t *addr);
 
+    // Persist widget visibility and the currently-loaded SimpleMap(s).
+    void SaveUiState();
+    void RestoreUiState();
+    void RestoreWindowGeometry();
+    bool WindowGeometryVisible(int x, int y, int w, int h);
+    std::vector<std::pair<const char*, ImWindowBase*>> UiWindowList();
+
     bool loaded_;
     int ibase_;
     int bank_;
@@ -109,6 +119,16 @@ class Z2Edit: public ImApp {
     Project project_;
     z2util::Memory memory_;
     std::unique_ptr<Mapper> mapper_;
+
+    std::map<std::string, bool> ui_visibility_;
+    std::string ui_primary_map_;
+    std::vector<std::string> ui_spawned_maps_;
+    std::vector<std::string> ui_multimap_maps_;
+    // Saved program-window geometry; -1 means not present in ui_state.txt.
+    int ui_window_x_ = -1;
+    int ui_window_y_ = -1;
+    int ui_window_width_ = -1;
+    int ui_window_height_ = -1;
 };
 
 }  // namespace z2util

@@ -35,6 +35,11 @@ class MultiMap: public ImWindowBase {
     void Init();
     void Refresh() override { Init(); }
     bool Draw() override;
+    // Spawn coordinates, used to persist which maps are open across sessions.
+    int world() const { return world_; }
+    int overworld() const { return overworld_; }
+    int subworld() const { return subworld_; }
+    int start() const { return start_; }
   private:
     struct DrawLocation {
         fdg::Node *node;
@@ -63,7 +68,6 @@ class MultiMap: public ImWindowBase {
     void Sort();
     void DrawLegend();
 
-    int id_;
     Mapper* mapper_;
     int world_;
     int overworld_;

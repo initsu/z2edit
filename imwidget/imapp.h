@@ -52,6 +52,11 @@ class ImApp {
     void AddDrawCallback(ImWindowBase* window);
     void HelpButton(const std::string& topickey, bool right_justify=false);
 
+    // Window geometry (position and size), used to persist the main
+    // program window across sessions.
+    void GetWindowGeometry(int* x, int* y, int* w, int* h);
+    void SetWindowGeometry(int x, int y, int w, int h);
+
     inline const ImVec4& clear_color() { return clear_color_; }
     inline void set_clear_color(const ImVec4& c) { clear_color_ = c; }
 
@@ -76,6 +81,7 @@ class ImApp {
     SDL_Window *window_;
     SDL_GLContext glcontext_;
     FPSManager fpsmgr_;
+    std::string ini_filename_;
 
     std::vector<std::unique_ptr<ImWindowBase>> draw_added_;
 };

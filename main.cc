@@ -5,6 +5,7 @@
 
 #include "app.h"
 #include "util/config.h"
+#include "util/os.h"
 #include "zelda2_config.h"
 
 DEFINE_string(config, "", "ROM info config file");
@@ -156,6 +157,7 @@ int main(int argc, char *argv[]) {
         exit(0);
     }
 
+    os::SetApplicationName("z2edit");
     z2util::Z2Edit app("Zelda 2 ROM Editor");
     app.Init();
 

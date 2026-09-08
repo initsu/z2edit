@@ -60,6 +60,7 @@ Editor::Editor()
     scale_(2.0),
     editor_(nullptr),
     map_(nullptr),
+    mapper_(nullptr),
     mouse_origin_(0, 0),
     mouse_focus_(false),
     mapsel_(0)
@@ -305,6 +306,13 @@ bool Editor::Draw() {
     const char *names[256];
     int len=0, mapsel = mapsel_;
     if (!visible_)
+        return changed_;
+    // The overworld editor needs a live mapper (and therefore a loaded
+    // ROM/project) to decompress its map.  The persisted UI state can leave
+    // this window open across launches, so draw nothing until a load gives us
+    // a mapper instead of dereferencing the null it starts with (access
+    // violation in Map::address() / mapper_->ReadAddr()).
+    if (mapper_ == nullptr)
         return changed_;
 
     ImGui::SetNextWindowSize(ImVec2(1100, 700), ImGuiCond_FirstUseEver);

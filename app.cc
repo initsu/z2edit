@@ -1,10 +1,13 @@
 #include <cstdio>
+#include <map>
+#include <vector>
 
 #include <gflags/gflags.h>
 #include "app.h"
 #include "imgui.h"
 #include "imwidget/error_dialog.h"
 #include "imwidget/map_connect.h"
+#include "imwidget/multimap.h"
 #include "nes/cpu6502.h"
 #include "nes/chr_util.h"
 #include "nes/text_encoding.h"
@@ -13,8 +16,10 @@
 #include "util/config.h"
 #include "util/os.h"
 #include "util/logging.h"
-#include "absl/strings/str_split.h"
+#include "absl/strings/ascii.h"
 #include "absl/strings/match.h"
+#include "absl/strings/str_cat.h"
+#include "absl/strings/str_split.h"
 
 #include "version.h"
 
@@ -28,6 +33,10 @@ DECLARE_bool(move_from_keepout);
 DECLARE_string(config);
 
 namespace z2util {
+
+Z2Edit::~Z2Edit() {
+    SaveUiState();
+}
 
 void Z2Edit::Init() {
     RegisterCommand("load", "Load a NES ROM or project file.", this, &Z2Edit::LoadFile);
@@ -93,6 +102,129 @@ void Z2Edit::Init() {
     editor_.reset(z2util::Editor::New());
     project_.set_cartridge(&cartridge_);
     project_.set_visible(true);
+    RestoreUiState();
+    RestoreWindowGeometry();
+    for (const auto& w : UiWindowList()) {
+        auto it = ui_visibility_.find(w.first);
+        if (it != ui_visibility_.end()) {
+            w.second->set_visible(it->second);
+}
+    }
+}
+
+std::vector<std::pair<const char*, ImWindowBase*>> Z2Edit::UiWindowList() {
+    return {
+        std::make_pair("console", &console_),
+        std::make_pair("project", &project_),
+        std::make_pair("simplemap", simplemap_.get()),
+        std::make_pair("drops", drops_.get()),
+        std::make_pair("enemyattr", enemy_editor_.get()),
+        std::make_pair("experience", experience_table_.get()),
+        std::make_pair("item_effects", item_effects_.get()),
+        std::make_pair("overworld", editor_.get()),
+        std::make_pair("palace_gfx", palace_gfx_.get()),
+        std::make_pair("palette", palette_editor_.get()),
+        std::make_pair("start_values", start_values_.get()),
+        std::make_pair("text_table", text_table_.get()),
+        std::make_pair("tile_transform", tile_transform_.get()),
+        std::make_pair("hwpalette", hwpal_),
+        std::make_pair("chrview", chrview_.get()),
+        std::make_pair("object_table", object_table_.get()),
+        std::make_pair("rom_memory", rom_memory_.get()),
+    };
+}
+
+void Z2Edit::SaveUiState() {
+    File::MakeDirs(os::path::DataPath());
+    std::string data;
+    std::string path = os::path::Join({os::path::DataPath(), "ui_state.txt"});
+    for (const auto& w : UiWindowList()) {
+        absl::StrAppend(&data, "visible ", w.first, "=",
+                        w.second->visible() ? "1" : "0", "\n");
+    }
+    if (loaded_) {
+        absl::StrAppend(&data, "map primary=", simplemap_->map_name(), "\n");
+        for (const auto& w : draw_callback_) {
+            auto* sm = dynamic_cast<SimpleMap*>(w.get());
+            if (sm && sm->visible() && !sm->map_name().empty()) {
+                absl::StrAppend(&data, "map spawn=", sm->map_name(), "\n");
+            }
+            auto* mm = dynamic_cast<MultiMap*>(w.get());
+            if (mm && mm->visible()) {
+                absl::StrAppend(&data, "map multimap=", mm->world(), ":",
+                                mm->overworld(), ":", mm->subworld(), ":",
+                                mm->start(), "\n");
+            }
+        }
+    }
+    int wx = 0, wy = 0, ww = 0, wh = 0;
+    GetWindowGeometry(&wx, &wy, &ww, &wh);
+    absl::StrAppend(&data, "window x=", wx, " y=", wy,
+                    " width=", ww, " height=", wh, "\n");
+    File::SetContents(path, data);
+}
+
+void Z2Edit::RestoreUiState() {
+    std::string data;
+    std::string path = os::path::Join({os::path::DataPath(), "ui_state.txt"});
+    if (!File::GetContents(path, &data)) {
+        return;
+    }
+    for (const auto& line : absl::StrSplit(data, '\n', absl::SkipEmpty())) {
+        const std::string l(absl::StripAsciiWhitespace(line));
+        if (absl::StartsWith(l, "visible ")) {
+            size_t eq = l.find('=');
+            if (eq != std::string::npos) {
+                ui_visibility_[l.substr(8, eq - 8)] = l.substr(eq + 1) == "1";
+            }
+        } else if (absl::StartsWith(l, "map primary=")) {
+            ui_primary_map_ = l.substr(12);
+        } else if (absl::StartsWith(l, "map spawn=")) {
+            ui_spawned_maps_.push_back(l.substr(10));
+        } else if (absl::StartsWith(l, "map multimap=")) {
+            ui_multimap_maps_.push_back(l.substr(13));
+        } else if (absl::StartsWith(l, "window ")) {
+            int wx = 0, wy = 0, ww = 0, wh = 0;
+            if (sscanf(l.c_str(), "window x=%d y=%d width=%d height=%d",
+                       &wx, &wy, &ww, &wh) == 4) {
+                ui_window_x_ = wx;
+                ui_window_y_ = wy;
+                ui_window_width_ = ww;
+                ui_window_height_ = wh;
+            }
+        }
+    }
+}
+
+// Restore the main program window to its saved position and size, unless it
+// would end up entirely off-screen (e.g. it was on a monitor that is no
+// longer connected), in which case the default placement is kept.
+void Z2Edit::RestoreWindowGeometry() {
+    int x = ui_window_x_, y = ui_window_y_;
+    int w = ui_window_width_, h = ui_window_height_;
+    if (w > 0 && h > 0 && WindowGeometryVisible(x, y, w, h)) {
+        SetWindowGeometry(x, y, w, h);
+    }
+}
+
+bool Z2Edit::WindowGeometryVisible(int x, int y, int w, int h) {
+    int ndisplays = 0;
+    SDL_DisplayID* displays = SDL_GetDisplays(&ndisplays);
+    bool touched = false;
+    for (int i = 0; i < ndisplays; ++i) {
+        SDL_Rect r;
+        if (!SDL_GetDisplayUsableBounds(displays[i], &r)) {
+            continue;
+        }
+        // The window intersects the usable area of this display.
+        if (x < r.x + r.w && x + w > r.x &&
+            y < r.y + r.h && y + h > r.y) {
+            touched = true;
+            break;
+        }
+    }
+    SDL_free(displays);
+    return touched;
 }
 
 void Z2Edit::Load(const std::string& filename) {
@@ -115,16 +247,55 @@ void Z2Edit::LoadPostProcess(int movekeepout) {
     chrview_->set_mapper(mapper_.get());
     simplemap_->set_mapper(mapper_.get());
     auto* ri = ConfigLoader<RomInfo>::MutableConfig();
-    int n = 0;
-    for(const auto& m : ri->map()) {
-        if (m.type() == z2util::MapType::OVERWORLD) {
-            continue;
+    const auto& maps = ri->map();
+    // Index of the first non-overworld map.
+    int start = 0;
+    while(start < maps.size() &&
+          maps[start].type() == z2util::MapType::OVERWORLD) {
+        start++;
         }
-        if (m.name().find("North Palace") != std::string::npos) {
-            simplemap_->SetMap(m, n);
+    // Select the map the user had open, falling back to North Palace.
+    int selected = -1;
+    for(int i=start; i<maps.size(); ++i) {
+        const auto& m = maps[i];
+        if (selected < 0 &&
+            ((!ui_primary_map_.empty() && m.name() == ui_primary_map_) ||
+             (m.name().find("North Palace") != std::string::npos))) {
+            selected = i - start;
+        }
+    }
+    if (selected >= 0) {
+        simplemap_->SetMap(maps[start + selected], selected);
+    }
+
+    // Re-create the sideview and MultiMap windows that were open last session.
+    // Any of these left over from a previous load reference the old Mapper,
+    // which was just freed by mapper_.reset() above, so retire them before
+    // spawning fresh ones against the new mapper.  They are marked for
+    // disposal (not erased) because this can run while BaseDraw is iterating
+    // draw_callback_.
+    for (auto& w : draw_callback_) {
+        auto* sm = dynamic_cast<SimpleMap*>(w.get());
+        auto* mm = dynamic_cast<MultiMap*>(w.get());
+        if (sm != nullptr || mm != nullptr) {
+            w->set_visible(false);
+            w->set_want_dispose(true);
+        }
+    }
+    for (const auto& name : ui_spawned_maps_) {
+        for (const auto& m : maps) {
+            if (m.type() == z2util::MapType::OVERWORLD) continue;
+            if (m.name() == name) {
+                SimpleMap::Spawn(mapper_.get(), m);
             break;
         }
-        n++;
+    }
+    }
+    for (const auto& spec : ui_multimap_maps_) {
+        int w = 0, o = 0, s = 0, st = 0;
+        if (sscanf(spec.c_str(), "%d:%d:%d:%d", &w, &o, &s, &st) == 4) {
+            MultiMap::Spawn(mapper_.get(), w, o, s, st);
+        }
     }
 
     editor_->set_mapper(mapper_.get());
@@ -1186,6 +1357,7 @@ export_as:
         ImGui::EndMainMenuBar();
     }
 
+    if (loaded_) {
     start_values_->Draw();
     text_table_->Draw();
     tile_transform_->Draw();
@@ -1202,6 +1374,7 @@ export_as:
     enemy_editor_->Draw();
     experience_table_->Draw();
     project_.Draw();
+    }
 
     if (!loaded_) {
         char *filename = nullptr;
