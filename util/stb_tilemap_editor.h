@@ -636,7 +636,7 @@ enum
 };
 
 #ifdef STBTE__COLORPICKER
-static char *stbte__color_names[] =
+static const char *stbte__color_names[] =
 {
    "expander", "toolbar", "tool button", "panel",
    "panel c1", "panel c2", "scollbar", "map button",
@@ -781,7 +781,7 @@ typedef struct
 {
    short id;
    unsigned short category_id;
-   char *category;
+   const char *category;
    unsigned int layermask;
 } stbte__tileinfo;
 
@@ -950,7 +950,7 @@ struct stbte_tilemap
     int palette_spacing_x, palette_spacing_y;
     int scroll_x,scroll_y;
     int cur_category, cur_tile, cur_layer;
-    char *categories[STBTE_MAX_CATEGORIES];
+    const char *categories[STBTE_MAX_CATEGORIES];
     int num_categories, category_scroll;
     stbte__tileinfo *tiles;
     int num_tiles, max_tiles, digits;
@@ -973,7 +973,7 @@ struct stbte_tilemap
     short *undo_buffer;
 };
 
-static char *default_category = "[unassigned]";
+static const char *default_category = "[unassigned]";
 
 static void stbte__init_gui(void)
 {
@@ -1098,7 +1098,7 @@ void stbte_set_display(int x0, int y0, int x1, int y1)
 
 void stbte_define_tile(stbte_tilemap *tm, unsigned short id, unsigned int layermask, const char * category_c)
 {
-   char *category = (char *) category_c;
+   const char *category = category_c;
    STBTE_ASSERT(id < 32768);
    STBTE_ASSERT(tm->num_tiles < tm->max_tiles);
    STBTE_ASSERT((tm->id_in_use[id>>3]&(1<<(id&7))) == 0);
@@ -1106,7 +1106,7 @@ void stbte_define_tile(stbte_tilemap *tm, unsigned short id, unsigned int layerm
       return;
 
    if (category == NULL)
-      category = (char*) default_category;
+      category = default_category;
    tm->id_in_use[id>>3] |= 1 << (id&7);
    tm->tiles[tm->num_tiles].category    = category;
    tm->tiles[tm->num_tiles].id        = id;
@@ -1254,7 +1254,7 @@ static void stbte__choose_category(stbte_tilemap *tm, int category)
    tm->palette_scroll = 0;
 }
 
-static int stbte__strequal(char *p, char *q)
+static int stbte__strequal(const char *p, const char *q)
 {
    while (*p)
       if (*p++ != *q++) return 0;
@@ -1820,13 +1820,13 @@ static void stbte__draw_box(int x0, int y0, int x1, int y1, int colormode, int c
    stbte__draw_frame(x0,y0,x1,y1, stbte__color_table[colormode][STBTE__outline][colorindex]);
 }
 
-static void stbte__draw_textbox(int x0, int y0, int x1, int y1, char *text, int xoff, int yoff, int colormode, int colorindex)
+static void stbte__draw_textbox(int x0, int y0, int x1, int y1, const char *text, int xoff, int yoff, int colormode, int colorindex)
 {
    stbte__draw_box(x0,y0,x1,y1,colormode,colorindex);
    stbte__draw_text(x0+xoff,y0+yoff, text, x1-x0-xoff-1, stbte__color_table[colormode][STBTE__text][colorindex]);
 }
 
-static int stbte__button(int colormode, char *label, int x, int y, int textoff, int width, int id, int toggled, int disabled)
+static int stbte__button(int colormode, const char *label, int x, int y, int textoff, int width, int id, int toggled, int disabled)
 {
    int x0=x,y0=y, x1=x+width,y1=y+STBTE__BUTTON_HEIGHT;
    int s = STBTE__BUTTON_INTERNAL_SPACING;
@@ -1862,7 +1862,7 @@ static int stbte__minibutton(int colormode, int x, int y, int ch, int id)
    int x0 = x, y0 = y, x1 = x+8, y1 = y+7;
    int over = stbte__hittest(x0,y0,x1,y1,id);
    if (stbte__ui.event == STBTE__paint) {
-      char str[2] = { ch,0 };
+      char str[2] = { (char) ch,0 };
       stbte__draw_textbox(x0,y0,x1,y1, str,1,0,colormode, STBTE__INDEX_FOR_ID(id,0,0));
    }
    return stbte__button_core(id);
@@ -1873,7 +1873,7 @@ static int stbte__layerbutton(int x, int y, int ch, int id, int toggled, int dis
    int x0 = x, y0 = y, x1 = x+10, y1 = y+11;
    int over = !disabled && stbte__hittest(x0,y0,x1,y1,id);
    if (stbte__ui.event == STBTE__paint) {
-      char str[2] = { ch,0 };
+      char str[2] = { (char) ch,0 };
       int off = (9-stbte__get_char_width(ch))/2;
       stbte__draw_textbox(x0,y0,x1,y1, str, off+1,2, colormode, STBTE__INDEX_FOR_ID(id,disabled,toggled));
    }
@@ -1921,7 +1921,7 @@ static int stbte__microbutton_dragger(int x, int y, int size, int id, int *pos)
    return 0;
 }
 
-static int stbte__category_button(char *label, int x, int y, int width, int id, int toggled)
+static int stbte__category_button(const char *label, int x, int y, int width, int id, int toggled)
 {
    int x0=x,y0=y, x1=x+width,y1=y+STBTE__BUTTON_HEIGHT;
    int s = STBTE__BUTTON_INTERNAL_SPACING;
@@ -1978,7 +1978,7 @@ static int stbte__slider(int x0, int w, int y, int range, int *value, int id)
    return STBTE__none;
 }
 
-static int stbte__float_control(int x0, int y0, int w, float minv, float maxv, float scale, char *fmt, float *value, int colormode, int id)
+static int stbte__float_control(int x0, int y0, int w, float minv, float maxv, float scale, const char *fmt, float *value, int colormode, int id)
 {
    int x1 = x0+w;
    int y1 = y0+11;
@@ -3423,7 +3423,7 @@ static void stbte__info(stbte_tilemap *tm, int x0, int y0, int w, int h)
 
 static void stbte__layers(stbte_tilemap *tm, int x0, int y0, int w, int h)
 {
-   static char *propmodes[3] = {
+   static const char *propmodes[3] = {
       "default", "always", "never"
    };
    int num_rows;
@@ -3595,7 +3595,7 @@ static void stbte__props_panel(stbte_tilemap *tm, int x0, int y0, int w, int h)
    for (i=0; i < STBTE_MAX_PROPERTIES; ++i) {
       unsigned int n = STBTE_PROP_TYPE(i, data, p);
       if (n) {
-         char *s = STBTE_PROP_NAME(i, data, p);
+         const char *s = STBTE_PROP_NAME(i, data, p);
          if (s == NULL) s = "";
          switch (n & 3) {
             case STBTE_PROP_bool: {
@@ -3733,7 +3733,7 @@ static void stbte__colorpicker(int x0, int y0, int w, int h)
    // states
    x = x0+2+35;
    if (stbte__ui.event == STBTE__paint) {
-      static char *states[] = { "idle", "over", "down", "down&over", "selected", "selected&over", "disabled" };
+      static const char *states[] = { "idle", "over", "down", "down&over", "selected", "selected&over", "disabled" };
       stbte__draw_text(x, y+1, states[stbte__cp_index], x1-x-1, 0xffffff);
    }
 
@@ -3750,7 +3750,7 @@ static void stbte__colorpicker(int x0, int y0, int w, int h)
    x = x0+2; y += 18;
 
    for (i=0; i < 3; ++i) {
-      static char *labels[] = { "Base", "Edge", "Text" };
+      static const char *labels[] = { "Base", "Edge", "Text" };
       if (stbte__button(STBTE__ctoolbar_button, labels[i], x,y,0,36, STBTE__ID2(STBTE__colorpick_id,1,i), stbte__cp_aspect==i,0))
          stbte__cp_aspect = i;
       x += 40;

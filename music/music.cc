@@ -587,7 +587,7 @@ std::string parse_string_(const Rom& rom, size_t address) {
     s.append(1, z2_decode_(rom.getc(address + i + 3)));
   }
 
-  fprintf(stderr, "Found string at %06lx - [%s]\n", address, s.c_str());
+  fprintf(stderr, "Found string at %06zx - [%s]\n", address, s.c_str());
 
   return s;
 }
@@ -801,7 +801,7 @@ void Rom::move_song_table(size_t loader_address, uint16_t base_address) {
   } else if (loader_address == kGreatPalaceLoader) {
     great_palace_song_table = base_address + 0x010000;
   } else {
-    fprintf(stderr, "Unsure what loader is at %06lx, need manual update\n", loader_address);
+    fprintf(stderr, "Unsure what loader is at %06zx, need manual update\n", loader_address);
   }
 
   const uint16_t old_base = getw(loader_address + 1);
@@ -917,14 +917,14 @@ void Rom::commit(size_t address, std::vector<Rom::SongTitle> songs) {
   size_t note_address = pat_offset + address;
   pat_offset = first_pattern;
 
-  fprintf(stderr, "Note data to start at %06lx\n", note_address);
+  fprintf(stderr, "Note data to start at %06zx\n", note_address);
 
   for (auto s : songs) {
     for (auto p : songs_.at(s).patterns()) {
       const std::vector<uint8_t> note_data = p.note_data();
       const std::vector<uint8_t> meta_data = p.meta_data(note_address);
 
-      fprintf(stderr, "Pattern at %06lx, notes at %06lx\n", address + pat_offset, note_address);
+      fprintf(stderr, "Pattern at %06zx, notes at %06zx\n", address + pat_offset, note_address);
       fprintf(stderr, "Pattern metadata: ");
       for (size_t i = 0; i < meta_data.size(); i += 2) {
         fprintf(stderr, "%02x%02x ", meta_data[i], meta_data[i + 1]);
@@ -947,7 +947,7 @@ size_t Rom::get_song_table_address(size_t loader_address) const {
   // Add the bank offset to the address read
   const size_t addr = getw(loader_address + 1) + 0x10000;
 
-  fprintf(stderr, "Got address %06lx, from LDA $%04lX,y at %06lx\n", addr, (addr & 0xffff), loader_address);
+  fprintf(stderr, "Got address %06zx, from LDA $%04zX,y at %06zx\n", addr, (addr & 0xffff), loader_address);
   return addr;
 }
 

@@ -135,7 +135,7 @@ std::vector<std::pair<const char*, ImWindowBase*>> Z2Edit::UiWindowList() {
 }
 
 void Z2Edit::SaveUiState() {
-    File::MakeDirs(os::path::DataPath());
+    (void)File::MakeDirs(os::path::DataPath());
     std::string data;
     std::string path = os::path::Join({os::path::DataPath(), "ui_state.txt"});
     for (const auto& w : UiWindowList()) {
@@ -1099,7 +1099,7 @@ void Z2Edit::SendMessage(DebugConsole* console, int argc, char **argv) {
     }
     const char* message = argv[1];
     int argument = strtol(argv[2], 0, ibase_);
-    ProcessMessage(message, reinterpret_cast<void*>(argument));
+    ProcessMessage(message, reinterpret_cast<void*>(static_cast<intptr_t>(argument)));
 }
 
 void Z2Edit::SpawnEmulator() {
@@ -1279,7 +1279,7 @@ export_as:
                 char *filename = nullptr;
                 auto result = NFD_SaveDialog("ips", nullptr, &filename);
                 if (result == NFD_OKAY) {
-                    project_.ExportIps(filename);
+                    (void)project_.ExportIps(filename);
                 }
                 free(filename);
             }

@@ -152,7 +152,7 @@ int main(int argc, char *argv[]) {
     }
     if (FLAGS_dump_config) {
         std::string data;
-        google::protobuf::TextFormat::PrintToString(config->config(), &data);
+        (void)google::protobuf::TextFormat::PrintToString(config->config(), &data);
         puts(data.c_str());
         exit(0);
     }

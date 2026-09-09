@@ -2,7 +2,11 @@ cmake_minimum_required(VERSION 3.21)
 
 project(z2edit VERSION 0.1.2 LANGUAGES C CXX)
 
-set(CMAKE_CXX_STANDARD 17)
+# C++23: supported by MSVC (/std:c++23, VS 2022 17.6+), GCC 11+ and clang
+# 16+, which covers every toolchain this project builds with.  All
+# third-party deps are compiled from source under CMAKE_CXX_STANDARD, and
+# abseil picks it up via ABSL_PROPAGATE_CXX_STD (cmake/dependencies.cmake).
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE)

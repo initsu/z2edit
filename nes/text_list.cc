@@ -162,7 +162,8 @@ const std::string& TextListPack::Get(int world, int index) {
         uint16_t addr = index_[world][index];
         return entry_[addr].data;
     }
-    return "";
+    static const std::string kEmpty;
+    return kEmpty;
 }
 
 bool TextListPack::Get(int world, int index, std::string* val) {

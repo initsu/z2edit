@@ -32,6 +32,38 @@ endif()
 # source dirs and we build the targets ourselves below.
 # (Absolutely never discover a dep that later grows a CMakeLists.)
 
+# --- silence third-party warnings ------------------------------------------
+# Every dependency is compiled from source purely for z2edit's benefit, and its
+# diagnostic noise (C4715/C4624/C4047 from protobuf and upb, C4723 from an
+# absl random helper, etc.) is irrelevant here.  There is no configure-time way
+# to enumerate subproject targets (the ALL_TARGETS properties are only filled
+# at generation), so instead CMAKE_PROJECT_INCLUDE fires a stub *inside each
+# dependency's own project() call*, with the directory context of that
+# dependency.  The /w (MSVC) or -w (GCC/Clang) it registers is therefore a
+# directory compile option inherited by the entire tree - e.g. protobuf's upb,
+# json and compiler subdirectories - while z2edit's own targets, whose
+# project() ran back at the top level, never see it.
+#
+# abseil and SDL3 are deliberately excluded from the blanket suppression:
+# both raise their own warning level (/W3 on MSVC, -Wall on GCC/Clang) after
+# this hook, which would both defeat the suppression and trip cl's D9025
+# ("overriding '/w' with '/W3'") on every one of their files.  They stay at
+# their normal level, and the single warning absl actually emits (a C4723) is
+# silenced separately below.
+set(_z2edit_project_warn_stub "${CMAKE_BINARY_DIR}/z2edit_dep_warn.cmake")
+file(WRITE "${_z2edit_project_warn_stub}" [=[
+if(NOT PROJECT_NAME STREQUAL "z2edit" AND NOT PROJECT_NAME STREQUAL ""
+    AND NOT PROJECT_NAME STREQUAL "absl" AND NOT PROJECT_NAME STREQUAL "SDL3")
+  if(MSVC)
+    add_compile_options(/w)
+  else()
+    add_compile_options(-w)
+  endif()
+endif()
+]=])
+set(CMAKE_PROJECT_INCLUDE "${_z2edit_project_warn_stub}")
+unset(_z2edit_project_warn_stub)
+
 # --- abseil (used directly by z2edit and required by protobuf) ---------------
 set(ABSL_PROPAGATE_CXX_STD ON CACHE BOOL "" FORCE)
 # abseil overrides CMAKE_MSVC_RUNTIME_LIBRARY to the DLL variant unless this
@@ -42,6 +74,24 @@ CPMAddPackage(
   GIT_REPOSITORY https://github.com/abseil/abseil-cpp.git
   GIT_TAG 20260817.0
 )
+# absl raises its own warning level (/W3 on MSVC, -Wall on GCC/Clang) after the
+# project() stub above, which is fine for the library as a whole - the only
+# thing that actually fires is a C4723 inside this one always-built test-util
+# file - but bury it there too.  A plain /w would just be deduplicated against
+# the hook's and land before absl's /W3, so use /wd with the specific code:
+# it is context-free and wins regardless of the warning level in force.
+foreach(_z2edit_abslt IN ITEMS
+    absl_random_internal_distribution_test_util
+    absl_random_internal_distribution_test_util_nonprod)
+  if(TARGET "${_z2edit_abslt}")
+    if(MSVC)
+      target_compile_options("${_z2edit_abslt}" PRIVATE /wd4723)
+    else()
+      target_compile_options("${_z2edit_abslt}" PRIVATE -w)
+    endif()
+  endif()
+endforeach()
+unset(_z2edit_abslt)
 
 # --- gflags ------------------------------------------------------------------
 set(gflags_BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
@@ -224,3 +274,7 @@ target_include_directories(nfd INTERFACE
   ${nfd_SOURCE_DIR}/src ${nfd_SOURCE_DIR}/src/include)
 
 add_compile_definitions(HAVE_NFD)
+
+# All third-party trees have configured by now; drop the project() hook so any
+# later project() in z2edit's own tree (none today) behaves normally.
+unset(CMAKE_PROJECT_INCLUDE)

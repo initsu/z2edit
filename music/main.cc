@@ -41,10 +41,6 @@ int main(int argc, char** argv) {
   z2music::Pattern a;
   z2music::Pattern b;
 
-  const z2music::Note CH();
-  const z2music::Note DQ();
-  const z2music::Note EQ();
-
   a.add_notes(z2music::Pattern::Channel::Pulse1, {
     z2music::Note::Duration::Quarter | z2music::Note::Pitch::E4,
     z2music::Note::Duration::Quarter | z2music::Note::Pitch::D4,

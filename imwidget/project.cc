@@ -152,9 +152,9 @@ bool Project::Save(const std::string& filename, bool as_text) {
     *project_.mutable_settings() =
         ConfigLoader<SessionConfig>::Get()->GetConfig();
     if (as_text) {
-        TextFormat::PrintToString(project_, &content);
+        (void)TextFormat::PrintToString(project_, &content);
     } else {
-        project_.SerializeToString(&content);
+        (void)project_.SerializeToString(&content);
     }
     bool ret = File::SetContents(filename, content);
     if (ret) {

@@ -1286,7 +1286,8 @@ bool MapEnemyList::DrawOne(Unpacked* item, bool popup) {
             chg |= ImGui::Checkbox("##b1", &b1); ImGui::SameLine();
             chg |= ImGui::Checkbox("##b0", &b0);
             item->condition =
-                (b7<<7 | b6<<6 | b5<<5 | b4<<4 | b3<<3 | b2<<2 | b1<<1 | b0);
+                ((b7?1:0)<<7 | (b6?1:0)<<6 | (b5?1:0)<<5 | (b4?1:0)<<4 |
+                 (b3?1:0)<<3 | (b2?1:0)<<2 | (b1?1:0)<<1 | (b0?1:0));
         }
         int satisfy = townsperson == 19 ? 7 :
                       townsperson == 20 ? 6 :

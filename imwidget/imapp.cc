@@ -41,7 +41,7 @@ ImApp::ImApp(const std::string& name, int width, int height)
     // Setup ImGui binding
     ImGui::CreateContext();
     ini_filename_ = os::path::Join({os::path::DataPath(), "imgui.ini"});
-    File::MakeDirs(os::path::DataPath());
+    (void)File::MakeDirs(os::path::DataPath());
     ImGuiIO& io = ImGui::GetIO(); (void)io;
     io.IniFilename = ini_filename_.c_str();
     ImGui_ImplSdl_SetHiDPIScale(FLAGS_hidpi);

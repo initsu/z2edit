@@ -82,7 +82,7 @@ int Memory::CheckBank3Special(bool move) {
 }
 
 int Memory::CheckBankForKeepout(int bank, bool move) {
-    bool result = false;
+    int result = 0;
     Address addr;
     addr.set_bank(bank);
 
