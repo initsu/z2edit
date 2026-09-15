@@ -444,6 +444,24 @@ bool MultiMap::Draw() {
         DrawOne(dl.second);
     }
 
+    // Scroll the view with the arrow keys while the map is hovered (or a
+    // room is being dragged).
+    // ImGui only exposes per-window scroll offsets, so adjust the
+    // child window's scroll directly.
+    if (ImGui::IsWindowHovered(ImGuiHoveredFlags_AllowWhenBlockedByActiveItem) ||
+        ImGui::IsWindowFocused()) {
+        float rate = Clamp(mcfg_->scale() * 4000.0f, 1000.0f, 2000.0f);
+        float step = rate * ImGui::GetIO().DeltaTime;
+        if (ImGui::IsKeyDown(ImGuiKey_LeftArrow))
+            ImGui::SetScrollX(ImGui::GetScrollX() - step);
+        if (ImGui::IsKeyDown(ImGuiKey_RightArrow))
+            ImGui::SetScrollX(ImGui::GetScrollX() + step);
+        if (ImGui::IsKeyDown(ImGuiKey_UpArrow))
+            ImGui::SetScrollY(ImGui::GetScrollY() - step);
+        if (ImGui::IsKeyDown(ImGuiKey_DownArrow))
+            ImGui::SetScrollY(ImGui::GetScrollY() + step);
+    }
+
     ImGui::EndChild();
     ImGui::End();
 
