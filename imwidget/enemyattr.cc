@@ -176,6 +176,7 @@ bool EnemyEditor::Draw() {
     ImGui::SameLine();
     if (ImGui::Button("Points Table")) {
         table_.set_visible(true);
+        ImGui::SetNextWindowFocus();
     }
     changed_ |= table_.Draw();
 

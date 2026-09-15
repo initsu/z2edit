@@ -1,6 +1,7 @@
 #ifndef Z2UTIL_IMAPP_H
 #define Z2UTIL_IMAPP_H
 #include <memory>
+#include <functional>
 
 #include <string>
 #include <SDL3/SDL.h>
@@ -51,6 +52,14 @@ class ImApp {
 
     void AddDrawCallback(ImWindowBase* window);
     void HelpButton(const std::string& topickey, bool right_justify=false);
+    // If an existing draw-callback widget matching pred is found, it is made
+    // visible, requested to be brought to front, and returned.  Otherwise
+    // nullptr is returned.
+    ImWindowBase* FindAndRaiseDrawCallback(
+        std::function<bool(ImWindowBase*)> pred);
+    // All currently-registered draw callbacks (both active and those still
+    // pending from the current frame).
+    const std::vector<ImWindowBase*> DrawCallbacks();
 
     // Window geometry (position and size), used to persist the main
     // program window across sessions.

@@ -20,6 +20,24 @@ const double kInvalidStrength = 0.000001;
 
 MultiMap* MultiMap::Spawn(Mapper* m, int world, int overworld, int subworld,
                           int map) {
+    // Init() adjusts world 2 to world 1 under town_hack, so match an existing
+    // window against the same adjustment.
+    int eff_world = world;
+    if (FLAGS_town_hack && eff_world == 2)
+        eff_world = 1;
+    auto* existing = dynamic_cast<MultiMap*>(
+        ImApp::Get()->FindAndRaiseDrawCallback(
+            [eff_world, overworld, subworld, map](ImWindowBase* w) {
+                auto* mm = dynamic_cast<MultiMap*>(w);
+                return mm != nullptr &&
+                       mm->world_ == eff_world &&
+                       mm->overworld_ == overworld &&
+                       mm->subworld_ == subworld &&
+                       mm->start_ == map;
+            }));
+    if (existing != nullptr) {
+        return existing;
+    }
     MultiMap* mm = new MultiMap(m, world, overworld, subworld, map);
     mm->Init();
     ImApp::Get()->AddDrawCallback(mm);

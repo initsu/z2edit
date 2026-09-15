@@ -53,6 +53,31 @@ SimpleMap::SimpleMap(Mapper* m, const Map& map, int startscreen)
 }
 
 SimpleMap* SimpleMap::Spawn(Mapper* m, const Map& map, int startscreen) {
+    // window_title_ is the ImGui window id drawn by SimpleMap::Draw; two
+    // instances with the same id would both draw into the same window,
+    // duplicating its controls.  Reuse (and raise) an existing window keyed on
+    // that title rather than spawning a duplicate.
+    std::string title = absl::StrCat(map.name(), "##SimpleMap:",
+                                     map.pointer().bank(), ":",
+                                     map.pointer().address());
+    auto* existing = dynamic_cast<SimpleMap*>(
+        ImApp::Get()->FindAndRaiseDrawCallback(
+            [&title](ImWindowBase* w) {
+                auto* sm = dynamic_cast<SimpleMap*>(w);
+                return sm != nullptr && sm->window_title_ == title;
+            }));
+    if (existing != nullptr) {
+        // Retire any leftover duplicate instances with the same id so only
+        // one window keeps drawing these controls.
+        for (const auto& w : ImApp::Get()->DrawCallbacks()) {
+            auto* sm = dynamic_cast<SimpleMap*>(w);
+            if (sm != nullptr && sm != existing && sm->window_title_ == title) {
+                sm->set_visible(false);
+                sm->set_want_dispose(true);
+            }
+        }
+        return existing;
+    }
     SimpleMap *sm = new SimpleMap(m, map, startscreen);
     sm->visible_ = true;
     ImApp::Get()->AddDrawCallback(sm);

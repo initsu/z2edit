@@ -1214,6 +1214,19 @@ void Z2Edit::ProcessMessage(const std::string& msg, const void* extra) {
     }
 }
 
+// Open a widget (and raise it if it is already visible behind other widgets).
+static void ShowWidget(ImWindowBase* w) {
+    w->set_visible(true);
+    w->set_focus_next(true);
+}
+
+// Draw a widget, first honoring any pending bring-to-front request.
+static void DrawWidget(ImWindowBase* w) {
+    if (w->consume_focus_next())
+        ImGui::SetNextWindowFocus();
+    w->Draw();
+}
+
 void Z2Edit::Draw() {
     SetTitle(project_.name());
     ImGui::SetNextWindowSize(ImVec2(500,300), ImGuiCond_FirstUseEver);
@@ -1323,43 +1336,52 @@ export_as:
             ImGui::EndMenu();
         }
         if (ImGui::BeginMenu("Edit")) {
-            ImGui::MenuItem("Debug Console", nullptr,
-                            &console_.visible());
-            ImGui::MenuItem("Drops", nullptr,
-                            &drops_->visible());
-            ImGui::MenuItem("Enemy Attributes", nullptr,
-                            &enemy_editor_->visible());
-            ImGui::MenuItem("Experience Table", nullptr,
-                            &experience_table_->visible());
-            ImGui::MenuItem("Item Effects", nullptr,
-                            &item_effects_->visible());
-            ImGui::MenuItem("Overworld Editor", nullptr,
-                            &editor_->visible());
-            ImGui::MenuItem("Sideview Editor", nullptr,
-                            &simplemap_->visible());
-            ImGui::MenuItem("Palace Graphics", nullptr,
-                            &palace_gfx_->visible());
-            ImGui::MenuItem("Palette Editor", nullptr,
-                            &palette_editor_->visible());
-            ImGui::MenuItem("Start Values", nullptr,
-                            &start_values_->visible());
-            ImGui::MenuItem("Text Table", nullptr,
-                            &text_table_->visible());
-            ImGui::MenuItem("Tile Transforms", nullptr,
-                            &tile_transform_->visible());
+            if (ImGui::MenuItem("Debug Console", nullptr, console_.visible()))
+                ShowWidget(&console_);
+            if (ImGui::MenuItem("Drops", nullptr, drops_->visible()))
+                ShowWidget(drops_.get());
+            if (ImGui::MenuItem("Enemy Attributes", nullptr,
+                                enemy_editor_->visible()))
+                ShowWidget(enemy_editor_.get());
+            if (ImGui::MenuItem("Experience Table", nullptr,
+                                experience_table_->visible()))
+                ShowWidget(experience_table_.get());
+            if (ImGui::MenuItem("Item Effects", nullptr,
+                                item_effects_->visible()))
+                ShowWidget(item_effects_.get());
+            if (ImGui::MenuItem("Overworld Editor", nullptr, editor_->visible()))
+                ShowWidget(editor_.get());
+            if (ImGui::MenuItem("Sideview Editor", nullptr,
+                                simplemap_->visible()))
+                ShowWidget(simplemap_.get());
+            if (ImGui::MenuItem("Palace Graphics", nullptr,
+                                palace_gfx_->visible()))
+                ShowWidget(palace_gfx_.get());
+            if (ImGui::MenuItem("Palette Editor", nullptr,
+                                palette_editor_->visible()))
+                ShowWidget(palette_editor_.get());
+            if (ImGui::MenuItem("Start Values", nullptr,
+                                start_values_->visible()))
+                ShowWidget(start_values_.get());
+            if (ImGui::MenuItem("Text Table", nullptr, text_table_->visible()))
+                ShowWidget(text_table_.get());
+            if (ImGui::MenuItem("Tile Transforms", nullptr,
+                                tile_transform_->visible()))
+                ShowWidget(tile_transform_.get());
             ImGui::EndMenu();
         }
         if (ImGui::BeginMenu("View")) {
-            ImGui::MenuItem("History", nullptr,
-                            &project_.visible());
-            ImGui::MenuItem("Hardware Palette", nullptr,
-                            &hwpal_->visible());
-            ImGui::MenuItem("CHR Viewer", nullptr,
-                            &chrview_->visible());
-            ImGui::MenuItem("Object Table", nullptr,
-                            &object_table_->visible());
-            ImGui::MenuItem("Rom Memory", nullptr,
-                            &rom_memory_->visible());
+            if (ImGui::MenuItem("History", nullptr, project_.visible()))
+                ShowWidget(&project_);
+            if (ImGui::MenuItem("Hardware Palette", nullptr, hwpal_->visible()))
+                ShowWidget(hwpal_);
+            if (ImGui::MenuItem("CHR Viewer", nullptr, chrview_->visible()))
+                ShowWidget(chrview_.get());
+            if (ImGui::MenuItem("Object Table", nullptr,
+                                object_table_->visible()))
+                ShowWidget(object_table_.get());
+            if (ImGui::MenuItem("Rom Memory", nullptr, rom_memory_->visible()))
+                ShowWidget(rom_memory_.get());
             ImGui::Separator();
             ImGui::Checkbox("Remember Window Positions",
                             &remember_window_positions_);
@@ -1390,22 +1412,22 @@ export_as:
     }
 
     if (loaded_) {
-    start_values_->Draw();
-    text_table_->Draw();
-    tile_transform_->Draw();
-    item_effects_->Draw();
-    palace_gfx_->Draw();
-    palette_editor_->Draw();
-    rom_memory_->Draw();
-    hwpal_->Draw();
-    chrview_->Draw();
-    drops_->Draw();
-    simplemap_->Draw();
-    editor_->Draw();
-    object_table_->Draw();
-    enemy_editor_->Draw();
-    experience_table_->Draw();
-    project_.Draw();
+        DrawWidget(start_values_.get());
+        DrawWidget(text_table_.get());
+        DrawWidget(tile_transform_.get());
+        DrawWidget(item_effects_.get());
+        DrawWidget(palace_gfx_.get());
+        DrawWidget(palette_editor_.get());
+        DrawWidget(rom_memory_.get());
+        DrawWidget(hwpal_);
+        DrawWidget(chrview_.get());
+        DrawWidget(drops_.get());
+        DrawWidget(simplemap_.get());
+        DrawWidget(editor_.get());
+        DrawWidget(object_table_.get());
+        DrawWidget(enemy_editor_.get());
+        DrawWidget(experience_table_.get());
+        DrawWidget(&project_);
     }
 
     if (!loaded_) {

@@ -146,9 +146,13 @@ void ImApp::BaseDraw() {
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplSDL3_NewFrame();
     ImGui::NewFrame();
+    if (console_.consume_focus_next())
+        ImGui::SetNextWindowFocus();
     console_.Draw();
     for(auto it=draw_callback_.begin(); it != draw_callback_.end();) {
         if ((*it)->visible()) {
+            if ((*it)->consume_focus_next())
+                ImGui::SetNextWindowFocus();
             (*it)->Draw();
         } else if ((*it)->want_dispose()) {
             it = draw_callback_.erase(it);
@@ -203,6 +207,43 @@ void ImApp::AudioCallback_(void* userdata, SDL_AudioStream* stream,
 
 void ImApp::AddDrawCallback(ImWindowBase* window) {
     draw_added_.emplace_back(window);
+}
+
+const std::vector<ImWindowBase*> ImApp::DrawCallbacks() {
+    std::vector<ImWindowBase*> out;
+    for (const auto& w : draw_callback_)
+        out.push_back(w.get());
+    for (const auto& w : draw_added_)
+        out.push_back(w.get());
+    return out;
+}
+
+ImWindowBase* ImApp::FindAndRaiseDrawCallback(
+    std::function<bool(ImWindowBase*)> pred) {
+    for (const auto& w : draw_callback_) {
+        // A disposed-and-hidden widget is a stale window awaiting erasure
+        // (e.g. one that references a freed Mapper after a ROM reload);
+        // resurrecting it would be unsafe.  An active window that is merely
+        // marked for disposal is still valid and is reused below.
+        if (!w->visible() && w->want_dispose())
+            continue;
+        if (pred(w.get())) {
+            w->set_visible(true);
+            w->set_focus_next(true);
+            w->set_want_dispose(false);
+            return w.get();
+        }
+    }
+    // Spawned widgets sit in draw_added_ until the end of the current frame.
+    for (const auto& w : draw_added_) {
+        if (pred(w.get())) {
+            w->set_visible(true);
+            w->set_focus_next(true);
+            w->set_want_dispose(false);
+            return w.get();
+        }
+    }
+    return nullptr;
 }
 
 void ImApp::GetWindowGeometry(int* x, int* y, int* w, int* h) {
