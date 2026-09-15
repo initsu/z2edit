@@ -40,6 +40,10 @@ class MultiMap: public ImWindowBase {
     int overworld() const { return overworld_; }
     int subworld() const { return subworld_; }
     int start() const { return start_; }
+    // Key of the shared settings template used to initialize newly-opened
+    // MultiMap windows.  Each instance keeps its own copy thereafter, so
+    // changing one window does not affect the others.
+    static const char* ConfigKey() { return "global"; }
   private:
     struct DrawLocation {
         fdg::Node *node;
@@ -82,6 +86,7 @@ class MultiMap: public ImWindowBase {
     std::map<int32_t, DrawLocation> location_;
     fdg::Graph graph_;
 
+    MultiMapConfig cfg_;
     MultiMapConfig* mcfg_;
     PalaceGeneratorOptions pgo_;
 

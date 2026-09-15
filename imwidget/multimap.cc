@@ -16,6 +16,32 @@ DEFINE_bool(town_hack, true, "World 2 towns are really in world 1");
 namespace z2util {
 namespace {
 const double kInvalidStrength = 0.000001;
+
+// The MultiMap settings that are shared through the template: everything a
+// user can change in the window, but not the per-window node layout.
+bool SettingsEqual(const MultiMapConfig& a, const MultiMapConfig& b) {
+    return a.scale() == b.scale() &&
+           a.zoom_x() == b.zoom_x() &&
+           a.zoom_y() == b.zoom_y() &&
+           a.pause_converge() == b.pause_converge() &&
+           a.pre_converge() == b.pre_converge() &&
+           a.continuous_converge() == b.continuous_converge() &&
+           a.show_labels() == b.show_labels() &&
+           a.show_arrows() == b.show_arrows() &&
+           a.show_doors() == b.show_doors();
+}
+
+void CopySettings(const MultiMapConfig& from, MultiMapConfig* to) {
+    to->set_scale(from.scale());
+    to->set_zoom_x(from.zoom_x());
+    to->set_zoom_y(from.zoom_y());
+    to->set_pause_converge(from.pause_converge());
+    to->set_pre_converge(from.pre_converge());
+    to->set_continuous_converge(from.continuous_converge());
+    to->set_show_labels(from.show_labels());
+    to->set_show_arrows(from.show_arrows());
+    to->set_show_doors(from.show_doors());
+}
 }  // namespace
 
 MultiMap* MultiMap::Spawn(Mapper* m, int world, int overworld, int subworld,
@@ -67,19 +93,24 @@ void MultiMap::Init() {
     graph_.Clear();
 
     title_ = absl::StrCat("MultiMap: ", maps_[start_].name());
+    // Seed this window from the shared settings template, then keep a private
+    // copy so changes here do not affect other open windows.  The template is
+    // updated (see Draw) so windows opened later inherit the latest settings.
     auto *sc = ConfigLoader<SessionConfig>::MutableConfig();
-    mcfg_ = &(*sc->mutable_multimap())[title_];
-    if (!mcfg_->initialized()) {
-        mcfg_->set_initialized(true);
-        mcfg_->set_scale(0.25);
-        mcfg_->set_zoom_x(0.50);
-        mcfg_->set_zoom_y(0.75);
-        mcfg_->set_pause_converge(true);
-        mcfg_->set_pre_converge(true);
-        mcfg_->set_continuous_converge(true);
-        mcfg_->set_show_labels(true);
-        mcfg_->set_show_arrows(true);
+    MultiMapConfig& tmpl = (*sc->mutable_multimap())[ConfigKey()];
+    if (!tmpl.initialized()) {
+        tmpl.set_initialized(true);
+        tmpl.set_scale(0.25);
+        tmpl.set_zoom_x(0.50);
+        tmpl.set_zoom_y(0.75);
+        tmpl.set_pause_converge(true);
+        tmpl.set_pre_converge(true);
+        tmpl.set_continuous_converge(true);
+        tmpl.set_show_labels(true);
+        tmpl.set_show_arrows(true);
     }
+    cfg_ = tmpl;
+    mcfg_ = &cfg_;
     // Stable window id so imgui.ini can restore the position across
     // sessions: spawn params fully determine the map being displayed.
     // (Previously this used an uninitialized per-instance integer, so the
@@ -366,6 +397,7 @@ bool MultiMap::Draw() {
     if (!visible_)
         return false;
 
+    const MultiMapConfig cfg_before = cfg_;
     drag_ = false;
     ImGui::SetNextWindowSize(ImVec2(1024, 700), ImGuiCond_FirstUseEver);
     ImGui::Begin(title_.c_str(), &visible_);
@@ -467,6 +499,17 @@ bool MultiMap::Draw() {
 
     if (mcfg_->continuous_converge() && !(drag_ && mcfg_->pause_converge()))
         graph_.Compute(1.0/60.0);
+
+    // If this window's settings changed, update the shared template so
+    // windows opened later start from them.  Already-open windows are
+    // unaffected since each holds its own copy.  Node-layout changes are
+    // deliberately ignored here so converging/dragging does not disturb the
+    // settings other windows will inherit.
+    if (!SettingsEqual(cfg_, cfg_before)) {
+        MultiMapConfig& tmpl = (*ConfigLoader<SessionConfig>::MutableConfig()
+                                    ->mutable_multimap())[ConfigKey()];
+        CopySettings(cfg_, &tmpl);
+    }
 
     return false;
 }

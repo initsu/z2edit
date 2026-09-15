@@ -88,6 +88,7 @@ class Z2Edit: public ImApp {
     void SaveUiState();
     void RestoreRememberWindowPositions();
     void RestoreUiState();
+    void RestoreMultiMapConfig();
     void RestoreWindowGeometry();
     bool WindowGeometryVisible(int x, int y, int w, int h);
     std::vector<std::pair<const char*, ImWindowBase*>> UiWindowList();
@@ -125,6 +126,9 @@ class Z2Edit: public ImApp {
     std::string ui_primary_map_;
     std::vector<std::string> ui_spawned_maps_;
     std::vector<std::string> ui_multimap_maps_;
+    // Serialized MultiMap settings template restored from ui_state.txt,
+    // applied during LoadPostProcess (after any project load).
+    std::string ui_multimap_config_text_;
     // Saved program-window geometry; -1 means not present in ui_state.txt.
     int ui_window_x_ = -1;
     int ui_window_y_ = -1;

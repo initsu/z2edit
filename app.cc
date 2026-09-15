@@ -103,6 +103,7 @@ void Z2Edit::Init() {
     project_.set_cartridge(&cartridge_);
     project_.set_visible(true);
     RestoreRememberWindowPositions();
+    RestoreMultiMapConfig();
     if (remember_window_positions_) {
         RestoreUiState();
         RestoreWindowGeometry();
@@ -163,6 +164,19 @@ void Z2Edit::SaveUiState() {
                                 mm->start(), "\n");
             }
         }
+        // Persist the shared MultiMap settings template so newly-opened
+        // windows start from it after a restart.  The textproto is flattened
+        // onto a single line (newlines are insignificant).
+        const auto& sc = ConfigLoader<SessionConfig>::GetConfig();
+        auto it = sc.multimap().find(MultiMap::ConfigKey());
+        if (it != sc.multimap().end() && it->second.initialized()) {
+            std::string text;
+            (void)google::protobuf::TextFormat::PrintToString(it->second, &text);
+            absl::StrAppend(&data, "multimap config ", MultiMap::ConfigKey(), "=");
+            for (char c : text)
+                data += (c == '\n') ? ' ' : c;
+            data += '\n';
+        }
     }
     absl::StrAppend(&data, "remember_window_positions=",
                     remember_window_positions_ ? "1" : "0", "\n");
@@ -186,6 +200,24 @@ void Z2Edit::RestoreRememberWindowPositions() {
         if (absl::StartsWith(l, "remember_window_positions=")) {
             remember_window_positions_ = l.substr(26) == "1";
             break;
+        }
+    }
+}
+
+void Z2Edit::RestoreMultiMapConfig() {
+    std::string data;
+    std::string path = os::path::Join({os::path::DataPath(), "ui_state.txt"});
+    if (!File::GetContents(path, &data)) {
+        return;
+    }
+    for (const auto& line : absl::StrSplit(data, '\n', absl::SkipEmpty())) {
+        const std::string l(absl::StripAsciiWhitespace(line));
+        if (absl::StartsWith(l, "multimap config ")) {
+            std::string rest = l.substr(16);
+            size_t eq = rest.find('=');
+            if (eq != std::string::npos) {
+                ui_multimap_config_text_ = rest.substr(eq + 1);
+            }
         }
     }
 }
@@ -316,6 +348,16 @@ void Z2Edit::LoadPostProcess(int movekeepout) {
             break;
         }
     }
+    }
+    // Apply the MultiMap settings template restored from the last session,
+    // unless the loaded project already provides one.
+    if (!ui_multimap_config_text_.empty()) {
+        auto& tmpl = (*ConfigLoader<SessionConfig>::MutableConfig()
+                          ->mutable_multimap())[MultiMap::ConfigKey()];
+        if (!tmpl.initialized()) {
+            (void)google::protobuf::TextFormat::ParseFromString(
+                ui_multimap_config_text_, &tmpl);
+        }
     }
     for (const auto& spec : ui_multimap_maps_) {
         int w = 0, o = 0, s = 0, st = 0;
