@@ -102,8 +102,15 @@ void Z2Edit::Init() {
     editor_.reset(z2util::Editor::New());
     project_.set_cartridge(&cartridge_);
     project_.set_visible(true);
-    RestoreUiState();
-    RestoreWindowGeometry();
+    RestoreRememberWindowPositions();
+    if (remember_window_positions_) {
+        RestoreUiState();
+        RestoreWindowGeometry();
+    }
+    ini_path_ = os::path::Join({os::path::DataPath(), "imgui.ini"});
+    ImGui::GetIO().IniFilename = remember_window_positions_
+                                     ? ini_path_.c_str()
+                                     : nullptr;
     for (const auto& w : UiWindowList()) {
         auto it = ui_visibility_.find(w.first);
         if (it != ui_visibility_.end()) {
@@ -157,11 +164,30 @@ void Z2Edit::SaveUiState() {
             }
         }
     }
-    int wx = 0, wy = 0, ww = 0, wh = 0;
-    GetWindowGeometry(&wx, &wy, &ww, &wh);
-    absl::StrAppend(&data, "window x=", wx, " y=", wy,
-                    " width=", ww, " height=", wh, "\n");
+    absl::StrAppend(&data, "remember_window_positions=",
+                    remember_window_positions_ ? "1" : "0", "\n");
+    if (remember_window_positions_) {
+        int wx = 0, wy = 0, ww = 0, wh = 0;
+        GetWindowGeometry(&wx, &wy, &ww, &wh);
+        absl::StrAppend(&data, "window x=", wx, " y=", wy,
+                        " width=", ww, " height=", wh, "\n");
+    }
     File::SetContents(path, data);
+}
+
+void Z2Edit::RestoreRememberWindowPositions() {
+    std::string data;
+    std::string path = os::path::Join({os::path::DataPath(), "ui_state.txt"});
+    if (!File::GetContents(path, &data)) {
+        return;
+    }
+    for (const auto& line : absl::StrSplit(data, '\n', absl::SkipEmpty())) {
+        const std::string l(absl::StripAsciiWhitespace(line));
+        if (absl::StartsWith(l, "remember_window_positions=")) {
+            remember_window_positions_ = l.substr(26) == "1";
+            break;
+        }
+    }
 }
 
 void Z2Edit::RestoreUiState() {
@@ -1334,6 +1360,12 @@ export_as:
                             &object_table_->visible());
             ImGui::MenuItem("Rom Memory", nullptr,
                             &rom_memory_->visible());
+            ImGui::Separator();
+            ImGui::Checkbox("Remember Window Positions",
+                            &remember_window_positions_);
+            ImGui::GetIO().IniFilename = remember_window_positions_
+                                             ? ini_path_.c_str()
+                                             : nullptr;
             ImGui::EndMenu();
         }
         if (ImGui::BeginMenu("Help")) {

@@ -86,6 +86,7 @@ class Z2Edit: public ImApp {
 
     // Persist widget visibility and the currently-loaded SimpleMap(s).
     void SaveUiState();
+    void RestoreRememberWindowPositions();
     void RestoreUiState();
     void RestoreWindowGeometry();
     bool WindowGeometryVisible(int x, int y, int w, int h);
@@ -129,6 +130,9 @@ class Z2Edit: public ImApp {
     int ui_window_y_ = -1;
     int ui_window_width_ = -1;
     int ui_window_height_ = -1;
+    bool remember_window_positions_ = true;
+    // Location of imgui.ini
+    std::string ini_path_;
 };
 
 }  // namespace z2util
