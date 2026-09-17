@@ -23,6 +23,8 @@ ImApp::ImApp(const std::string& name, int width, int height)
     running_(true)
 {
     singleton_ = this;
+    // SDL3 disables the screen saver / holds the display awake by default
+    SDL_SetHint(SDL_HINT_VIDEO_ALLOW_SCREENSAVER, "1");
     SDL_Init(SDL_INIT_VIDEO |
              SDL_INIT_AUDIO |
              SDL_INIT_JOYSTICK |
