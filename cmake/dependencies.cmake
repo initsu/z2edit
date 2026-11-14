@@ -118,7 +118,7 @@ set(ZLIB_BUILD_STATIC ON CACHE BOOL "" FORCE)
 CPMAddPackage(
   NAME zlib
   GIT_REPOSITORY https://github.com/madler/zlib.git
-  GIT_TAG v1.3.2
+  GIT_TAG v1.4
 )
 if(TARGET ZLIB::ZLIB)
   # provided by zlib itself
@@ -156,7 +156,7 @@ set(SDL_TRAY OFF CACHE BOOL "" FORCE)
 CPMAddPackage(
   NAME sdl3
   GIT_REPOSITORY https://github.com/libsdl-org/SDL.git
-  GIT_TAG release-3.4.16
+  GIT_TAG release-3.4.20
 )
 if(NOT TARGET SDL3::SDL3)
   if(TARGET SDL3-static)
@@ -185,7 +185,7 @@ set(absl_DIR "${absl_BINARY_DIR}")
 CPMAddPackage(
   NAME protobuf
   GIT_REPOSITORY https://github.com/protocolbuffers/protobuf.git
-  GIT_TAG v36.1
+  GIT_TAG v36.2
 )
 if(NOT TARGET protobuf::libprotobuf)
   add_library(protobuf::libprotobuf ALIAS libprotobuf)
@@ -198,7 +198,7 @@ endif()
 CPMAddPackage(
   NAME imgui
   GIT_REPOSITORY https://github.com/ocornut/imgui.git
-  GIT_TAG v1.92.9b
+  GIT_TAG v1.93.0
   DOWNLOAD_ONLY YES
 )
 add_library(imgui STATIC
