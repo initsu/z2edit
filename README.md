@@ -8,8 +8,12 @@ This is a modified z2edit to:
   - The same works for the enemy tab in the Sideview Editor.
 
 Notes on using emulate:
-- All the proper values for locations etc. will absolutely not be set.
+- **File > Emulate** launches a temporary copy of the current ROM. The room
+  and connector **Emulate** buttons set a starting location on a best-effort
+  basis. Start a new game from the title screen to apply it.
 - Shuffling palace index/region ("Allow Palaces to Swap Continents") will break things. Don't do that if you want to edit the palaces.
 - Your best bet is to start with Vanilla palaces with Full length as a base Z2R ROM.
+
+See [BUILD-WINDOWS.md](BUILD-WINDOWS.md) for build instructions.
 
 Original Z2edit repository is at: https://github.com/cfrantz/z2edit
