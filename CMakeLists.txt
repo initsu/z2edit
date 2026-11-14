@@ -106,12 +106,13 @@ endif()
 # version.h  (build-time, like bazel's workspace status)
 # ---------------------------------------------------------------------------
 set(Z2EDIT_VERSION_H "${Z2EDIT_GENDIR}/version.h")
-add_custom_command(
-  OUTPUT ${Z2EDIT_VERSION_H}
-  COMMAND ${CMAKE_COMMAND} -DSRC=${PROJECT_SOURCE_DIR} -DOUT=${Z2EDIT_VERSION_H} -P ${PROJECT_SOURCE_DIR}/cmake/MakeVersion.cmake
-  COMMENT "Generating version.h"
+# Git tags and worktree status can change between incremental builds.
+add_custom_target(version_h
+  BYPRODUCTS "${Z2EDIT_VERSION_H}"
+  COMMAND ${CMAKE_COMMAND} "-DSRC=${PROJECT_SOURCE_DIR}" "-DOUT=${Z2EDIT_VERSION_H}" -P "${PROJECT_SOURCE_DIR}/cmake/MakeVersion.cmake"
+  COMMENT "Checking Git version"
+  VERBATIM
 )
-add_custom_target(version_h DEPENDS ${Z2EDIT_VERSION_H})
 
 # ---------------------------------------------------------------------------
 # zelda2_config.h  (pack_config < zelda2.textpb + content/*.textpb)
@@ -154,6 +155,7 @@ endif()
 # ---------------------------------------------------------------------------
 add_library(z2edit_app STATIC app.cc app.h)
 z2edit_setup(z2edit_app)
+add_dependencies(z2edit_app version_h)
 set_source_files_properties(app.cc APPEND PROPERTY OBJECT_DEPENDS ${Z2EDIT_VERSION_H})
 target_link_libraries(z2edit_app PUBLIC
   z2edit::base

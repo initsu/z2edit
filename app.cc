@@ -1440,7 +1440,7 @@ export_as:
                 ErrorDialog::Spawn("About Z2Edit",
                     "Z2Edit Zelda II ROM Editor\n\n",
 #ifdef BUILD_GIT_VERSION
-                    "Version: ", BUILD_GIT_VERSION, "-", BUILD_SCM_STATUS
+                    "Version: ", BUILD_GIT_VERSION
 #else
                     "Version: Unknown"
 #warning "Built without version stamp"
