@@ -44,6 +44,13 @@ class MapCommand {
     inline void set_relx(int x) { data_.x = x; }
     inline int relx() const { return data_.x; }
     inline uint8_t object() const { return object_; }
+    // Elevators are "extra" objects (y==15) with id 0x5X.
+    inline bool is_elevator() const {
+        return data_.y == 15 && (object_ & 0xF0) == 0x50;
+    }
+    // Z2R's elevator start Y: the low nibble of the command is the height
+    // param and the elevator starts at $98 - 8*param (vanilla always $98).
+    inline int elevator_y() const { return 0x98 - 8 * (object_ & 0x0F); }
     inline void set_show_origin(bool s) { show_origin_ = s; }
     static void Init();
   private:

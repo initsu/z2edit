@@ -24,6 +24,11 @@ class Z2Decompress {
     inline uint8_t item(int x, int y) const {
         return type() == MapType::OVERWORLD ? 0xFF: items_[y][x];
     }
+    // Low nibble of the command that placed the item (Z2R uses it as the
+    // elevator's start height).
+    inline uint8_t item_param(int x, int y) const {
+        return item_param_[y][x];
+    }
 
     inline void set_map(int x, int y, uint8_t val) {
         if (x >= 0 && y >= 0 && x < width_ && y < height_) {
@@ -102,6 +107,7 @@ class Z2Decompress {
     Mapper* mapper_;
     uint8_t map_[8][128][64];
     uint8_t items_[16][64];
+    uint8_t item_param_[16][64] = {};
     Map compressed_map_;
 
     uint8_t flags_;

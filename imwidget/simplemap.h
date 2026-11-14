@@ -31,6 +31,8 @@ class SimpleMap: public ImWindowBase {
     void RenderToBuffer(GLBitmap *buffer);
     std::unique_ptr<GLBitmap> RenderToNewBuffer();
   private:
+    int ItemYOffset(int x, int y, uint8_t item) const;
+
     bool changed_;
     bool object_box_;
     bool enemy_box_;

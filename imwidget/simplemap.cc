@@ -84,6 +84,11 @@ SimpleMap* SimpleMap::Spawn(Mapper* m, const Map& map, int startscreen) {
     return sm;
 }
 
+int SimpleMap::ItemYOffset(int x, int y, uint8_t item) const {
+    // Align the elevator sprite at param 0, then lift it 8 px per Z2R step.
+    return item == ELEVATOR ? 9 - 8 * decomp_.item_param(x, y) : 0;
+}
+
 void SimpleMap::DrawMap(const ImVec2& pos) {
     float size = 16.0 * scale_;
     auto* draw = ImGui::GetWindowDrawList();
@@ -100,7 +105,8 @@ void SimpleMap::DrawMap(const ImVec2& pos) {
             uint8_t item = decomp_.item(x, y);
             if (item != 0xFF) {
                 auto& sprite = items_.Get(item);
-                sprite.DrawAt(pos.x + x*size, pos.y + y*size, scale_);
+                float dy = ItemYOffset(x, y, item) * scale_;
+                sprite.DrawAt(pos.x + x*size, pos.y + y*size + dy, scale_);
                 if (item != ELEVATOR && !avail_.get(x) && avail_.show()) {
                     float rx = sprite.width() * scale_ / 2.0;
                     float ry = sprite.height() * scale_ / 2.0;
@@ -143,7 +149,8 @@ void SimpleMap::RenderToBuffer(GLBitmap *buffer) {
             uint8_t item = decomp_.item(x, y);
             if (item != 0xFF) {
                 auto& sprite = items_.Get(item);
-                buffer->Blit(x*size, y*size, sprite.width(), sprite.height(),
+                int dy = ItemYOffset(x, y, item);
+                buffer->Blit(x*size, y*size + dy, sprite.width(), sprite.height(),
                              sprite.data());
             }
         }

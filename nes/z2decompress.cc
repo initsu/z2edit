@@ -39,6 +39,7 @@ void Z2Decompress::Clear() {
     cursor_moves_left_ = false;
     memset(map_, 0, sizeof(map_));
     memset(items_, 0xFF, sizeof(items_));
+    memset(item_param_, 0, sizeof(item_param_));
 }
 
 void Z2Decompress::Decompress(const Map& map) {

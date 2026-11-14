@@ -174,6 +174,9 @@ void Z2Decompress::RenderItem(int x, int y, uint8_t item,
     if (info->fixed_y()) y = info->fixed_y();
     if (x >= 0 && y >= 0 && x < width_ && y < height_) {
         items_[y][x] = info->objid(0);
+        // The low nibble is the command's parameter; Z2R turns it into the
+        // elevator's start height, so keep it for the sideview editor.
+        item_param_[y][x] = item & 0x0F;
     }
 }
 

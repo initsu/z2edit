@@ -216,6 +216,10 @@ bool MapCommand::Draw(bool abscoord, bool popup) {
             ImGui::PopItemWidth();
             extra_ = data_.extra;
         }
+        if (is_elevator()) {
+            ImGui::Text("elevator y: 0x%02x (param %d)",
+                        elevator_y(), object_ & 0x0F);
+        }
     }
     ImGui::PopItemWidth();
     ImGui::PopID();
@@ -262,7 +266,13 @@ MapCommand::DrawResult MapCommand::DrawPopup(float scale) {
     ImGui::SetCursorPos(ImVec2(pos.x + data_.absx * size, pos.y + yp * size));
     ImGui::InvisibleButton("button", ImVec2(size, size));
     if (ImGui::IsItemHovered()) {
-        ImGui::SetTooltip("%s", summary_ ? summary_ : "unknown");
+        if (is_elevator()) {
+            ImGui::SetTooltip("%s\nelevator y: 0x%02x (param %d)",
+                              summary_ ? summary_ : "unknown",
+                              elevator_y(), object_ & 0x0F);
+        } else {
+            ImGui::SetTooltip("%s", summary_ ? summary_ : "unknown");
+        }
         int delta = int(ImGui::GetIO().MouseWheel);
         if (delta && (object_ & 0xF0) != 0) {
             data_.param = object_ & 0x0F;
