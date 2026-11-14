@@ -102,7 +102,8 @@ void Z2Edit::Init() {
     editor_.reset(z2util::Editor::New());
     project_.set_cartridge(&cartridge_);
     project_.set_visible(true);
-    RestoreRememberWindowPositions();
+    ImGui::GetStyle().Colors[ImGuiCol_WindowBg] = ImVec4(0.0f, 0.0f, 0.0f, 0.9f);
+    RestoreUiPreferences();
     RestoreMultiMapConfig();
     if (remember_window_positions_) {
         RestoreUiState();
@@ -178,6 +179,9 @@ void Z2Edit::SaveUiState() {
             data += '\n';
         }
     }
+    const ImVec4& background = ImGui::GetStyle().Colors[ImGuiCol_WindowBg];
+    absl::StrAppend(&data, "window_background=", background.x, " ", background.y,
+                    " ", background.z, " ", background.w, "\n");
     absl::StrAppend(&data, "remember_window_positions=",
                     remember_window_positions_ ? "1" : "0", "\n");
     if (remember_window_positions_) {
@@ -189,7 +193,7 @@ void Z2Edit::SaveUiState() {
     File::SetContents(path, data);
 }
 
-void Z2Edit::RestoreRememberWindowPositions() {
+void Z2Edit::RestoreUiPreferences() {
     std::string data;
     std::string path = os::path::Join({os::path::DataPath(), "ui_state.txt"});
     if (!File::GetContents(path, &data)) {
@@ -199,7 +203,17 @@ void Z2Edit::RestoreRememberWindowPositions() {
         const std::string l(absl::StripAsciiWhitespace(line));
         if (absl::StartsWith(l, "remember_window_positions=")) {
             remember_window_positions_ = l.substr(26) == "1";
-            break;
+        } else if (absl::StartsWith(l, "window_background=")) {
+            ImVec4 background;
+            if (std::sscanf(l.c_str(), "window_background=%f %f %f %f",
+                            &background.x, &background.y, &background.z,
+                            &background.w) == 4 &&
+                background.x >= 0.0f && background.x <= 1.0f &&
+                background.y >= 0.0f && background.y <= 1.0f &&
+                background.z >= 0.0f && background.z <= 1.0f &&
+                background.w >= 0.0f && background.w <= 1.0f) {
+                ImGui::GetStyle().Colors[ImGuiCol_WindowBg] = background;
+            }
         }
     }
 }
@@ -1424,6 +1438,12 @@ export_as:
                 ShowWidget(object_table_.get());
             if (ImGui::MenuItem("Rom Memory", nullptr, rom_memory_->visible()))
                 ShowWidget(rom_memory_.get());
+            ImGui::Separator();
+            ImVec4& background = ImGui::GetStyle().Colors[ImGuiCol_WindowBg];
+            ImGui::SetNextItemWidth(9.0f * ImGui::GetFontSize());
+            ImGui::ColorEdit4("Window Background Color", &background.x,
+                              ImGuiColorEditFlags_DisplayHex |
+                              ImGuiColorEditFlags_AlphaBar);
             ImGui::Separator();
             ImGui::Checkbox("Remember Window Positions",
                             &remember_window_positions_);

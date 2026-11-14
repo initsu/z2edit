@@ -87,7 +87,7 @@ class Z2Edit: public ImApp {
 
     // Persist widget visibility and the currently-loaded SimpleMap(s).
     void SaveUiState();
-    void RestoreRememberWindowPositions();
+    void RestoreUiPreferences();
     void RestoreUiState();
     void RestoreMultiMapConfig();
     void RestoreWindowGeometry();
