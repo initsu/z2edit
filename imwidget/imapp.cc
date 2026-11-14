@@ -46,6 +46,9 @@ ImApp::ImApp(const std::string& name, int width, int height)
     (void)File::MakeDirs(os::path::DataPath());
     ImGuiIO& io = ImGui::GetIO(); (void)io;
     io.IniFilename = ini_filename_.c_str();
+    // Only allow moving windows by their title bar, so dragging inside a
+    // widget's canvas (e.g. the sideview editor) doesn't move the window.
+    io.ConfigWindowsMoveFromTitleBarOnly = true;
     ImGui_ImplSdl_SetHiDPIScale(FLAGS_hidpi);
     ImGui_ImplSDL3_InitForOpenGL(window_, glcontext_);
     ImGui_ImplOpenGL3_Init(nullptr);
