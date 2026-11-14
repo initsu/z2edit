@@ -23,6 +23,7 @@ class ImApp {
     virtual void Init() {}
     virtual bool PreDraw() { return false; }
     virtual void Draw() {}
+    virtual void AfterDraw() {}
     virtual void ProcessEvent(SDL_Event* event) {}
     virtual void Help(const std::string& topickey) {}
 

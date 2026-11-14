@@ -1471,8 +1471,11 @@ export_as:
         DrawWidget(experience_table_.get());
         DrawWidget(&project_);
     }
+}
 
+void Z2Edit::AfterDraw() {
     if (!loaded_) {
+        // Let the first frame reach the screen before the native picker blocks.
         char *filename = nullptr;
         auto result = NFD_OpenDialog("z2prj,nes", nullptr, &filename);
         if (result == NFD_OKAY) {

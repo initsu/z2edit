@@ -174,6 +174,7 @@ void ImApp::BaseDraw() {
         draw_callback_.emplace_back(std::move(widget));
     }
     draw_added_.clear();
+    AfterDraw();
 }
 
 
